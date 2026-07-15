@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { AuthContext } from "./config/AuthContext";
 import checkUser from "./config/checkUser";
-import styles from "./features/blog-public/post.module.css";
 
 export default function AuthProvider({ children }) {
   const [accessToken, setAccessToken] = useState(null);
@@ -45,8 +44,8 @@ export default function AuthProvider({ children }) {
       value={{ accessToken, userId, updateAccessToken, isAuthenticating }}
     >
       {isAuthenticating ? (
-        <div className={styles.loaderContainer}>
-          <div className={styles.loader}></div>
+        <div>
+          <div></div>
         </div>
       ) : (
         children
