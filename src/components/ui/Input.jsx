@@ -1,12 +1,6 @@
-export default function Input({
-  label,
-  id,
-  wrapperClassName = "",
-  inputClassName = "",
-  ...props
-}) {
+export default function Input({ label, id, inputClassName = "", ...props }) {
   return (
-    <div className={wrapperClassName}>
+    <div>
       <label
         htmlFor={id}
         className="mb-2 block text-sm font-medium text-gray-700"
