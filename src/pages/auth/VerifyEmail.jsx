@@ -20,12 +20,12 @@ export default function VerifyEmail() {
             headers: {
               "Content-type": "application/json",
             },
-            body: JSON.stringify({ token: token }),
           },
         );
 
         const data = await response.json();
         if (!response.ok) {
+          console.log(data);
           setStatus("error");
           setMessage(data.message);
           return;

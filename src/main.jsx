@@ -7,6 +7,7 @@ import LoginForm from "./pages/auth/LoginForm.jsx";
 import AuthProvider from "./AuthProvider.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import VerifyEmail from "./pages/auth/VerifyEmail.jsx";
+import ResendVerificationEmail from "./pages/auth/ResendVerificationMail.jsx";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
   {
     path: "/verify-email",
     element: <VerifyEmail />,
+  },
+  {
+    path: "/resend-verification",
+    element: <ResendVerificationEmail />,
   },
 ]);
 
