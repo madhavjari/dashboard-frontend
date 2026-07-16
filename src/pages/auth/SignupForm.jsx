@@ -2,6 +2,7 @@ import { useState } from "react";
 import Card from "../../components/ui/Card";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
+import { useNavigate } from "react-router";
 
 export default function SignupForm() {
   const [formData, setFormData] = useState({
@@ -15,7 +16,7 @@ export default function SignupForm() {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -37,7 +38,8 @@ export default function SignupForm() {
         setErrors(data.errors);
         return;
       }
-      alert("Registered successful!");
+      alert(`${data.message}`);
+      navigate("/");
     } catch (err) {
       console.log("bjrnlb", err);
       setErrors(err.message);
