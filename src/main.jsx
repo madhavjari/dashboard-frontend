@@ -8,6 +8,8 @@ import AuthProvider from "./AuthProvider.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import VerifyEmail from "./pages/auth/VerifyEmail.jsx";
 import ResendVerificationEmail from "./pages/auth/ResendVerificationMail.jsx";
+import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
+import ResetPassword from "./pages/auth/ResetPassword.jsx";
 
 const router = createBrowserRouter([
   {
@@ -29,6 +31,14 @@ const router = createBrowserRouter([
   {
     path: "/resend-verification",
     element: <ResendVerificationEmail />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
+  },
+  {
+    path: "/password-reset",
+    element: <ResetPassword />,
   },
 ]);
 

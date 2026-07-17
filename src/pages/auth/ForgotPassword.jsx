@@ -4,7 +4,7 @@ import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import { useNavigate } from "react-router";
 
-export default function ResendVerificationEmail() {
+export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,7 +17,7 @@ export default function ResendVerificationEmail() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/resend-verification",
+        "http://localhost:5000/api/auth/forgot-password",
         {
           method: "POST",
           headers: {
@@ -50,11 +50,11 @@ export default function ResendVerificationEmail() {
       <Card>
         <header className="mb-8 text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">
-            Email Verification
+            Forgot Password?
           </p>
 
           <h1 className="mt-2 text-2xl font-bold text-gray-900">
-            Resend Verification Email
+            Recover your password
           </h1>
 
           <p className="mt-2 text-sm text-gray-500">

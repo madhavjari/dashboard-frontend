@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 
 import useAuth from "../../config/useAuth";
 import Card from "../../components/ui/Card";
@@ -135,6 +135,7 @@ export default function LoginForm() {
             Login
           </Button>
         </form>
+        <Link to="/forgot-password">Forgot Password?</Link>
       </Card>
     </div>
   );

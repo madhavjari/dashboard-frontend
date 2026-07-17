@@ -1,21 +1,10 @@
 import "./App.css";
-import { Link } from "react-router";
-import useAuth from "./config/useAuth";
+import Navbar from "./Navbar";
 
 function App() {
-  const { userId } = useAuth();
-  return userId ? (
-    <div>
-      <Link to="/logout">Logout</Link>
-    </div>
-  ) : (
+  return (
     <>
-      <div>
-        <Link to="/register"> Sign- up</Link>
-      </div>
-      <div>
-        <Link to="/login">Login </Link>
-      </div>
+      <Navbar />
     </>
   );
 }

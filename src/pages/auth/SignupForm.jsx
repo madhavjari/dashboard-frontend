@@ -20,7 +20,7 @@ export default function SignupForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setErrors(null);
+    setErrors({});
     const payload = {
       ...formData,
       phoneNumber: `+91${formData.phoneNumber}`,
