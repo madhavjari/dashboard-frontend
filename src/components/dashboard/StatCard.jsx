@@ -1,0 +1,16 @@
+export default function StatCard({
+  label,
+  value,
+  sub,
+  tone = "text-gray-900",
+}) {
+  return (
+    <div className="rounded-2xl bg-white p-5 shadow-sm border border-gray-100">
+      <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+        {label}
+      </p>
+      <p className={`mt-1 text-2xl font-bold ${tone}`}>{value}</p>
+      {sub && <p className="mt-1 text-xs text-gray-400">{sub}</p>}
+    </div>
+  );
+}

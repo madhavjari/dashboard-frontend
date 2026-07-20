@@ -10,6 +10,7 @@ import VerifyEmail from "./pages/auth/VerifyEmail.jsx";
 import ResendVerificationEmail from "./pages/auth/ResendVerificationMail.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
 import ResetPassword from "./pages/auth/ResetPassword.jsx";
+import SalesDashboard from "./pages/dashboard/SalesDashboard.jsx";
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
   {
     path: "/password-reset",
     element: <ResetPassword />,
+  },
+  {
+    path: "/sales-dashboard",
+    element: <SalesDashboard />,
   },
 ]);
 
