@@ -102,7 +102,12 @@ export default function SalesDashboard() {
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-8">
       <div className="mx-auto max-w-6xl">
-        <DashboardHeader summary={summary} />
+        <DashboardHeader
+          title1={summary.invoiceCount}
+          title2={summary.returnCount}
+          title3={"Customer Dashboard"}
+          textArray={["invoices", "returns"]}
+        />
 
         <DashboardSummary summary={summary} returnRate={returnRate} />
 

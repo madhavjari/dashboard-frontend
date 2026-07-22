@@ -40,8 +40,6 @@ export default function useSalesItemData() {
       cancelled = true;
     };
   }, []);
-
-  console.log("sum", summary);
   return {
     summary,
     topItems,
