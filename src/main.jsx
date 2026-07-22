@@ -12,6 +12,7 @@ import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
 import ResetPassword from "./pages/auth/ResetPassword.jsx";
 import SalesDashboard from "./pages/dashboard/SalesDashboard.jsx";
 import ItemSalesDashboard from "./pages/dashboard/ItemSalesDashboard.jsx";
+import CustomerDetailPage from "./pages/dashboard/CustomerDetailPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
   {
     path: "/itemwise-dashboard",
     element: <ItemSalesDashboard />,
+  },
+  {
+    path: "/customer",
+    element: <CustomerDetailPage />,
   },
 ]);
 
