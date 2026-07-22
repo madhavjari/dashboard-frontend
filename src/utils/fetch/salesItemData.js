@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 export default function useSalesItemData() {
   const [summary, setSummary] = useState(null);
   const [topItems, setItems] = useState([]);
+  const [returnItems, setReturnItems] = useState([]);
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("Loading dashboard...");
 
@@ -28,6 +29,7 @@ export default function useSalesItemData() {
 
         setSummary(data.summary ?? data);
         setItems(data.topItems ?? data ?? []);
+        setReturnItems(data.returnItems ?? data ?? []);
         setStatus("success");
       } catch (err) {
         if (cancelled) return;
@@ -43,6 +45,7 @@ export default function useSalesItemData() {
   return {
     summary,
     topItems,
+    returnItems,
     status,
     message,
     reload: () => setStatus("loading"),
