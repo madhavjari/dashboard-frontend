@@ -11,9 +11,9 @@ import {
   Tooltip,
 } from "recharts";
 
-export default function NetSales({ COLORS, customerChartData }) {
+export default function NetSales({ COLORS, customerChartData, context }) {
   return (
-    <ChartCard title="Net Sales by Party">
+    <ChartCard title={`Net ${context} by Party`}>
       <ResponsiveContainer width="100%" height={230}>
         <BarChart
           data={customerChartData}
@@ -38,8 +38,8 @@ export default function NetSales({ COLORS, customerChartData }) {
           />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: "#f1f5f9" }} />
           <Bar
-            dataKey="netSales"
-            name="Net Sales"
+            dataKey="netAmount"
+            name={`Net ${context}`}
             fill={COLORS.green}
             radius={[0, 6, 6, 0]}
             maxBarSize={34}

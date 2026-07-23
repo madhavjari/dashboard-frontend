@@ -1,6 +1,7 @@
 import { fmtINR } from "../../../utils/format";
+import { Link } from "react-router";
 
-export default function PartyWiseRegister({ customers }) {
+export default function PartyWiseRegister({ customers, context }) {
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm border border-gray-100">
       <h3 className="mb-3 text-sm font-semibold text-gray-900">
@@ -12,31 +13,35 @@ export default function PartyWiseRegister({ customers }) {
             <tr className="border-b border-gray-200 text-left text-xs uppercase text-gray-500">
               <th className="py-2">Party</th>
               <th className="py-2 text-right">Invoices</th>
-              <th className="py-2 text-right">Sales</th>
+              <th className="py-2 text-right">{context}</th>
               <th className="py-2 text-right">Returns</th>
-              <th className="py-2 text-right">Net Sales</th>
+              <th className="py-2 text-right">Net {context}</th>
             </tr>
           </thead>
           <tbody>
             {customers.length === 0 ? (
               <p className="py-8 text-center text-sm text-gray-500">
-                No customer sales data available.
+                No customer {context.toLowerCase()} data available.
               </p>
             ) : (
               customers.map((c) => (
                 <tr key={c.party} className="border-b border-gray-100">
-                  <td className="py-2 font-medium text-gray-900">{c.party}</td>
+                  <td className="py-2 font-medium text-gray-900">
+                    <Link to={`/customer?party=${c.party}`} target="_blank">
+                      {c.party}
+                    </Link>
+                  </td>
                   <td className="py-2 text-right text-gray-700">
                     {c.invoiceCount}
                   </td>
                   <td className="py-2 text-right text-gray-700">
-                    {fmtINR(c.salesAmount)}
+                    {fmtINR(c.grossAmount)}
                   </td>
                   <td className="py-2 text-right text-gray-700">
                     {fmtINR(c.returnAmount)}
                   </td>
                   <td className="py-2 text-right text-gray-700">
-                    {fmtINR(c.netSales)}
+                    {fmtINR(c.netAmount)}
                   </td>
                 </tr>
               ))

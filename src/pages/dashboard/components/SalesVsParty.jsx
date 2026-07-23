@@ -13,9 +13,9 @@ import {
   Line,
 } from "recharts";
 
-export default function SalesVsParty({ COLORS, customerChartData }) {
+export default function SalesVsParty({ COLORS, customerChartData, context }) {
   return (
-    <ChartCard title="Sales vs Returns by Party">
+    <ChartCard title={`${context} vs Returns by Party`}>
       <ResponsiveContainer width="100%" height={230}>
         <ComposedChart
           data={customerChartData}
@@ -49,8 +49,8 @@ export default function SalesVsParty({ COLORS, customerChartData }) {
           <Legend wrapperStyle={{ fontSize: 11 }} />
           <Bar
             yAxisId="left"
-            dataKey="salesAmount"
-            name="Sales"
+            dataKey="grossAmount"
+            name={context}
             fill={COLORS.ink}
             radius={[6, 6, 0, 0]}
             maxBarSize={36}

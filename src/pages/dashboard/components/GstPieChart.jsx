@@ -10,16 +10,16 @@ import {
 import CustomTooltip from "../../../components/dashboard/CustomTooltip";
 import ChartCard from "../../../components/dashboard/ChartCard";
 
-export default function GstPieChart({ taxView, setTaxView, pieData }) {
+export default function GstPieChart({ taxView, setTaxView, pieData, context }) {
   return (
     <ChartCard
       title="GST Composition"
       action={
         <div className="flex gap-1 rounded-full bg-gray-100 p-1 text-xs">
           <button
-            onClick={() => setTaxView("sales")}
+            onClick={() => setTaxView(`${context}`)}
             className={`rounded-full px-3 py-1 font-medium transition ${
-              taxView === "sales" ? "bg-blue-600 text-white" : "text-gray-500"
+              taxView === context ? "bg-blue-600 text-white" : "text-gray-500"
             }`}
           >
             Sales

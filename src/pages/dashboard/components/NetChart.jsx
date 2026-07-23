@@ -13,12 +13,12 @@ import CustomTooltip from "../../../components/dashboard/CustomTooltip";
 
 import ChartCard from "../../../components/dashboard/ChartCard";
 
-export default function NetChart({ COLORS, salesVsReturns }) {
+export default function NetChart({ COLORS, contextVsReturns }) {
   return (
     <ChartCard title="Gross · Returns · Net">
       <ResponsiveContainer width="100%" height={230}>
         <BarChart
-          data={salesVsReturns}
+          data={contextVsReturns}
           margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
         >
           <CartesianGrid stroke={COLORS.grid} vertical={false} />
@@ -42,7 +42,7 @@ export default function NetChart({ COLORS, salesVsReturns }) {
             radius={[6, 6, 0, 0]}
             maxBarSize={70}
           >
-            {salesVsReturns.map((d) => (
+            {contextVsReturns.map((d) => (
               <Cell key={d.label} fill={d.fill} />
             ))}
           </Bar>

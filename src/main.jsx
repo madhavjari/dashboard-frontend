@@ -10,9 +10,10 @@ import VerifyEmail from "./pages/auth/VerifyEmail.jsx";
 import ResendVerificationEmail from "./pages/auth/ResendVerificationMail.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
 import ResetPassword from "./pages/auth/ResetPassword.jsx";
-import SalesDashboard from "./pages/dashboard/SalesDashboard.jsx";
+import SummaryDashboard from "./pages/dashboard/SummaryDashboard.jsx";
 import ItemSalesDashboard from "./pages/dashboard/ItemSalesDashboard.jsx";
 import CustomerDetailPage from "./pages/dashboard/CustomerDetailPage.jsx";
+import useSalesData from "./utils/fetch/salesData.js";
 
 const router = createBrowserRouter([
   {
@@ -45,7 +46,13 @@ const router = createBrowserRouter([
   },
   {
     path: "/sales-dashboard",
-    element: <SalesDashboard />,
+    element: (
+      <SummaryDashboard
+        header={"Sales Dashboard"}
+        context={"Sales"}
+        useData={useSalesData}
+      />
+    ),
   },
   {
     path: "/itemwise-dashboard",

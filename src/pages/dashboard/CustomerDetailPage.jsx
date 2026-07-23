@@ -28,6 +28,11 @@ export default function CustomerDetailPage() {
       maximumFractionDigits: digits,
     }).format(n);
   }
+  function getQuantity(t) {
+    if (t.per === "W") return t.weight;
+    if (t.per === "M") return t.meters;
+    return t.pcs;
+  }
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -88,15 +93,15 @@ export default function CustomerDetailPage() {
                     className="border-b border-slate-50 hover:bg-slate-50/60"
                   >
                     <td className="px-5 py-3">
-                      {new Date(t.bill_date).toLocaleDateString()}
+                      {new Date(t.billDate).toLocaleDateString()}
                     </td>
                     <td className="px-5 py-3 font-mono">{t.billNo}</td>
                     <td className="px-5 py-3">{t.itemName}</td>
                     <td className="px-5 py-3 text-right font-mono">
-                      {fmtNumber(t.quantity, 1)} {t.per}
+                      {fmtNumber(getQuantity(t), 1)} {t.per}
                     </td>
                     <td className="px-5 py-3 text-right font-mono">
-                      {fmtINR(t.netAmount)}
+                      {fmtINR(t.totalAmount)}
                     </td>
                     <td className="px-5 py-3 text-center">
                       <span

@@ -1,6 +1,4 @@
 import { useState } from "react";
-
-import useSalesData from "../../utils/fetch/salesData";
 import DashboardHeader from "./components/DashboardHeader";
 import DashboardSummary from "./components/DashboardSummary";
 import NetChart from "./components/NetChart";
@@ -19,15 +17,15 @@ const COLORS = {
   grid: "#e2e8f0",
 };
 
-export default function SalesDashboard() {
-  const { summary, customers, status, message, reload } = useSalesData();
-  const [taxView, setTaxView] = useState("sales");
+export default function SummaryDashboard({ header, context, useData }) {
+  const { summary, customers, status, message, reload } = useData();
+  const [taxView, setTaxView] = useState(context);
 
   if (status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
         <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-xl">
-          <h1 className="text-2xl font-bold text-gray-900">Sales Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{header}</h1>
           <div className="mt-6">
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
             <p className="text-blue-600">{message}</p>
@@ -41,7 +39,7 @@ export default function SalesDashboard() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
         <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-xl">
-          <h1 className="text-2xl font-bold text-gray-900">Sales Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{header}</h1>
           <div className="mt-6">
             <p className="text-red-600">{message}</p>
             <button
@@ -56,46 +54,46 @@ export default function SalesDashboard() {
     );
   }
 
-  const returnRate = summary.grossSales
-    ? ((summary.returns / summary.grossSales) * 100).toFixed(2)
+  const returnRate = summary.grossAmount
+    ? ((summary.returns / summary.grossAmount) * 100).toFixed(2)
     : "0.00";
 
-  const salesVsReturns = [
-    { label: "Gross Sales", value: summary.grossSales, fill: COLORS.ink },
+  const contextVsReturns = [
+    { label: `Gross ${context}`, value: summary.grossAmount, fill: COLORS.ink },
     { label: "Returns", value: summary.returns, fill: COLORS.red },
-    { label: "Net Sales", value: summary.netSales, fill: COLORS.green },
+    { label: `Net ${context}`, value: summary.netAmount, fill: COLORS.green },
   ];
 
   const gstRows = [
     {
       label: "CGST",
-      sales: summary.cgstSales,
-      returns: summary.cgstSalesReturn,
+      context: summary.cgst,
+      returns: summary.cgstReturn,
     },
     {
       label: "SGST",
-      sales: summary.sgstSales,
-      returns: summary.sgstSalesReturn,
+      context: summary.sgst,
+      returns: summary.sgstReturn,
     },
     {
       label: "IGST",
-      sales: summary.igstSales,
-      returns: summary.igstSalesReturn,
+      context: summary.igst,
+      returns: summary.igstReturn,
     },
   ];
 
   const pieData = gstRows
     .map((r, i) => ({
       name: r.label,
-      value: taxView === "sales" ? r.sales : r.returns,
+      value: taxView === context ? r.context : r.returns,
       fill: [COLORS.blue, COLORS.green, COLORS.amber][i],
     }))
     .filter((d) => d.value > 0);
 
   const customerChartData = customers.map((c) => ({
     ...c,
-    returnRate: c.salesAmount
-      ? +((c.returnAmount / c.salesAmount) * 100).toFixed(1)
+    returnRate: c.grossAmount
+      ? +((c.returnAmount / c.grossAmount) * 100).toFixed(1)
       : 0,
   }));
 
@@ -105,29 +103,41 @@ export default function SalesDashboard() {
         <DashboardHeader
           title1={summary.invoiceCount}
           title2={summary.returnCount}
-          title3={"Customer Dashboard"}
-          textArray={["invoices", "returns"]}
+          title3={header}
         />
 
-        <DashboardSummary summary={summary} returnRate={returnRate} />
+        <DashboardSummary
+          summary={summary}
+          returnRate={returnRate}
+          context={context}
+        />
 
         <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <NetChart salesVsReturns={salesVsReturns} COLORS={COLORS} />
+          <NetChart contextVsReturns={contextVsReturns} COLORS={COLORS} />
           <GstPieChart
             taxView={taxView}
             setTaxView={setTaxView}
             pieData={pieData}
+            context={context}
           />
         </div>
 
-        <TaxBreakdown gstRows={gstRows} />
+        <TaxBreakdown gstRows={gstRows} context={context} />
 
         <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <NetSales COLORS={COLORS} customerChartData={customerChartData} />
-          <SalesVsParty COLORS={COLORS} customerChartData={customerChartData} />
+          <NetSales
+            COLORS={COLORS}
+            customerChartData={customerChartData}
+            context={context}
+          />
+          <SalesVsParty
+            COLORS={COLORS}
+            customerChartData={customerChartData}
+            context={context}
+          />
         </div>
 
-        <PartyWiseRegister customers={customers} />
+        <PartyWiseRegister customers={customers} context={context} />
       </div>
     </div>
   );
