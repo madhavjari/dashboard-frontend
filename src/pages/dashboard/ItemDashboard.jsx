@@ -14,6 +14,7 @@ import {
   Cell,
 } from "recharts";
 import { ArrowUpDown } from "lucide-react";
+import Loading from "../../components/dashboard/Loading";
 
 const COLORS = {
   ink: "#12162a",
@@ -50,7 +51,7 @@ function fmtQty(n) {
   return fmtNumber(n);
 }
 
-export default function ItemDashboard({ ITEMS_URL }) {
+export default function ItemDashboard({ ITEMS_URL, context }) {
   const { summary, topItems, message, reload, status } = useItemData(ITEMS_URL);
   const items = useMemo(
     () =>
@@ -104,35 +105,12 @@ export default function ItemDashboard({ ITEMS_URL }) {
   }, [items, sortKey, sortDir]);
 
   if (status === "loading") {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-        <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-xl">
-          <h1 className="text-2xl font-bold text-gray-900">Item Dashboard</h1>
-          <div className="mt-6">
-            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
-            <p className="text-blue-600">{message}</p>
-          </div>
-        </div>
-      </div>
-    );
+    return <Loading message={message} header={"Item Dashboard"} />;
   }
 
   if (status === "error") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-        <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-xl">
-          <h1 className="text-2xl font-bold text-gray-900">Item Dashboard</h1>
-          <div className="mt-6">
-            <p className="text-red-600">{message}</p>
-            <button
-              onClick={reload}
-              className="mt-6 rounded-lg bg-blue-600 px-5 py-2.5 font-semibold text-white transition hover:bg-blue-700"
-            >
-              Retry
-            </button>
-          </div>
-        </div>
-      </div>
+      <Error message={message} header={"Item Dashboard"} reload={reload} />
     );
   }
 
@@ -177,7 +155,7 @@ export default function ItemDashboard({ ITEMS_URL }) {
       <div className="mx-auto max-w-6xl">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">
-            Item Sales Register
+            Item {context} Register
           </h1>
           <p className="mt-1 text-sm text-gray-500">
             {summary.totalUniqueItems} SKUs · {fmtNumber(totalQuantity)} units
@@ -193,7 +171,7 @@ export default function ItemDashboard({ ITEMS_URL }) {
           sub="based on unit of measure"
         />
         <StatCard
-          label="Total Sales"
+          label={`Total ${context}`}
           value={fmtCompact(summary.totalTransaction)}
           sub={fmtINR(summary.totalTransaction)}
           tone="text-green-600"
@@ -214,7 +192,7 @@ export default function ItemDashboard({ ITEMS_URL }) {
       <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 ">
           <h3 className="font-display text-sm font-bold text-slate-900">
-            Revenue by Item
+            Transaction by Item
           </h3>
           <p className="mb-3 text-xs text-slate-500">
             Ranked highest to lowest
@@ -256,7 +234,7 @@ export default function ItemDashboard({ ITEMS_URL }) {
         </div>
         <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h3 className="font-display text-sm font-bold text-slate-900">
-            Sales Mix
+            {context} Mix
           </h3>
           <p className="mb-3 text-xs text-slate-500">By unit of measure</p>
           <ResponsiveContainer width="100%" height={300}>
@@ -337,7 +315,7 @@ export default function ItemDashboard({ ITEMS_URL }) {
                     </span>
                   </th>
                 ))}
-                <th className="px-5 py-3 text-right">% of Sales</th>
+                <th className="px-5 py-3 text-right">% of {context}</th>
                 <th className="px-5 py-3 text-right">Net Rate(inc. GST)</th>
               </tr>
             </thead>

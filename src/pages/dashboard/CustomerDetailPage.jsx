@@ -1,27 +1,17 @@
-import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router";
 import StatCard from "../../components/dashboard/StatCard";
 import { fmtCompact, fmtINR } from "../../utils/format";
+import ItemsChart from "./components/ItemsChart";
+import usePartyData from "../../utils/fetch/partyData";
+import Loading from "../../components/dashboard/Loading";
 
-export default function CustomerDetailPage() {
+export default function CustomerDetailPage({ PARTY_URL }) {
   const [searchParams] = useSearchParams();
   const party = searchParams.get("party");
-  const [transactions, setTransactions] = useState([]);
-  const [summary, setSummary] = useState({});
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!party) return;
-    fetch(
-      `http://localhost:5000/api/v1/reports/sales/customer?party=${encodeURIComponent(party)}`,
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        setTransactions(data.customerData);
-        setSummary(data.summary[0]);
-        setLoading(false);
-      });
-  }, [party]);
+  const { summary, transactions, status, message, reload } = usePartyData(
+    PARTY_URL,
+    party,
+  );
 
   function fmtNumber(n, digits = 0) {
     return new Intl.NumberFormat("en-IN", {
@@ -33,7 +23,13 @@ export default function CustomerDetailPage() {
     if (t.per === "M") return t.meters;
     return t.pcs;
   }
-  if (loading) return <div>Loading...</div>;
+  if (status === "loading")
+    return <Loading message={message} header={"Customer Summary"} />;
+
+  if (status === "error")
+    return (
+      <Error message={message} header={"Customer Summary"} reload={reload} />
+    );
 
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-8">
@@ -45,8 +41,8 @@ export default function CustomerDetailPage() {
         <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           <StatCard
             label="Total Sales"
-            value={fmtCompact(summary.salesAmount)}
-            sub={fmtINR(summary.salesAmount)}
+            value={fmtCompact(summary.grossAmount)}
+            sub={fmtINR(summary.grossAmount)}
             tone="text-green-600"
           />
           <StatCard
@@ -57,8 +53,8 @@ export default function CustomerDetailPage() {
           />
           <StatCard
             label="Net Sales"
-            value={fmtCompact(summary.netSales)}
-            sub={fmtINR(summary.netSales)}
+            value={fmtCompact(summary.netAmount)}
+            sub={fmtINR(summary.netAmount)}
           />
           <StatCard
             label="Invoices"
@@ -66,6 +62,7 @@ export default function CustomerDetailPage() {
             sub="total bills"
           />
         </div>
+        <ItemsChart transactions={transactions} />
 
         {/* Transaction Table */}
         <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-200/70">

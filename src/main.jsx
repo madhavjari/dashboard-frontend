@@ -15,6 +15,9 @@ import ItemDashboard from "./pages/dashboard/ItemDashboard.jsx";
 import CustomerDetailPage from "./pages/dashboard/CustomerDetailPage.jsx";
 import useData from "./utils/fetch/useData.js";
 
+const SALES_PARTYWISE_URL =
+  "http://localhost:5000/api/v1/reports/sales/customer?party=";
+
 const SALES_SUMMARY_URL =
   "http://localhost:5000/api/v1/reports/sales/KPI-Summary";
 const SALES_PARTY_URL = "http://localhost:5000/api/v1/reports/sales/customers";
@@ -72,15 +75,17 @@ const router = createBrowserRouter([
   },
   {
     path: "/sales-itemwise-dashboard",
-    element: <ItemDashboard ITEMS_URL={SALES_ITEMS_URL} />,
+    element: <ItemDashboard ITEMS_URL={SALES_ITEMS_URL} context={"Purchase"} />,
   },
   {
     path: "/purchase-itemwise-dashboard",
-    element: <ItemDashboard ITEMS_URL={PURCHASE_ITEMS_URL} />,
+    element: (
+      <ItemDashboard ITEMS_URL={PURCHASE_ITEMS_URL} context={"Purchase"} />
+    ),
   },
   {
     path: "/customer",
-    element: <CustomerDetailPage />,
+    element: <CustomerDetailPage PARTY_URL={SALES_PARTYWISE_URL} />,
   },
   {
     path: "/purchase-dashboard",
