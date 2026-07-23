@@ -18,6 +18,9 @@ import useData from "./utils/fetch/useData.js";
 const SALES_PARTYWISE_URL =
   "http://localhost:5000/api/v1/reports/sales/customer?party=";
 
+const PURCHASE_PARTYWISE_URL =
+  "http://localhost:5000/api/v1/reports/purchases/supplier?party=";
+
 const SALES_SUMMARY_URL =
   "http://localhost:5000/api/v1/reports/sales/KPI-Summary";
 const SALES_PARTY_URL = "http://localhost:5000/api/v1/reports/sales/customers";
@@ -86,6 +89,10 @@ const router = createBrowserRouter([
   {
     path: "/customer",
     element: <CustomerDetailPage PARTY_URL={SALES_PARTYWISE_URL} />,
+  },
+  {
+    path: "/supplier",
+    element: <CustomerDetailPage PARTY_URL={PURCHASE_PARTYWISE_URL} />,
   },
   {
     path: "/purchase-dashboard",

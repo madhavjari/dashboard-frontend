@@ -21,7 +21,7 @@ export default function usePartyData(PARTY_URL, party) {
 
         if (cancelled) return;
 
-        setTransactions(data.customerData);
+        setTransactions(data.data);
         setSummary(data.summary[0]);
         setStatus("success");
       } catch (err) {

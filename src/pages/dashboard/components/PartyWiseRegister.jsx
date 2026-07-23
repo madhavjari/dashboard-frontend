@@ -2,6 +2,7 @@ import { fmtINR } from "../../../utils/format";
 import { Link } from "react-router";
 
 export default function PartyWiseRegister({ party, context }) {
+  const dealer = context === "Sales" ? "customer" : "supplier";
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm border border-gray-100">
       <h3 className="mb-3 text-sm font-semibold text-gray-900">
@@ -27,7 +28,7 @@ export default function PartyWiseRegister({ party, context }) {
               party.map((c) => (
                 <tr key={c.party} className="border-b border-gray-100">
                   <td className="py-2 font-medium text-gray-900">
-                    <Link to={`/customer?party=${c.party}`} target="_blank">
+                    <Link to={`/${dealer}?party=${c.party}`} target="_blank">
                       {c.party}
                     </Link>
                   </td>
