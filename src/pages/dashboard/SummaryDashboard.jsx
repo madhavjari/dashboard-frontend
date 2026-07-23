@@ -17,8 +17,17 @@ const COLORS = {
   grid: "#e2e8f0",
 };
 
-export default function SummaryDashboard({ header, context, useData }) {
-  const { summary, customers, status, message, reload } = useData();
+export default function SummaryDashboard({
+  header,
+  context,
+  useData,
+  SUMMARY_URL,
+  PARTY_URL,
+}) {
+  const { summary, party, status, message, reload } = useData(
+    SUMMARY_URL,
+    PARTY_URL,
+  );
   const [taxView, setTaxView] = useState(context);
 
   if (status === "loading") {
@@ -90,7 +99,7 @@ export default function SummaryDashboard({ header, context, useData }) {
     }))
     .filter((d) => d.value > 0);
 
-  const customerChartData = customers.map((c) => ({
+  const customerChartData = party.map((c) => ({
     ...c,
     returnRate: c.grossAmount
       ? +((c.returnAmount / c.grossAmount) * 100).toFixed(1)
@@ -137,7 +146,7 @@ export default function SummaryDashboard({ header, context, useData }) {
           />
         </div>
 
-        <PartyWiseRegister customers={customers} context={context} />
+        <PartyWiseRegister party={party} context={context} />
       </div>
     </div>
   );

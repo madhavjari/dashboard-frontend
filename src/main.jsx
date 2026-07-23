@@ -13,7 +13,16 @@ import ResetPassword from "./pages/auth/ResetPassword.jsx";
 import SummaryDashboard from "./pages/dashboard/SummaryDashboard.jsx";
 import ItemSalesDashboard from "./pages/dashboard/ItemSalesDashboard.jsx";
 import CustomerDetailPage from "./pages/dashboard/CustomerDetailPage.jsx";
-import useSalesData from "./utils/fetch/salesData.js";
+import useData from "./utils/fetch/useData.js";
+
+const SALES_SUMMARY_URL =
+  "http://localhost:5000/api/v1/reports/sales/KPI-Summary";
+const SALES_PARTY_URL = "http://localhost:5000/api/v1/reports/sales/customers";
+
+const PURCHASE_SUMMARY_URL =
+  "http://localhost:5000/api/v1/reports/purchases/KPI-Summary";
+const PURCHASE_PARTY_URL =
+  "http://localhost:5000/api/v1/reports/purchases/suppliers";
 
 const router = createBrowserRouter([
   {
@@ -50,7 +59,9 @@ const router = createBrowserRouter([
       <SummaryDashboard
         header={"Sales Dashboard"}
         context={"Sales"}
-        useData={useSalesData}
+        useData={useData}
+        SUMMARY_URL={SALES_SUMMARY_URL}
+        PARTY_URL={SALES_PARTY_URL}
       />
     ),
   },
@@ -61,6 +72,18 @@ const router = createBrowserRouter([
   {
     path: "/customer",
     element: <CustomerDetailPage />,
+  },
+  {
+    path: "/purchase-dashboard",
+    element: (
+      <SummaryDashboard
+        header={"Purchase Dashboard"}
+        context={"Purchase"}
+        useData={useData}
+        SUMMARY_URL={PURCHASE_SUMMARY_URL}
+        PARTY_URL={PURCHASE_PARTY_URL}
+      />
+    ),
   },
 ]);
 

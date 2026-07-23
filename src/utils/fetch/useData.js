@@ -1,15 +1,8 @@
-//   "/api/v1/reports/purchases/KPI-summary"
-//   "/api/v1/reports/purchases/suppliers"
-
 import { useState, useEffect } from "react";
 
-const SUMMARY_URL =
-  "http://localhost:5000/api/v1/reports/purchases/KPI-Summary";
-const CUSTOMER_URL = "http://localhost:5000/api/v1/reports/purchases/suppliers";
-
-export default function usePurchasesData() {
+export default function useData(SUMMARY_URL, PARTY_URL) {
   const [summary, setSummary] = useState(null);
-  const [suppliers, setSuppliers] = useState([]);
+  const [party, setParty] = useState([]);
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("Loading dashboard...");
 
@@ -21,22 +14,22 @@ export default function usePurchasesData() {
         setStatus("loading");
         setMessage("Loading dashboard...");
 
-        const [summaryRes, supplierRes] = await Promise.all([
+        const [summaryRes, partyRes] = await Promise.all([
           fetch(SUMMARY_URL),
-          fetch(CUSTOMER_URL),
+          fetch(PARTY_URL),
         ]);
 
-        if (!summaryRes.ok || !supplierRes.ok) {
+        if (!summaryRes.ok || !partyRes.ok) {
           throw new Error("Failed to fetch sales data");
         }
 
         const summaryJson = await summaryRes.json();
-        const supplierJson = await supplierRes.json();
+        const customerJson = await partyRes.json();
 
         if (cancelled) return;
 
-        setSummary(summaryJson.salesData ?? summaryJson);
-        setSuppliers(supplierJson.salesData ?? supplierJson ?? []);
+        setSummary(summaryJson.data ?? summaryJson);
+        setParty(customerJson.data ?? customerJson ?? []);
         setStatus("success");
       } catch (err) {
         if (cancelled) return;
@@ -49,11 +42,11 @@ export default function usePurchasesData() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [SUMMARY_URL, PARTY_URL]);
 
   return {
     summary,
-    suppliers,
+    party,
     status,
     message,
     reload: () => setStatus("loading"),
