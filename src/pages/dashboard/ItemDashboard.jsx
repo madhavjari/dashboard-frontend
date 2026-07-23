@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import useSalesItemData from "../../utils/fetch/salesItemData";
+import useItemData from "../../utils/fetch/itemData";
 import StatCard from "../../components/dashboard/StatCard";
 import {
   BarChart,
@@ -50,15 +50,15 @@ function fmtQty(n) {
   return fmtNumber(n);
 }
 
-export default function ItemSalesDashboard() {
-  const { summary, topItems, message, reload, status } = useSalesItemData();
+export default function ItemDashboard({ ITEMS_URL }) {
+  const { summary, topItems, message, reload, status } = useItemData(ITEMS_URL);
   const items = useMemo(
     () =>
       topItems.map((it) => {
         const pcs = toNum(it.pcs);
         const meters = toNum(it.meters);
         const weight = toNum(it.weight);
-        const revenue = toNum(it.revenue);
+        const transaction = toNum(it.transaction);
         const per = it.per || "p";
         let quantity;
         if (per.toLowerCase().includes("w")) quantity = weight;
@@ -73,7 +73,7 @@ export default function ItemSalesDashboard() {
           pcs,
           meters,
           weight,
-          revenue,
+          transaction,
           per,
           quantity,
           category,
@@ -146,11 +146,11 @@ export default function ItemSalesDashboard() {
   }
 
   const barData = [...items]
-    .sort((a, b) => b.revenue - a.revenue)
+    .sort((a, b) => b.transaction - a.transaction)
     .map((it) => ({
       name: it.name.length > 30 ? it.name.slice(0, 30) + "…" : it.name,
       fullName: it.name,
-      revenue: it.revenue,
+      transaction: it.transaction,
       fill: CATEGORY_COLOR[it.category],
     }));
 
@@ -158,11 +158,11 @@ export default function ItemSalesDashboard() {
     ["name", "Item"],
     ["category", "UOM"],
     ["quantity", "Qty"],
-    ["revenue", "Revenue"],
+    ["transaction", "Transaction"],
   ];
   const totalQuantity = items.reduce((sum, it) => sum + it.quantity, 0);
   const categoryTotals = items.reduce((acc, it) => {
-    acc[it.category] = (acc[it.category] || 0) + it.revenue;
+    acc[it.category] = (acc[it.category] || 0) + it.transaction;
     return acc;
   }, {});
   const pieData = Object.entries(categoryTotals).map(([name, value]) => ({
@@ -194,8 +194,8 @@ export default function ItemSalesDashboard() {
         />
         <StatCard
           label="Total Sales"
-          value={fmtCompact(summary.totalSales)}
-          sub={fmtINR(summary.totalSales)}
+          value={fmtCompact(summary.totalTransaction)}
+          sub={fmtINR(summary.totalTransaction)}
           tone="text-green-600"
         />
         <StatCard
@@ -250,7 +250,7 @@ export default function ItemSalesDashboard() {
                   fontSize: 12,
                 }}
               />
-              <Bar dataKey="revenue" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="transaction" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -297,7 +297,10 @@ export default function ItemSalesDashboard() {
                   {d.name}
                 </span>
                 <span className="font-mono-num font-medium text-slate-800">
-                  {((d.value / toNum(summary.totalSales)) * 100).toFixed(1)}%
+                  {((d.value / toNum(summary.totalTransaction)) * 100).toFixed(
+                    1,
+                  )}
+                  %
                 </span>
               </div>
             ))}
@@ -355,15 +358,18 @@ export default function ItemSalesDashboard() {
                   </td>
 
                   <td className="px-5 py-3 font-mono-num font-medium text-slate-900">
-                    {fmtINR(it.revenue)}
+                    {fmtINR(it.transaction)}
                   </td>
                   <td className="px-5 py-3 text-right font-mono-num text-slate-600">
-                    {((it.revenue / summary.totalSales) * 100).toFixed(1)}%
+                    {(
+                      (it.transaction / summary.totalTransaction) *
+                      100
+                    ).toFixed(1)}
+                    %
                   </td>
                   <td className="px-5 py-3 text-right font-mono-num text-slate-600">
-                    {fmtNumber(it.quantity, 1) > 0
-                      ? "₹" +
-                        (it.revenue / fmtNumber(it.quantity, 1)).toFixed(2)
+                    {it.quantity > 0
+                      ? "₹" + (it.transaction / it.quantity).toFixed(2)
                       : "-"}
                   </td>
                 </tr>
@@ -376,7 +382,7 @@ export default function ItemSalesDashboard() {
                 </td>
 
                 <td className="px-5 py-3 font-mono-num text-slate-900">
-                  {fmtINR(summary.totalSales)}
+                  {fmtINR(summary.totalTransaction)}
                 </td>
                 <td className="px-5 py-3 text-right font-mono-num text-slate-900">
                   100%

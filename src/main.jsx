@@ -11,7 +11,7 @@ import ResendVerificationEmail from "./pages/auth/ResendVerificationMail.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
 import ResetPassword from "./pages/auth/ResetPassword.jsx";
 import SummaryDashboard from "./pages/dashboard/SummaryDashboard.jsx";
-import ItemSalesDashboard from "./pages/dashboard/ItemSalesDashboard.jsx";
+import ItemDashboard from "./pages/dashboard/ItemDashboard.jsx";
 import CustomerDetailPage from "./pages/dashboard/CustomerDetailPage.jsx";
 import useData from "./utils/fetch/useData.js";
 
@@ -23,6 +23,11 @@ const PURCHASE_SUMMARY_URL =
   "http://localhost:5000/api/v1/reports/purchases/KPI-Summary";
 const PURCHASE_PARTY_URL =
   "http://localhost:5000/api/v1/reports/purchases/suppliers";
+
+const SALES_ITEMS_URL = "http://localhost:5000/api/v1/reports/sales/items";
+
+const PURCHASE_ITEMS_URL =
+  "http://localhost:5000/api/v1/reports/purchases/items";
 
 const router = createBrowserRouter([
   {
@@ -66,8 +71,12 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/itemwise-dashboard",
-    element: <ItemSalesDashboard />,
+    path: "/sales-itemwise-dashboard",
+    element: <ItemDashboard ITEMS_URL={SALES_ITEMS_URL} />,
+  },
+  {
+    path: "/purchase-itemwise-dashboard",
+    element: <ItemDashboard ITEMS_URL={PURCHASE_ITEMS_URL} />,
   },
   {
     path: "/customer",

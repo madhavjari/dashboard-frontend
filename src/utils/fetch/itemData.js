@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export default function useSalesItemData() {
+export default function useItemData(ITEMS_URL) {
   const [summary, setSummary] = useState(null);
   const [topItems, setItems] = useState([]);
   const [returnItems, setReturnItems] = useState([]);
@@ -14,12 +14,7 @@ export default function useSalesItemData() {
         setStatus("loading");
         setMessage("Loading dashboard...");
 
-        const response = await fetch(
-          "http://localhost:5000/api/v1/reports/sales/items",
-          {
-            method: "GET",
-          },
-        );
+        const response = await fetch(ITEMS_URL);
         if (!response.ok) {
           throw new Error("Failed to fetch sales data");
         }
@@ -41,7 +36,7 @@ export default function useSalesItemData() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [ITEMS_URL]);
   return {
     summary,
     topItems,
