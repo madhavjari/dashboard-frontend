@@ -3,9 +3,9 @@ const API_BASE_URL = "http://localhost:5000/api/v1/reports";
 export const SALES_PARTYWISE_URL = `${API_BASE_URL}/sales/customer?party=`;
 export const PURCHASE_PARTYWISE_URL = `${API_BASE_URL}/purchases/supplier?party=`;
 
-export const SALES_SUMMARY_URL = `${API_BASE_URL}/sales/KPI-Summary`;
+export const SALES_SUMMARY_URL = `${API_BASE_URL}/sales/KPI-summary`;
 export const SALES_PARTY_URL = `${API_BASE_URL}/sales/customers`;
-export const PURCHASE_SUMMARY_URL = `${API_BASE_URL}/purchases/KPI-Summary`;
+export const PURCHASE_SUMMARY_URL = `${API_BASE_URL}/purchases/KPI-summary`;
 export const PURCHASE_PARTY_URL = `${API_BASE_URL}/purchases/suppliers`;
 
 export const SALES_ITEMS_URL = `${API_BASE_URL}/sales/items`;

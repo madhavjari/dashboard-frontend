@@ -1,6 +1,6 @@
-import ChartCard from "../../../components/dashboard/ChartCard";
-import { fmtCompact } from "../../../utils/format";
-import CustomTooltip from "../../../components/dashboard/CustomTooltip";
+import ChartCard from "../../../../components/dashboard/ChartCard";
+import { fmtCompact } from "../../../../utils/format";
+import CustomTooltip from "../../../../components/dashboard/CustomTooltip";
 import {
   ResponsiveContainer,
   BarChart,

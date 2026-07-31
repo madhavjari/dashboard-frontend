@@ -8,10 +8,10 @@ import {
   Tooltip,
   Cell,
 } from "recharts";
-import { fmtCompact } from "../../../utils/format";
-import CustomTooltip from "../../../components/dashboard/CustomTooltip";
+import { fmtCompact } from "../../../../utils/format";
+import CustomTooltip from "../../../../components/dashboard/CustomTooltip";
 
-import ChartCard from "../../../components/dashboard/ChartCard";
+import ChartCard from "../../../../components/dashboard/ChartCard";
 
 export default function NetChart({ COLORS, contextVsReturns }) {
   return (

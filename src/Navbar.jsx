@@ -36,7 +36,7 @@ export default function Navbar() {
           to="/"
           className="text-xl font-bold tracking-tight text-gray-900 transition hover:text-blue-600"
         >
-          SaaS App
+          Prana
         </Link>
 
         {/* Navigation */}

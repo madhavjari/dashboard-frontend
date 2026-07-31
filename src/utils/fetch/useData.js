@@ -22,25 +22,21 @@ export default function useData(SUMMARY_URL, PARTY_URL, OUTSTANDING_URL) {
         const [summaryRes, partyRes, outstandingRes] =
           await Promise.all(requests);
 
-        if (
-          !summaryRes.ok ||
-          !partyRes.ok ||
-          (outstandingRes && !outstandingRes.ok)
-        ) {
+        if (!summaryRes.ok || !partyRes.ok || !outstandingRes.ok) {
           throw new Error("Failed to fetch sales data");
         }
 
         const [summaryJson, customerJson, outstandingJson] = await Promise.all([
           summaryRes.json(),
           partyRes.json(),
-          outstandingRes?.json(),
+          outstandingRes.json(),
         ]);
 
         if (cancelled) return;
 
         setSummary(summaryJson.data ?? summaryJson);
         setParty(customerJson.data ?? customerJson ?? []);
-        setOutstandingSummary(outstandingJson?.summary ?? null);
+        setOutstandingSummary(outstandingJson.summary ?? null);
         setStatus("success");
       } catch (err) {
         if (cancelled) return;
@@ -54,7 +50,6 @@ export default function useData(SUMMARY_URL, PARTY_URL, OUTSTANDING_URL) {
       cancelled = true;
     };
   }, [SUMMARY_URL, PARTY_URL, OUTSTANDING_URL, reloadCount]);
-
   return {
     summary,
     party,

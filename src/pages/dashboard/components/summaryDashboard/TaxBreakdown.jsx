@@ -1,4 +1,4 @@
-import { fmtINR } from "../../../utils/format";
+import { fmtINR } from "../../../../utils/format";
 
 export default function TaxBreakdown({ gstRows, context }) {
   return (

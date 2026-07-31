@@ -1,12 +1,12 @@
 import { useState } from "react";
-import DashboardHeader from "./components/DashboardHeader";
-import DashboardSummary from "./components/DashboardSummary";
-import NetChart from "./components/NetChart";
-import GstPieChart from "./components/GstPieChart";
-import TaxBreakdown from "./components/TaxBreakdown";
-import NetSales from "./components/NetSales";
-import SalesVsParty from "./components/SalesVsParty";
-import PartyWiseRegister from "./components/PartyWiseRegister";
+import DashboardHeader from "./components/summaryDashboard/DashboardHeader";
+import DashboardSummary from "./components/summaryDashboard/DashboardSummary";
+import NetChart from "./components/summaryDashboard/NetChart";
+import GstPieChart from "./components/summaryDashboard/GstPieChart";
+import TaxBreakdown from "./components/summaryDashboard/TaxBreakdown";
+import NetSales from "./components/summaryDashboard/NetSales";
+import SalesVsParty from "./components/summaryDashboard/SalesVsParty";
+import PartyWiseRegister from "./components/summaryDashboard/PartyWiseRegister";
 
 const COLORS = {
   ink: "#1e293b",
@@ -25,11 +25,8 @@ export default function SummaryDashboard({
   PARTY_URL,
   OUTSTANDING_URL,
 }) {
-  const { summary, party, outstandingSummary, status, message, reload } = useData(
-    SUMMARY_URL,
-    PARTY_URL,
-    OUTSTANDING_URL,
-  );
+  const { summary, party, outstandingSummary, status, message, reload } =
+    useData(SUMMARY_URL, PARTY_URL, OUTSTANDING_URL);
   const [taxView, setTaxView] = useState(context);
 
   if (status === "loading") {
@@ -68,9 +65,11 @@ export default function SummaryDashboard({
   const returnRate = summary.grossAmount
     ? ((summary.returns / summary.grossAmount) * 100).toFixed(2)
     : "0.00";
-  const debtorDays = summary.netAmount && outstandingSummary
-    ? (outstandingSummary.totalToCollect / summary.netAmount) * 365
-    : null;
+  const debtorDays =
+    summary.netAmount && outstandingSummary
+      ? (outstandingSummary.totalToCollect ||
+          outstandingSummary.totalToPay / summary.netAmount) * 365
+      : null;
 
   const contextVsReturns = [
     { label: `Gross ${context}`, value: summary.grossAmount, fill: COLORS.ink },

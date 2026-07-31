@@ -7,8 +7,8 @@ import {
   Cell,
 } from "recharts";
 
-import CustomTooltip from "../../../components/dashboard/CustomTooltip";
-import ChartCard from "../../../components/dashboard/ChartCard";
+import CustomTooltip from "../../../../components/dashboard/CustomTooltip";
+import ChartCard from "../../../../components/dashboard/ChartCard";
 
 export default function GstPieChart({ taxView, setTaxView, pieData, context }) {
   return (

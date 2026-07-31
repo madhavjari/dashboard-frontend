@@ -1,4 +1,4 @@
-import { fmtINR } from "../../../utils/format";
+import { fmtINR } from "../../../../utils/format";
 import { Link } from "react-router";
 
 export default function PartyWiseRegister({ party, context }) {
