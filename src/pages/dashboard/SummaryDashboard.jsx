@@ -23,10 +23,12 @@ export default function SummaryDashboard({
   useData,
   SUMMARY_URL,
   PARTY_URL,
+  OUTSTANDING_URL,
 }) {
-  const { summary, party, status, message, reload } = useData(
+  const { summary, party, outstandingSummary, status, message, reload } = useData(
     SUMMARY_URL,
     PARTY_URL,
+    OUTSTANDING_URL,
   );
   const [taxView, setTaxView] = useState(context);
 
@@ -66,6 +68,9 @@ export default function SummaryDashboard({
   const returnRate = summary.grossAmount
     ? ((summary.returns / summary.grossAmount) * 100).toFixed(2)
     : "0.00";
+  const debtorDays = summary.netAmount && outstandingSummary
+    ? (outstandingSummary.totalToCollect / summary.netAmount) * 365
+    : null;
 
   const contextVsReturns = [
     { label: `Gross ${context}`, value: summary.grossAmount, fill: COLORS.ink },
@@ -119,6 +124,7 @@ export default function SummaryDashboard({
           summary={summary}
           returnRate={returnRate}
           context={context}
+          debtorDays={debtorDays}
         />
 
         <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">

@@ -13,27 +13,23 @@ import ResetPassword from "./pages/auth/ResetPassword.jsx";
 import SummaryDashboard from "./pages/dashboard/SummaryDashboard.jsx";
 import ItemDashboard from "./pages/dashboard/ItemDashboard.jsx";
 import CustomerDetailPage from "./pages/dashboard/CustomerDetailPage.jsx";
+import ItemDetailPage from "./pages/dashboard/ItemDetailPage.jsx";
+import OutstandingDashboard from "./pages/dashboard/OutstandingDashboard.jsx";
 import useData from "./utils/fetch/useData.js";
-
-const SALES_PARTYWISE_URL =
-  "http://localhost:5000/api/v1/reports/sales/customer?party=";
-
-const PURCHASE_PARTYWISE_URL =
-  "http://localhost:5000/api/v1/reports/purchases/supplier?party=";
-
-const SALES_SUMMARY_URL =
-  "http://localhost:5000/api/v1/reports/sales/KPI-Summary";
-const SALES_PARTY_URL = "http://localhost:5000/api/v1/reports/sales/customers";
-
-const PURCHASE_SUMMARY_URL =
-  "http://localhost:5000/api/v1/reports/purchases/KPI-Summary";
-const PURCHASE_PARTY_URL =
-  "http://localhost:5000/api/v1/reports/purchases/suppliers";
-
-const SALES_ITEMS_URL = "http://localhost:5000/api/v1/reports/sales/items";
-
-const PURCHASE_ITEMS_URL =
-  "http://localhost:5000/api/v1/reports/purchases/items";
+import {
+  PURCHASE_ITEMS_URL,
+  PURCHASE_ITEMWISE_URL,
+  PURCHASE_PARTY_URL,
+  PURCHASE_PARTYWISE_URL,
+  PURCHASE_OUTSTANDING_URL,
+  PURCHASE_SUMMARY_URL,
+  SALES_ITEMS_URL,
+  SALES_ITEMWISE_URL,
+  SALES_PARTY_URL,
+  SALES_PARTYWISE_URL,
+  SALES_OUTSTANDING_URL,
+  SALES_SUMMARY_URL,
+} from "./config/reportUrls.js";
 
 const router = createBrowserRouter([
   {
@@ -73,12 +69,13 @@ const router = createBrowserRouter([
         useData={useData}
         SUMMARY_URL={SALES_SUMMARY_URL}
         PARTY_URL={SALES_PARTY_URL}
+        OUTSTANDING_URL={SALES_OUTSTANDING_URL}
       />
     ),
   },
   {
     path: "/sales-itemwise-dashboard",
-    element: <ItemDashboard ITEMS_URL={SALES_ITEMS_URL} context={"Purchase"} />,
+    element: <ItemDashboard ITEMS_URL={SALES_ITEMS_URL} context={"Sales"} />,
   },
   {
     path: "/purchase-itemwise-dashboard",
@@ -88,11 +85,33 @@ const router = createBrowserRouter([
   },
   {
     path: "/customer",
-    element: <CustomerDetailPage PARTY_URL={SALES_PARTYWISE_URL} />,
+    element: (
+      <CustomerDetailPage
+        PARTY_URL={SALES_PARTYWISE_URL}
+        OUTSTANDING_URL={SALES_OUTSTANDING_URL}
+        context="Sales"
+      />
+    ),
   },
   {
     path: "/supplier",
-    element: <CustomerDetailPage PARTY_URL={PURCHASE_PARTYWISE_URL} />,
+    element: (
+      <CustomerDetailPage
+        PARTY_URL={PURCHASE_PARTYWISE_URL}
+        OUTSTANDING_URL={PURCHASE_OUTSTANDING_URL}
+        context="Purchase"
+      />
+    ),
+  },
+  {
+    path: "/item",
+    element: <ItemDetailPage ITEM_URL={SALES_ITEMWISE_URL} context="Sales" />,
+  },
+  {
+    path: "/purchase-item",
+    element: (
+      <ItemDetailPage ITEM_URL={PURCHASE_ITEMWISE_URL} context="Purchase" />
+    ),
   },
   {
     path: "/purchase-dashboard",
@@ -103,6 +122,21 @@ const router = createBrowserRouter([
         useData={useData}
         SUMMARY_URL={PURCHASE_SUMMARY_URL}
         PARTY_URL={PURCHASE_PARTY_URL}
+      />
+    ),
+  },
+  {
+    path: "/sales-outstanding-dashboard",
+    element: (
+      <OutstandingDashboard OUTSTANDING_URL={SALES_OUTSTANDING_URL} context="Sales" />
+    ),
+  },
+  {
+    path: "/purchase-outstanding-dashboard",
+    element: (
+      <OutstandingDashboard
+        OUTSTANDING_URL={PURCHASE_OUTSTANDING_URL}
+        context="Purchase"
       />
     ),
   },

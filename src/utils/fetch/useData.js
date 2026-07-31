@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 
-export default function useData(SUMMARY_URL, PARTY_URL) {
+export default function useData(SUMMARY_URL, PARTY_URL, OUTSTANDING_URL) {
   const [summary, setSummary] = useState(null);
   const [party, setParty] = useState([]);
+  const [outstandingSummary, setOutstandingSummary] = useState(null);
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("Loading dashboard...");
+  const [reloadCount, setReloadCount] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -14,22 +16,31 @@ export default function useData(SUMMARY_URL, PARTY_URL) {
         setStatus("loading");
         setMessage("Loading dashboard...");
 
-        const [summaryRes, partyRes] = await Promise.all([
-          fetch(SUMMARY_URL),
-          fetch(PARTY_URL),
-        ]);
+        const requests = [fetch(SUMMARY_URL), fetch(PARTY_URL)];
+        if (OUTSTANDING_URL) requests.push(fetch(OUTSTANDING_URL));
 
-        if (!summaryRes.ok || !partyRes.ok) {
+        const [summaryRes, partyRes, outstandingRes] =
+          await Promise.all(requests);
+
+        if (
+          !summaryRes.ok ||
+          !partyRes.ok ||
+          (outstandingRes && !outstandingRes.ok)
+        ) {
           throw new Error("Failed to fetch sales data");
         }
 
-        const summaryJson = await summaryRes.json();
-        const customerJson = await partyRes.json();
+        const [summaryJson, customerJson, outstandingJson] = await Promise.all([
+          summaryRes.json(),
+          partyRes.json(),
+          outstandingRes?.json(),
+        ]);
 
         if (cancelled) return;
 
         setSummary(summaryJson.data ?? summaryJson);
         setParty(customerJson.data ?? customerJson ?? []);
+        setOutstandingSummary(outstandingJson?.summary ?? null);
         setStatus("success");
       } catch (err) {
         if (cancelled) return;
@@ -42,13 +53,14 @@ export default function useData(SUMMARY_URL, PARTY_URL) {
     return () => {
       cancelled = true;
     };
-  }, [SUMMARY_URL, PARTY_URL]);
+  }, [SUMMARY_URL, PARTY_URL, OUTSTANDING_URL, reloadCount]);
 
   return {
     summary,
     party,
+    outstandingSummary,
     status,
     message,
-    reload: () => setStatus("loading"),
+    reload: () => setReloadCount((count) => count + 1),
   };
 }

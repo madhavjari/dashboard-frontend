@@ -1,0 +1,48 @@
+import { useEffect, useState } from "react";
+
+export default function useItemDetailData(ITEM_URL, item) {
+  const [summary, setSummary] = useState(null);
+  const [transactions, setTransactions] = useState([]);
+  const [status, setStatus] = useState("loading");
+  const [message, setMessage] = useState("Loading item details...");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        setStatus("loading");
+        setMessage("Loading item details...");
+
+        const response = await fetch(`${ITEM_URL}${item}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch item data");
+        }
+
+        const data = await response.json();
+        if (cancelled) return;
+
+        setTransactions(data.data ?? []);
+        setSummary(data.summary?.[0] ?? data.summary ?? null);
+        setStatus("success");
+      } catch (error) {
+        if (cancelled) return;
+        setMessage(error.message || "Something went wrong while loading item data");
+        setStatus("error");
+      }
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [ITEM_URL, item]);
+
+  return {
+    summary,
+    transactions,
+    status,
+    message,
+    reload: () => setStatus("loading"),
+  };
+}

@@ -1,9 +1,14 @@
 import StatCard from "../../../components/dashboard/StatCard";
 import { fmtCompact, fmtINR } from "../../../utils/format";
 
-export default function DashboardSummary({ summary, returnRate, context }) {
+export default function DashboardSummary({
+  summary,
+  returnRate,
+  context,
+  debtorDays,
+}) {
   return (
-    <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
       <StatCard
         label={`Gross ${context}`}
         value={fmtCompact(summary.grossAmount)}
@@ -37,6 +42,13 @@ export default function DashboardSummary({ summary, returnRate, context }) {
         value={fmtCompact(summary.cgst + summary.sgst + summary.igst)}
         sub="CGST + SGST + IGST"
       />
+      {context === "Sales" && (
+        <StatCard
+          label="Debtor Days"
+          value={debtorDays === null ? "—" : `${debtorDays.toFixed(1)} days`}
+          sub="payment left ÷ net sales × 365"
+        />
+      )}
     </div>
   );
 }

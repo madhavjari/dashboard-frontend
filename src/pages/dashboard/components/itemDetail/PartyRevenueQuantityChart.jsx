@@ -1,76 +1,65 @@
 import { useMemo } from "react";
 import {
-  ComposedChart,
   Bar,
+  ComposedChart,
+  CartesianGrid,
+  Legend,
   Line,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
 } from "recharts";
-import { fmtCompact, fmtINR } from "../../../utils/format";
+import { fmtCompact, fmtINR } from "../../../../utils/format";
 
-function getQuantity(t) {
-  if (t.per === "W") return Number(t.weight) || 0;
-  if (t.per === "M") return Number(t.meters) || 0;
-  return Number(t.pcs) || 0;
+function getQuantity(transaction) {
+  if (transaction.per === "W") return Number(transaction.weight) || 0;
+  if (transaction.per === "M") return Number(transaction.meters) || 0;
+  return Number(transaction.pcs) || 0;
 }
 
-function aggregateByItem(transactions) {
-  const map = new Map();
+function aggregateByParty(transactions) {
+  const parties = new Map();
 
-  for (const t of transactions) {
-    const key = t.itemName || "Unknown";
-    const amount = Number(t.totalAmount) || 0;
-    const qty = getQuantity(t);
-    const isReturn = t.code === "SR";
+  for (const transaction of transactions) {
+    const party = transaction.party || "Unknown";
+    const isReturn = transaction.code.endsWith("R");
+    const direction = isReturn ? -1 : 1;
 
-    if (!map.has(key)) {
-      map.set(key, {
-        itemName: key,
-        amount: 0,
-        quantity: 0,
-        per: t.per,
-        invoiceCount: 0,
-      });
+    if (!parties.has(party)) {
+      parties.set(party, { party, revenue: 0, quantity: 0 });
     }
 
-    const entry = map.get(key);
-    entry.amount += isReturn ? -amount : amount;
-    entry.quantity += isReturn ? -qty : qty;
-    entry.invoiceCount += 1;
+    const entry = parties.get(party);
+    entry.revenue += direction * (Number(transaction.totalAmount) || 0);
+    entry.quantity += direction * getQuantity(transaction);
   }
 
-  return Array.from(map.values()).sort((a, b) => b.amount - a.amount);
+  return Array.from(parties.values()).sort((a, b) => b.revenue - a.revenue);
 }
 
-export default function ItemsChart({ transactions }) {
+export default function PartyRevenueQuantityChart({ transactions }) {
   const data = useMemo(
-    () => aggregateByItem(transactions || []),
+    () => aggregateByParty(transactions || []),
     [transactions],
   );
 
   if (!data.length) {
     return (
-      <div className="rounded-xl bg-white p-6 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-200/70">
-        No item data available.
+      <div className="mb-6 rounded-xl bg-white p-6 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-200/70">
+        No party data available.
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-200/70">
+    <div className="mb-6 rounded-xl bg-white shadow-sm ring-1 ring-slate-200/70">
       <div className="border-b border-slate-100 px-5 py-4">
         <h3 className="font-display text-sm font-bold text-slate-900">
-          Items — Value &amp; Quantity
+          Revenue &amp; Quantity by Party
         </h3>
-        <p className="text-xs text-slate-500">
-          Net of returns · {data.length} distinct items
-        </p>
+        <p className="text-xs text-slate-500">Net of returns</p>
       </div>
-
       <div className="h-[420px] w-full px-2 py-4">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
@@ -79,7 +68,7 @@ export default function ItemsChart({ transactions }) {
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis
-              dataKey="itemName"
+              dataKey="party"
               angle={-40}
               textAnchor="end"
               interval={0}
@@ -87,12 +76,11 @@ export default function ItemsChart({ transactions }) {
               tick={{ fontSize: 11, fill: "#475569" }}
             />
             <YAxis
-              yAxisId="amount"
-              orientation="left"
-              tickFormatter={(v) => fmtCompact(v)}
+              yAxisId="revenue"
+              tickFormatter={fmtCompact}
               tick={{ fontSize: 11, fill: "#475569" }}
               label={{
-                value: "Amount (₹)",
+                value: "Revenue (₹)",
                 angle: -90,
                 position: "insideLeft",
                 style: { fontSize: 11, fill: "#475569" },
@@ -110,22 +98,16 @@ export default function ItemsChart({ transactions }) {
               }}
             />
             <Tooltip
-              formatter={(value, name) => {
-                if (name === "Amount") return [fmtINR(value), name];
-                return [
-                  new Intl.NumberFormat("en-IN", {
-                    maximumFractionDigits: 1,
-                  }).format(value),
-                  name,
-                ];
-              }}
+              formatter={(value, name) =>
+                name === "Revenue" ? [fmtINR(value), name] : [value, name]
+              }
               labelStyle={{ fontWeight: 600 }}
             />
             <Legend wrapperStyle={{ fontSize: 12 }} />
             <Bar
-              yAxisId="amount"
-              dataKey="amount"
-              name="Amount"
+              yAxisId="revenue"
+              dataKey="revenue"
+              name="Revenue"
               fill="#16a34a"
               radius={[4, 4, 0, 0]}
               barSize={28}

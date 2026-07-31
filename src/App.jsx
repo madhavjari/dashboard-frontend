@@ -18,6 +18,12 @@ function App() {
       <Link to="/purchase-itemwise-dashboard" target="_blank">
         <h3>Purchase Summary - Item Wise</h3>
       </Link>
+      <Link to="/sales-outstanding-dashboard" target="_blank">
+        <h3>Sales Outstanding Report</h3>
+      </Link>
+      <Link to="/purchase-outstanding-dashboard" target="_blank">
+        <h3>Purchase Outstanding Report</h3>
+      </Link>
     </>
   );
 }

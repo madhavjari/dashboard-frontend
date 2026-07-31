@@ -6,6 +6,7 @@ export default function useItemData(ITEMS_URL) {
   const [returnItems, setReturnItems] = useState([]);
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("Loading dashboard...");
+  const [reloadCount, setReloadCount] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -36,13 +37,13 @@ export default function useItemData(ITEMS_URL) {
     return () => {
       cancelled = true;
     };
-  }, [ITEMS_URL]);
+  }, [ITEMS_URL, reloadCount]);
   return {
     summary,
     topItems,
     returnItems,
     status,
     message,
-    reload: () => setStatus("loading"),
+    reload: () => setReloadCount((count) => count + 1),
   };
 }
