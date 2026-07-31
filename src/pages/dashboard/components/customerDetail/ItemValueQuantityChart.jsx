@@ -68,7 +68,7 @@ export default function ItemValueQuantityChart({ transactions }) {
         </p>
       </div>
       <div className="h-[420px] w-full px-2 py-4">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" debounce={100}>
           <ComposedChart
             data={data}
             margin={{ top: 10, right: 20, left: 10, bottom: 70 }}

@@ -16,7 +16,7 @@ import ChartCard from "../../../../components/dashboard/ChartCard";
 export default function NetChart({ COLORS, contextVsReturns }) {
   return (
     <ChartCard title="Gross · Returns · Net">
-      <ResponsiveContainer width="100%" height={230}>
+      <ResponsiveContainer width="100%" height={230} debounce={100}>
         <BarChart
           data={contextVsReturns}
           margin={{ top: 10, right: 10, left: -10, bottom: 0 }}

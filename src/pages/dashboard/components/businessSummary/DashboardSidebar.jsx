@@ -5,7 +5,7 @@ import {
   CircleDollarSign,
   Landmark,
   LayoutDashboard,
-  PanelLeftClose,
+  Menu,
   ReceiptText,
 } from "lucide-react";
 import { Link, NavLink, useLocation } from "react-router";
@@ -85,47 +85,58 @@ function SidebarSection({ section }) {
 }
 
 export default function DashboardSidebar({ isOpen, onToggle }) {
-  if (!isOpen) return null;
-
   return (
-    <aside className="border-b border-slate-800 bg-slate-950 text-slate-300 lg:min-h-screen lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
-      <div className="flex items-start justify-between gap-3 px-5 py-5">
-        <Link to="/" className="block">
-          <p className="text-lg font-bold tracking-tight text-white">Prana</p>
-          <p className="mt-0.5 text-xs text-slate-400">Business command centre</p>
-        </Link>
-        <button
-          type="button"
-          onClick={onToggle}
-          className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
-          aria-label="Close sidebar"
-          title="Close sidebar"
-        >
-          <PanelLeftClose size={20} />
-        </button>
-      </div>
-      <nav className="space-y-1 px-3 pb-5">
-        <NavLink
-          to="/dashboard-summary"
-          className={({ isActive }) =>
-            `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-              isActive
-                ? "bg-teal-500/15 text-teal-300"
-                : "text-slate-300 hover:bg-white/5 hover:text-white"
-            }`
-          }
-        >
-          <LayoutDashboard size={18} />
-          Summary
-        </NavLink>
-        {sections.map((section) => (
-          <SidebarSection key={section.label} section={section} />
-        ))}
-        <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500">
-          <Landmark size={18} />
-          Cashflow <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px]">Soon</span>
+    <div
+      className={`grid min-w-0 overflow-hidden transition-[grid-template-rows] duration-200 ease-out lg:block ${
+        isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+      }`}
+    >
+      <aside
+        className={`min-h-0 w-full overflow-hidden bg-slate-950 text-slate-300 lg:min-h-screen lg:w-64 ${
+          isOpen
+            ? "border-b border-slate-800 lg:border-b-0 lg:border-r"
+            : "border-transparent"
+        }`}
+        aria-hidden={!isOpen}
+      >
+        <div className="flex items-start justify-between gap-3 px-5 py-5">
+          <Link to="/" className="block">
+            <p className="text-lg font-bold tracking-tight text-white">Prana</p>
+            <p className="mt-0.5 text-xs text-slate-400">Business command centre</p>
+          </Link>
+          <button
+            type="button"
+            onClick={onToggle}
+            className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white lg:hidden"
+            aria-label="Close sidebar"
+            title="Close sidebar"
+          >
+            <Menu size={20} />
+          </button>
         </div>
-      </nav>
-    </aside>
+        <nav className="space-y-1 px-3 pb-5">
+          <NavLink
+            to="/dashboard-summary"
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+                isActive
+                  ? "bg-teal-500/15 text-teal-300"
+                  : "text-slate-300 hover:bg-white/5 hover:text-white"
+              }`
+            }
+          >
+            <LayoutDashboard size={18} />
+            Summary
+          </NavLink>
+          {sections.map((section) => (
+            <SidebarSection key={section.label} section={section} />
+          ))}
+          <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500">
+            <Landmark size={18} />
+            Cashflow <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px]">Soon</span>
+          </div>
+        </nav>
+      </aside>
+    </div>
   );
 }

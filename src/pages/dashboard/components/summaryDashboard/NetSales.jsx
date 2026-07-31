@@ -64,7 +64,7 @@ export default function NetSales({ COLORS, customerChartData, context }) {
         })}
       </div>
       <div className="hidden md:block">
-        <ResponsiveContainer width="100%" height={chartHeight}>
+        <ResponsiveContainer width="100%" height={chartHeight} debounce={100}>
           <BarChart
             data={chart.data}
             layout="vertical"

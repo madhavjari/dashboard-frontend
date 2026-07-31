@@ -40,7 +40,7 @@ export default function GstPieChart({ taxView, setTaxView, pieData, context }) {
           No tax data available
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={200}>
+        <ResponsiveContainer width="100%" height={200} debounce={100}>
           <PieChart>
             <Pie
               data={pieData}

@@ -21,7 +21,7 @@ export default function OutstandingByPartyChart({ partySummary, context }) {
           No outstanding balances.
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={230}>
+        <ResponsiveContainer width="100%" height={230} debounce={100}>
           <BarChart
             data={data}
             layout="vertical"

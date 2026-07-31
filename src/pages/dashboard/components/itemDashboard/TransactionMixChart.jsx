@@ -20,7 +20,7 @@ export default function TransactionMixChart({
         {context} Mix
       </h3>
       <p className="mb-3 text-xs text-slate-500">By unit of measure</p>
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={300} debounce={100}>
         <PieChart>
           <Pie
             data={pieData}

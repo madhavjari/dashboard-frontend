@@ -53,7 +53,7 @@ export default function SalesVsParty({ COLORS, customerChartData, context }) {
           </span>
         </div>
       )}
-      <ResponsiveContainer width="100%" height={250}>
+      <ResponsiveContainer width="100%" height={250} debounce={100}>
         <ComposedChart
           data={chart.data}
           margin={{ top: 10, right: 10, left: -10, bottom: 8 }}

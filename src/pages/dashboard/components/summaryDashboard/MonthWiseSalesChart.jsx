@@ -66,7 +66,7 @@ export default function MonthWiseSalesChart({ monthlySales, context }) {
         </div>
       ) : (
         <>
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="100%" height={250} debounce={100}>
             <BarChart data={data} margin={{ top: 16, right: 8, left: -10 }}>
               <CartesianGrid stroke="#e2e8f0" vertical={false} />
               <XAxis

@@ -20,7 +20,7 @@ export default function TransactionByItemChart({
         Transaction by Item
       </h3>
       <p className="mb-3 text-xs text-slate-500">Ranked highest to lowest</p>
-      <ResponsiveContainer width="100%" height={340}>
+      <ResponsiveContainer width="100%" height={340} debounce={100}>
         <BarChart
           data={barData}
           layout="vertical"
