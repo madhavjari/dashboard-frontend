@@ -1,13 +1,11 @@
 import { Link, useNavigate } from "react-router";
-import useAuth from "./config/useAuth";
 
-export default function Navbar() {
-  const { updateAccessToken, userId } = useAuth();
+export default function Navbar({ userId, updateAccessToken }) {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/auth/logout", {
+      const response = await fetch("http://localhost:5000/api/v1/auth/logout", {
         method: "POST",
         credentials: "include",
         headers: {

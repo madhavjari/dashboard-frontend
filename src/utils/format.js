@@ -13,3 +13,17 @@ export const fmtCompact = (n) => {
   if (abs >= 1e3) return "₹" + (num / 1e3).toFixed(1) + "K";
   return "₹" + num;
 };
+
+export const fmtDateIN = (value) => {
+  if (!value) return "—";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+};

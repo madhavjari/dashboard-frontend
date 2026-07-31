@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router";
+import { useNavigate, Link, useLocation } from "react-router";
 
 import useAuth from "../../config/useAuth";
 import Card from "../../components/ui/Card";
@@ -9,6 +9,7 @@ import Logo from "../../components/ui/Logo";
 
 export default function LoginForm() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { updateAccessToken } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -35,7 +36,7 @@ export default function LoginForm() {
     setErrors({});
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch("http://localhost:5000/api/v1/auth/login", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -58,7 +59,9 @@ export default function LoginForm() {
       updateAccessToken(data.accessToken);
 
       alert("Login successful!");
-      navigate("/");
+      navigate(location.state?.from?.pathname || "/dashboard-summary", {
+        replace: true,
+      });
     } catch (err) {
       setErrors({
         general: [err.message],

@@ -31,7 +31,7 @@ export default function TransactionRegister({ transactions, fmtNumber, fmtINR })
                 className="border-b border-slate-50 hover:bg-slate-50/60"
               >
                 <td className="px-5 py-3">
-                  {new Date(transaction.billDate).toLocaleDateString()}
+                  {fmtDateIN(transaction.billDate)}
                 </td>
                 <td className="px-5 py-3 font-mono">{transaction.billNo}</td>
                 <td className="px-5 py-3">{transaction.itemName}</td>
@@ -60,3 +60,4 @@ export default function TransactionRegister({ transactions, fmtNumber, fmtINR })
     </div>
   );
 }
+import { fmtDateIN } from "../../../../utils/format";

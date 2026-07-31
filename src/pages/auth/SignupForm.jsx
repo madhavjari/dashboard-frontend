@@ -27,7 +27,7 @@ export default function SignupForm() {
       phoneNumber: `+91${formData.phoneNumber}`,
     };
     try {
-      const response = await fetch("http://localhost:5000/api/auth/register", {
+      const response = await fetch("http://localhost:5000/api/v1/auth/register", {
         method: "POST",
         headers: {
           "Content-type": "application/json",

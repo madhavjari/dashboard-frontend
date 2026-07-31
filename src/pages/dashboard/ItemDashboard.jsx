@@ -39,12 +39,6 @@ function fmtCompact(number) {
   return `₹${fmtNumber(number)}`;
 }
 
-function fmtQty(number) {
-  if (number >= 1e5) return `${(number / 1e5).toFixed(2)} L`;
-  if (number >= 1e3) return `${(number / 1e3).toFixed(1)}K`;
-  return fmtNumber(number);
-}
-
 export default function ItemDashboard({ ITEMS_URL, context }) {
   const { summary, topItems, message, reload, status } = useItemData(ITEMS_URL);
   const [sortKey, setSortKey] = useState("revenue");
@@ -114,15 +108,30 @@ export default function ItemDashboard({ ITEMS_URL, context }) {
   }
 
   const totalQuantity = items.reduce((total, item) => total + item.quantity, 0);
-  const barData = [...items]
-    .sort((a, b) => b.transaction - a.transaction)
+  const rankedItems = [...items].sort((a, b) => b.transaction - a.transaction);
+  const topTenItems = rankedItems.slice(0, 10);
+  const remainingItems = rankedItems.slice(10);
+  const barData = topTenItems
     .map((item) => ({
       name:
         item.name.length > 30 ? `${item.name.slice(0, 30)}…` : item.name,
       fullName: item.name,
       transaction: item.transaction,
       fill: categoryColor[item.category],
-    }));
+    }))
+    .concat(
+      remainingItems.length
+        ? {
+            name: "Other items",
+            fullName: `${remainingItems.length} other items`,
+            transaction: remainingItems.reduce(
+              (total, item) => total + item.transaction,
+              0,
+            ),
+            fill: COLORS.muted,
+          }
+        : [],
+    );
   const categoryTotals = items.reduce((totals, item) => {
     totals[item.category] = (totals[item.category] || 0) + item.transaction;
     return totals;
@@ -159,19 +168,19 @@ export default function ItemDashboard({ ITEMS_URL, context }) {
         <ItemDashboardSummary
           context={context}
           summary={summary}
-          totalQuantity={totalQuantity}
-          fmtQty={fmtQty}
           fmtCompact={fmtCompact}
           fmtINR={fmtINR}
-          toNum={toNum}
+          mostSoldItem={rankedItems[0]}
         />
-        <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="mb-6">
           <TransactionByItemChart
             barData={barData}
             COLORS={COLORS}
             fmtCompact={fmtCompact}
             fmtINR={fmtINR}
           />
+        </div>
+        <div className="mb-6">
           <TransactionMixChart
             context={context}
             pieData={pieData}

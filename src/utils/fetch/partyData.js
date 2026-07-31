@@ -1,9 +1,52 @@
 import { useState, useEffect } from "react";
 
+function getAveragePaymentDays(entries, party) {
+  const partyName = String(party || "").trim().toUpperCase();
+  const paidInvoiceDays = entries.flatMap((entry) => {
+    if (String(entry.party || "").trim().toUpperCase() !== partyName) {
+      return [];
+    }
+
+    const remainingAmount = Number(
+      entry.amountToCollect ?? entry.amountToPay,
+    );
+    if (remainingAmount !== 0 || !entry.payments?.length) return [];
+
+    const billTime = new Date(entry.billDate).getTime();
+    const finalPaymentTime = entry.payments.reduce((latest, payment) => {
+      const paymentTime = new Date(
+        payment.clearingDate || payment.chequeDate,
+      ).getTime();
+      return Number.isNaN(paymentTime) ? latest : Math.max(latest, paymentTime);
+    }, Number.NEGATIVE_INFINITY);
+
+    if (Number.isNaN(billTime) || !Number.isFinite(finalPaymentTime)) {
+      return [];
+    }
+
+    return [Math.max(0, Math.round((finalPaymentTime - billTime) / 86_400_000))];
+  });
+
+  if (!paidInvoiceDays.length) {
+    return { averagePaymentDays: null, paidInvoiceCount: 0 };
+  }
+
+  return {
+    averagePaymentDays:
+      paidInvoiceDays.reduce((total, days) => total + days, 0) /
+      paidInvoiceDays.length,
+    paidInvoiceCount: paidInvoiceDays.length,
+  };
+}
+
 export default function usePartyData(PARTY_URL, party, OUTSTANDING_URL) {
   const [summary, setSummary] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [outstandingAmount, setOutstandingAmount] = useState(0);
+  const [paymentTiming, setPaymentTiming] = useState({
+    averagePaymentDays: null,
+    paidInvoiceCount: 0,
+  });
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("Loading dashboard...");
   const [reloadCount, setReloadCount] = useState(0);
@@ -41,6 +84,7 @@ export default function usePartyData(PARTY_URL, party, OUTSTANDING_URL) {
             partyOutstanding?.amountToCollect ?? partyOutstanding?.amountToPay,
           ) || 0,
         );
+        setPaymentTiming(getAveragePaymentDays(outstandingData.data ?? [], party));
         setStatus("success");
       } catch (err) {
         if (cancelled) return;
@@ -57,6 +101,7 @@ export default function usePartyData(PARTY_URL, party, OUTSTANDING_URL) {
     summary,
     transactions,
     outstandingAmount,
+    ...paymentTiming,
     status,
     message,
     reload: () => setReloadCount((count) => count + 1),

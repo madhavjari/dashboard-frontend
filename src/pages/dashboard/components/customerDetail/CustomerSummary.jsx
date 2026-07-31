@@ -6,6 +6,8 @@ export default function CustomerSummary({
   fmtINR,
   context,
   debtorDays,
+  averagePaymentDays,
+  paidInvoiceCount,
 }) {
   const daysLabel = context === "Sales" ? "Debtor Days" : "Creditor Days";
   const daysFormula =
@@ -14,7 +16,7 @@ export default function CustomerSummary({
       : "accounts payable ÷ net purchase × 365";
 
   return (
-    <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3">
       <StatCard
         label={`Total ${context}`}
         value={fmtCompact(summary.grossAmount)}
@@ -32,14 +34,27 @@ export default function CustomerSummary({
         value={fmtCompact(summary.netAmount)}
         sub={fmtINR(summary.netAmount)}
       />
-      <StatCard label="Invoices" value={summary.invoiceCount} sub="total bills" />
+      <StatCard
+        label="Invoices"
+        value={summary.invoiceCount}
+        sub="total bills"
+      />
       <StatCard
         label={daysLabel}
         value={debtorDays === null ? "—" : `${debtorDays.toFixed(1)} days`}
+        sub={debtorDays === null ? "No net sales" : daysFormula}
+      />
+      <StatCard
+        label="Average Payment Days"
+        value={
+          averagePaymentDays === null
+            ? "—"
+            : `${averagePaymentDays.toFixed(1)} days`
+        }
         sub={
-          debtorDays === null
-            ? "No net sales"
-            : daysFormula
+          paidInvoiceCount
+            ? `${paidInvoiceCount} paid invoice${paidInvoiceCount === 1 ? "" : "s"} · invoice to final payment`
+            : "No paid invoices"
         }
       />
     </div>

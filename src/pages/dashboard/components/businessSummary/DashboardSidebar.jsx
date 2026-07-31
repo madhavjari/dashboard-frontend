@@ -5,6 +5,7 @@ import {
   CircleDollarSign,
   Landmark,
   LayoutDashboard,
+  PanelLeftClose,
   ReceiptText,
 } from "lucide-react";
 import { Link, NavLink, useLocation } from "react-router";
@@ -83,14 +84,25 @@ function SidebarSection({ section }) {
   );
 }
 
-export default function DashboardSidebar() {
+export default function DashboardSidebar({ isOpen, onToggle }) {
+  if (!isOpen) return null;
+
   return (
     <aside className="border-b border-slate-800 bg-slate-950 text-slate-300 lg:min-h-screen lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
-      <div className="px-5 py-5">
+      <div className="flex items-start justify-between gap-3 px-5 py-5">
         <Link to="/" className="block">
           <p className="text-lg font-bold tracking-tight text-white">Prana</p>
           <p className="mt-0.5 text-xs text-slate-400">Business command centre</p>
         </Link>
+        <button
+          type="button"
+          onClick={onToggle}
+          className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+          aria-label="Close sidebar"
+          title="Close sidebar"
+        >
+          <PanelLeftClose size={20} />
+        </button>
       </div>
       <nav className="space-y-1 px-3 pb-5">
         <NavLink

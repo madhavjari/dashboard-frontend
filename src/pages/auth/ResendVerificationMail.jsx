@@ -17,7 +17,7 @@ export default function ResendVerificationEmail() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/resend-verification",
+        "http://localhost:5000/api/v1/auth/resend-verification",
         {
           method: "POST",
           headers: {

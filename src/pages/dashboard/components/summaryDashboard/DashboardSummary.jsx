@@ -7,8 +7,14 @@ export default function DashboardSummary({
   context,
   debtorDays,
 }) {
+  const daysLabel = context === "Sales" ? "Debtor Days" : "Creditor Days";
+  const daysFormula =
+    context === "Sales"
+      ? "payment left ÷ net sales × 365"
+      : "amount to pay ÷ net purchase × 365";
+
   return (
-    <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3">
+    <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
       <StatCard
         label={`Gross ${context}`}
         value={fmtCompact(summary.grossAmount)}
@@ -38,13 +44,9 @@ export default function DashboardSummary({
         }
       />
       <StatCard
-        label={`Total Tax ( ${context})`}
-        value={fmtCompact(summary.cgst + summary.sgst + summary.igst)}
-        sub="CGST + SGST + IGST"
-      />
-      <StatCard
-        label="Debtor Days"
+        label={daysLabel}
         value={debtorDays === null ? "—" : `${debtorDays.toFixed(1)} days`}
+        sub={daysFormula}
       />
     </div>
   );

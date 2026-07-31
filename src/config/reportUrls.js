@@ -4,8 +4,10 @@ export const SALES_PARTYWISE_URL = `${API_BASE_URL}/sales/customer?party=`;
 export const PURCHASE_PARTYWISE_URL = `${API_BASE_URL}/purchases/supplier?party=`;
 
 export const SALES_SUMMARY_URL = `${API_BASE_URL}/sales/KPI-summary`;
+export const SALES_MONTHLY_URL = `${API_BASE_URL}/sales/monthly`;
 export const SALES_PARTY_URL = `${API_BASE_URL}/sales/customers`;
 export const PURCHASE_SUMMARY_URL = `${API_BASE_URL}/purchases/KPI-summary`;
+export const PURCHASE_MONTHLY_URL = `${API_BASE_URL}/purchases/monthly`;
 export const PURCHASE_PARTY_URL = `${API_BASE_URL}/purchases/suppliers`;
 
 export const SALES_ITEMS_URL = `${API_BASE_URL}/sales/items`;

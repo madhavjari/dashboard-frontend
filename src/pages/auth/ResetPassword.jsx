@@ -20,7 +20,7 @@ export default function ResetPassword() {
     async function verifyToken() {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/auth/verify-password-reset-token?token=${encodeURIComponent(token)}`,
+          `http://localhost:5000/api/v1/auth/verify-password-reset-token?token=${encodeURIComponent(token)}`,
           {
             method: "POST",
             headers: {
@@ -48,7 +48,7 @@ export default function ResetPassword() {
     setErrors({});
     try {
       const response = await fetch(
-        `http://localhost:5000/api/auth/reset-password?token=${encodeURIComponent(token)}`,
+        `http://localhost:5000/api/v1/auth/reset-password?token=${encodeURIComponent(token)}`,
         {
           method: "POST",
           headers: {

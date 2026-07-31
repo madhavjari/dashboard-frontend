@@ -17,7 +17,7 @@ export default function ForgotPassword() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/forgot-password",
+        "http://localhost:5000/api/v1/auth/forgot-password",
         {
           method: "POST",
           headers: {

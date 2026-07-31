@@ -14,25 +14,34 @@ function fmtNumber(number, digits = 0) {
   }).format(number);
 }
 
-export default function CustomerDetailPage({ PARTY_URL, OUTSTANDING_URL, context }) {
+export default function PartyDetailPage({
+  PARTY_URL,
+  OUTSTANDING_URL,
+  context,
+}) {
   const [searchParams] = useSearchParams();
   const party = searchParams.get("party");
-  const { summary, transactions, outstandingAmount, status, message, reload } = usePartyData(
-    PARTY_URL,
-    party,
-    OUTSTANDING_URL,
-  );
+  const {
+    summary,
+    transactions,
+    outstandingAmount,
+    averagePaymentDays,
+    paidInvoiceCount,
+    status,
+    message,
+    reload,
+  } = usePartyData(PARTY_URL, party, OUTSTANDING_URL);
   const netSales = Number(summary?.netAmount) || 0;
-  const debtorDays = netSales
-    ? (outstandingAmount / netSales) * 365
-    : null;
+  const debtorDays = netSales ? (outstandingAmount / netSales) * 365 : null;
 
   if (status === "loading") {
     return <Loading message={message} header="Customer Summary" />;
   }
 
   if (status === "error") {
-    return <Error message={message} header="Customer Summary" reload={reload} />;
+    return (
+      <Error message={message} header="Customer Summary" reload={reload} />
+    );
   }
 
   return (
@@ -45,6 +54,8 @@ export default function CustomerDetailPage({ PARTY_URL, OUTSTANDING_URL, context
           fmtINR={fmtINR}
           context={context}
           debtorDays={debtorDays}
+          averagePaymentDays={averagePaymentDays}
+          paidInvoiceCount={paidInvoiceCount}
         />
         <ItemValueQuantityChart transactions={transactions} />
         <TransactionRegister

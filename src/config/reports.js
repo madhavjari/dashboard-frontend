@@ -1,0 +1,39 @@
+import {
+  PURCHASE_ITEMS_URL,
+  PURCHASE_ITEMWISE_URL,
+  PURCHASE_MONTHLY_URL,
+  PURCHASE_OUTSTANDING_URL,
+  PURCHASE_PARTY_URL,
+  PURCHASE_PARTYWISE_URL,
+  PURCHASE_SUMMARY_URL,
+  SALES_ITEMS_URL,
+  SALES_ITEMWISE_URL,
+  SALES_MONTHLY_URL,
+  SALES_OUTSTANDING_URL,
+  SALES_PARTY_URL,
+  SALES_PARTYWISE_URL,
+  SALES_SUMMARY_URL,
+} from "./reportUrls";
+
+export const reports = {
+  sales: {
+    label: "Sales",
+    summaryUrl: SALES_SUMMARY_URL,
+    monthlyUrl: SALES_MONTHLY_URL,
+    partyUrl: SALES_PARTY_URL,
+    partyDetailsUrl: SALES_PARTYWISE_URL,
+    itemsUrl: SALES_ITEMS_URL,
+    itemDetailsUrl: SALES_ITEMWISE_URL,
+    outstandingUrl: SALES_OUTSTANDING_URL,
+  },
+  purchase: {
+    label: "Purchase",
+    summaryUrl: PURCHASE_SUMMARY_URL,
+    monthlyUrl: PURCHASE_MONTHLY_URL,
+    partyUrl: PURCHASE_PARTY_URL,
+    partyDetailsUrl: PURCHASE_PARTYWISE_URL,
+    itemsUrl: PURCHASE_ITEMS_URL,
+    itemDetailsUrl: PURCHASE_ITEMWISE_URL,
+    outstandingUrl: PURCHASE_OUTSTANDING_URL,
+  },
+};

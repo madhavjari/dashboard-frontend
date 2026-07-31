@@ -1,16 +1,13 @@
-import { useState } from "react";
 import DashboardHeader from "./components/summaryDashboard/DashboardHeader";
 import DashboardSummary from "./components/summaryDashboard/DashboardSummary";
-import NetChart from "./components/summaryDashboard/NetChart";
-import GstPieChart from "./components/summaryDashboard/GstPieChart";
 import TaxBreakdown from "./components/summaryDashboard/TaxBreakdown";
 import NetSales from "./components/summaryDashboard/NetSales";
 import SalesVsParty from "./components/summaryDashboard/SalesVsParty";
 import PartyWiseRegister from "./components/summaryDashboard/PartyWiseRegister";
+import MonthWiseSalesChart from "./components/summaryDashboard/MonthWiseSalesChart";
 
 const COLORS = {
   ink: "#1e293b",
-  blue: "#2563eb",
   green: "#16a34a",
   red: "#dc2626",
   amber: "#d97706",
@@ -24,10 +21,17 @@ export default function SummaryDashboard({
   SUMMARY_URL,
   PARTY_URL,
   OUTSTANDING_URL,
+  MONTHLY_SALES_URL,
 }) {
-  const { summary, party, outstandingSummary, status, message, reload } =
-    useData(SUMMARY_URL, PARTY_URL, OUTSTANDING_URL);
-  const [taxView, setTaxView] = useState(context);
+  const {
+    summary,
+    party,
+    outstandingSummary,
+    monthlySales,
+    status,
+    message,
+    reload,
+  } = useData(SUMMARY_URL, PARTY_URL, OUTSTANDING_URL, MONTHLY_SALES_URL);
 
   if (status === "loading") {
     return (
@@ -65,17 +69,15 @@ export default function SummaryDashboard({
   const returnRate = summary.grossAmount
     ? ((summary.returns / summary.grossAmount) * 100).toFixed(2)
     : "0.00";
-  const debtorDays =
-    summary.netAmount && outstandingSummary
-      ? (outstandingSummary.totalToCollect ||
-          outstandingSummary.totalToPay / summary.netAmount) * 365
-      : null;
+  const outstandingAmount =
+    outstandingSummary?.totalToCollect ?? outstandingSummary?.totalToPay;
 
-  const contextVsReturns = [
-    { label: `Gross ${context}`, value: summary.grossAmount, fill: COLORS.ink },
-    { label: "Returns", value: summary.returns, fill: COLORS.red },
-    { label: `Net ${context}`, value: summary.netAmount, fill: COLORS.green },
-  ];
+  const debtorDays =
+    summary?.netAmount != null &&
+    summary.netAmount !== 0 &&
+    outstandingAmount != null
+      ? (outstandingAmount / summary.netAmount) * 365
+      : null;
 
   const gstRows = [
     {
@@ -95,20 +97,15 @@ export default function SummaryDashboard({
     },
   ];
 
-  const pieData = gstRows
-    .map((r, i) => ({
-      name: r.label,
-      value: taxView === context ? r.context : r.returns,
-      fill: [COLORS.blue, COLORS.green, COLORS.amber][i],
-    }))
-    .filter((d) => d.value > 0);
-
   const customerChartData = party.map((c) => ({
     ...c,
     returnRate: c.grossAmount
       ? +((c.returnAmount / c.grossAmount) * 100).toFixed(1)
       : 0,
   }));
+  const hasReturns = customerChartData.some(
+    (customer) => Number(customer.returnAmount) > 0,
+  );
 
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-8">
@@ -126,30 +123,30 @@ export default function SummaryDashboard({
           debtorDays={debtorDays}
         />
 
-        <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <NetChart contextVsReturns={contextVsReturns} COLORS={COLORS} />
-          <GstPieChart
-            taxView={taxView}
-            setTaxView={setTaxView}
-            pieData={pieData}
-            context={context}
-          />
-        </div>
-
         <TaxBreakdown gstRows={gstRows} context={context} />
 
-        <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {MONTHLY_SALES_URL && (
+          <div className="mb-6">
+            <MonthWiseSalesChart monthlySales={monthlySales} context={context} />
+          </div>
+        )}
+
+        <div className="mb-6">
           <NetSales
             COLORS={COLORS}
             customerChartData={customerChartData}
             context={context}
           />
-          <SalesVsParty
-            COLORS={COLORS}
-            customerChartData={customerChartData}
-            context={context}
-          />
         </div>
+        {hasReturns && (
+          <div className="mb-6">
+            <SalesVsParty
+              COLORS={COLORS}
+              customerChartData={customerChartData}
+              context={context}
+            />
+          </div>
+        )}
 
         <PartyWiseRegister party={party} context={context} />
       </div>
