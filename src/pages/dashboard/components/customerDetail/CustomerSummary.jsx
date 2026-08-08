@@ -5,15 +5,12 @@ export default function CustomerSummary({
   fmtCompact,
   fmtINR,
   context,
-  debtorDays,
+  outstandingAmount,
   averagePaymentDays,
   paidInvoiceCount,
 }) {
-  const daysLabel = context === "Sales" ? "Debtor Days" : "Creditor Days";
-  const daysFormula =
-    context === "Sales"
-      ? "accounts receivable ÷ net sales × 365"
-      : "accounts payable ÷ net purchase × 365";
+  const isSales = context === "Sales";
+  const outstandingLabel = isSales ? "To Collect" : "To Pay";
 
   return (
     <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3">
@@ -40,9 +37,10 @@ export default function CustomerSummary({
         sub="total bills"
       />
       <StatCard
-        label={daysLabel}
-        value={debtorDays === null ? "—" : `${debtorDays.toFixed(1)} days`}
-        sub={debtorDays === null ? "No net sales" : daysFormula}
+        label={outstandingLabel}
+        value={fmtCompact(outstandingAmount)}
+        sub={fmtINR(outstandingAmount)}
+        tone="text-amber-700"
       />
       <StatCard
         label="Average Payment Days"

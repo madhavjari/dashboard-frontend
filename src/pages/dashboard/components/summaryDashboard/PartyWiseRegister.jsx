@@ -3,6 +3,7 @@ import { Link } from "react-router";
 
 export default function PartyWiseRegister({ party, context }) {
   const dealer = context === "Sales" ? "customer" : "supplier";
+  const outstandingLabel = context === "Sales" ? "To Collect" : "To Pay";
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm border border-gray-100">
       <h3 className="mb-3 text-sm font-semibold text-gray-900">
@@ -35,6 +36,11 @@ export default function PartyWiseRegister({ party, context }) {
                   value={fmtINR(entry.netAmount)}
                   emphasized
                 />
+                <RegisterValue
+                  label={outstandingLabel}
+                  value={fmtINR(entry.outstandingAmount)}
+                  emphasized
+                />
               </div>
             </div>
           ))
@@ -49,13 +55,14 @@ export default function PartyWiseRegister({ party, context }) {
               <th className="py-2 text-right">{context}</th>
               <th className="py-2 text-right">Returns</th>
               <th className="py-2 text-right">Net {context}</th>
+              <th className="py-2 text-right">{outstandingLabel}</th>
             </tr>
           </thead>
           <tbody>
             {party.length === 0 ? (
               <tr>
                 <td
-                  colSpan="5"
+                  colSpan="6"
                   className="py-8 text-center text-sm text-gray-500"
                 >
                   No {dealer} {context.toLowerCase()} data available.
@@ -80,6 +87,9 @@ export default function PartyWiseRegister({ party, context }) {
                   </td>
                   <td className="py-2 text-right text-gray-700">
                     {fmtINR(c.netAmount)}
+                  </td>
+                  <td className="py-2 text-right font-semibold text-amber-700">
+                    {fmtINR(c.outstandingAmount)}
                   </td>
                 </tr>
               ))

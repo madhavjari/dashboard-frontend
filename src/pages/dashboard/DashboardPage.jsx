@@ -32,7 +32,6 @@ export default function DashboardPage({ page, reportType }) {
           useData={useData}
           SUMMARY_URL={report.summaryUrl}
           PARTY_URL={report.partyUrl}
-          OUTSTANDING_URL={report.outstandingUrl}
           MONTHLY_SALES_URL={report.monthlyUrl}
         />
       );

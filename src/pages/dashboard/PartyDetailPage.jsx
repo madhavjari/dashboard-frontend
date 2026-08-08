@@ -31,8 +31,6 @@ export default function PartyDetailPage({
     message,
     reload,
   } = usePartyData(PARTY_URL, party, OUTSTANDING_URL);
-  const netSales = Number(summary?.netAmount) || 0;
-  const debtorDays = netSales ? (outstandingAmount / netSales) * 365 : null;
 
   if (status === "loading") {
     return <Loading message={message} header="Customer Summary" />;
@@ -53,7 +51,7 @@ export default function PartyDetailPage({
           fmtCompact={fmtCompact}
           fmtINR={fmtINR}
           context={context}
-          debtorDays={debtorDays}
+          outstandingAmount={outstandingAmount}
           averagePaymentDays={averagePaymentDays}
           paidInvoiceCount={paidInvoiceCount}
         />

@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 export default function useData(
   SUMMARY_URL,
   PARTY_URL,
-  OUTSTANDING_URL,
   MONTHLY_SALES_URL,
 ) {
   const [summary, setSummary] = useState(null);
@@ -23,34 +22,31 @@ export default function useData(
         setMessage("Loading dashboard...");
 
         const requests = [fetch(SUMMARY_URL), fetch(PARTY_URL)];
-        if (OUTSTANDING_URL) requests.push(fetch(OUTSTANDING_URL));
         if (MONTHLY_SALES_URL) requests.push(fetch(MONTHLY_SALES_URL));
 
-        const [summaryRes, partyRes, outstandingRes, monthlySalesRes] =
-          await Promise.all(requests);
+        const [summaryRes, partyRes, monthlySalesRes] = await Promise.all(
+          requests,
+        );
 
         if (
           !summaryRes.ok ||
           !partyRes.ok ||
-          (outstandingRes && !outstandingRes.ok) ||
           (monthlySalesRes && !monthlySalesRes.ok)
         ) {
           throw new Error("Failed to fetch sales data");
         }
 
-        const [summaryJson, customerJson, outstandingJson, monthlySalesJson] =
-          await Promise.all([
-            summaryRes.json(),
-            partyRes.json(),
-            outstandingRes?.json(),
-            monthlySalesRes?.json(),
-          ]);
+        const [summaryJson, customerJson, monthlySalesJson] = await Promise.all([
+          summaryRes.json(),
+          partyRes.json(),
+          monthlySalesRes?.json(),
+        ]);
 
         if (cancelled) return;
 
         setSummary(summaryJson.data ?? summaryJson);
         setParty(customerJson.data ?? customerJson ?? []);
-        setOutstandingSummary(outstandingJson?.summary ?? null);
+        setOutstandingSummary(customerJson.outstandingSummary ?? null);
         setMonthlySales(monthlySalesJson?.data ?? []);
         setStatus("success");
       } catch (err) {
@@ -64,7 +60,7 @@ export default function useData(
     return () => {
       cancelled = true;
     };
-  }, [SUMMARY_URL, PARTY_URL, OUTSTANDING_URL, MONTHLY_SALES_URL, reloadCount]);
+  }, [SUMMARY_URL, PARTY_URL, MONTHLY_SALES_URL, reloadCount]);
   return {
     summary,
     party,

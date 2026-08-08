@@ -20,7 +20,6 @@ export default function SummaryDashboard({
   useData,
   SUMMARY_URL,
   PARTY_URL,
-  OUTSTANDING_URL,
   MONTHLY_SALES_URL,
 }) {
   const {
@@ -31,7 +30,7 @@ export default function SummaryDashboard({
     status,
     message,
     reload,
-  } = useData(SUMMARY_URL, PARTY_URL, OUTSTANDING_URL, MONTHLY_SALES_URL);
+  } = useData(SUMMARY_URL, PARTY_URL, MONTHLY_SALES_URL);
 
   if (status === "loading") {
     return (
