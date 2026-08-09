@@ -48,6 +48,8 @@ export function preparePartyChartData(
       returnAmount: totals.returnAmount + toNumber(row.returnAmount),
       netAmount: totals.netAmount + toNumber(row.netAmount),
       invoiceCount: totals.invoiceCount + toNumber(row.invoiceCount),
+      amountOutstanding:
+        totals.amountOutstanding + toNumber(row.amountOutstanding),
     }),
     {
       party: "Other parties",
@@ -55,6 +57,7 @@ export function preparePartyChartData(
       returnAmount: 0,
       netAmount: 0,
       invoiceCount: 0,
+      amountOutstanding: 0,
     },
   );
 

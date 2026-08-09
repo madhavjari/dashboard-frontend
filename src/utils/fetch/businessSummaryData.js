@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import useAuthFetchOptions from "./authFetchOptions";
 
 export default function useBusinessSummaryData({
   salesSummaryUrl,
   salesOutstandingUrl,
   purchaseOutstandingUrl,
 }) {
+  const fetchOptions = useAuthFetchOptions();
   const [data, setData] = useState(null);
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("Loading your business summary...");
@@ -18,9 +20,9 @@ export default function useBusinessSummaryData({
         setStatus("loading");
         const [salesResponse, salesOutstandingResponse, purchaseOutstandingResponse] =
           await Promise.all([
-            fetch(salesSummaryUrl),
-            fetch(salesOutstandingUrl),
-            fetch(purchaseOutstandingUrl),
+            fetch(salesSummaryUrl, fetchOptions),
+            fetch(salesOutstandingUrl, fetchOptions),
+            fetch(purchaseOutstandingUrl, fetchOptions),
           ]);
 
         if (
@@ -59,7 +61,13 @@ export default function useBusinessSummaryData({
     return () => {
       cancelled = true;
     };
-  }, [purchaseOutstandingUrl, reloadCount, salesOutstandingUrl, salesSummaryUrl]);
+  }, [
+    fetchOptions,
+    purchaseOutstandingUrl,
+    reloadCount,
+    salesOutstandingUrl,
+    salesSummaryUrl,
+  ]);
 
   return {
     data,

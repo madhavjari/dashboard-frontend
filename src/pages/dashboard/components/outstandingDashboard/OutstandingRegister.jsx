@@ -20,7 +20,45 @@ export default function OutstandingRegister({ invoices, fmtINR, context }) {
           </p>
         )}
       </div>
-      <div className="overflow-x-auto">
+      <div className="space-y-3 md:hidden">
+        {outstandingInvoices.length === 0 ? (
+          <p className="py-8 text-center text-sm text-gray-500">
+            No outstanding {context.toLowerCase()} invoices available.
+          </p>
+        ) : (
+          outstandingInvoices.map((invoice) => (
+            <div
+              key={invoice.billNo}
+              className="rounded-lg border border-slate-100 p-3"
+            >
+              <Link
+                to={`${routePrefix}/${dealer}?party=${invoice.party}`}
+                target="_blank"
+                className="block break-words text-sm font-semibold text-slate-900"
+              >
+                {invoice.party}
+              </Link>
+              <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 text-xs">
+                <RegisterValue
+                  label="Date"
+                  value={fmtDateIN(invoice.billDate)}
+                />
+                <RegisterValue label="Invoice" value={invoice.billNo} />
+                <RegisterValue
+                  label="Bill Amount"
+                  value={fmtINR(invoice.billAmount)}
+                />
+                <RegisterValue
+                  label={outstandingLabel}
+                  value={fmtINR(invoice.amountOutstanding)}
+                  emphasized
+                />
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200 text-left text-xs uppercase text-gray-500">
@@ -61,6 +99,21 @@ export default function OutstandingRegister({ invoices, fmtINR, context }) {
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+function RegisterValue({ label, value, emphasized = false }) {
+  return (
+    <div>
+      <p className="uppercase tracking-wide text-slate-400">{label}</p>
+      <p
+        className={`mt-0.5 break-words font-mono-num ${
+          emphasized ? "font-semibold text-amber-700" : "text-slate-700"
+        }`}
+      >
+        {value}
+      </p>
     </div>
   );
 }

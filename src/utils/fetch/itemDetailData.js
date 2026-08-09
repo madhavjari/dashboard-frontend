@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import useAuthFetchOptions from "./authFetchOptions";
 
 export default function useItemDetailData(ITEM_URL, item) {
+  const fetchOptions = useAuthFetchOptions();
   const [summary, setSummary] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [status, setStatus] = useState("loading");
@@ -14,7 +16,10 @@ export default function useItemDetailData(ITEM_URL, item) {
         setStatus("loading");
         setMessage("Loading item details...");
 
-        const response = await fetch(`${ITEM_URL}${item}`);
+        const response = await fetch(
+          `${ITEM_URL}${item}`,
+          fetchOptions,
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch item data");
         }
@@ -36,7 +41,7 @@ export default function useItemDetailData(ITEM_URL, item) {
     return () => {
       cancelled = true;
     };
-  }, [ITEM_URL, item]);
+  }, [ITEM_URL, fetchOptions, item]);
 
   return {
     summary,

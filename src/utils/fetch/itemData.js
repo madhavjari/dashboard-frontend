@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import useAuthFetchOptions from "./authFetchOptions";
 
 export default function useItemData(ITEMS_URL) {
+  const fetchOptions = useAuthFetchOptions();
   const [summary, setSummary] = useState(null);
   const [topItems, setItems] = useState([]);
   const [returnItems, setReturnItems] = useState([]);
@@ -15,7 +17,7 @@ export default function useItemData(ITEMS_URL) {
         setStatus("loading");
         setMessage("Loading dashboard...");
 
-        const response = await fetch(ITEMS_URL);
+        const response = await fetch(ITEMS_URL, fetchOptions);
         if (!response.ok) {
           throw new Error("Failed to fetch sales data");
         }
@@ -37,7 +39,7 @@ export default function useItemData(ITEMS_URL) {
     return () => {
       cancelled = true;
     };
-  }, [ITEMS_URL, reloadCount]);
+  }, [ITEMS_URL, fetchOptions, reloadCount]);
   return {
     summary,
     topItems,

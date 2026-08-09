@@ -6,11 +6,7 @@ import HomePage from "./pages/HomePage.jsx";
 import SignupForm from "./pages/auth/SignupForm.jsx";
 import LoginForm from "./pages/auth/LoginForm.jsx";
 import AuthProvider from "./AuthProvider.jsx";
-import {
-  createBrowserRouter,
-  Navigate,
-  RouterProvider,
-} from "react-router";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
 import VerifyEmail from "./pages/auth/VerifyEmail.jsx";
 import ResendVerificationEmail from "./pages/auth/ResendVerificationMail.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
