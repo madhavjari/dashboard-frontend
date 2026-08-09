@@ -1,4 +1,7 @@
-const API_BASE_URL = "http://localhost:5000/api/v1/reports";
+const API_ORIGIN =
+  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ||
+  "http://localhost:5000";
+const API_BASE_URL = `${API_ORIGIN}/api/v1/reports`;
 
 export const SALES_PARTYWISE_URL = `${API_BASE_URL}/sales/customer?party=`;
 export const PURCHASE_PARTYWISE_URL = `${API_BASE_URL}/purchases/supplier?party=`;

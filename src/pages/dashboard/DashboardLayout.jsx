@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Menu } from "lucide-react";
-import { Outlet, useOutletContext } from "react-router";
+import { Link, Outlet, useLocation, useOutletContext } from "react-router";
 import DashboardSidebar from "./components/businessSummary/DashboardSidebar";
 
 export default function DashboardLayout() {
-  const auth = useOutletContext();
+  const auth = useOutletContext() ?? {};
+  const { pathname } = useLocation();
+  const isDemo = pathname === "/demo" || pathname.startsWith("/demo/");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
@@ -45,6 +47,16 @@ export default function DashboardLayout() {
             </div>
           </div>
         </div>
+        {isDemo && (
+          <div className="mx-4 mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-900 sm:mx-6 lg:mx-10">
+            <span>
+              Demo workspace — all companies, invoices, and payments are synthetic.
+            </span>
+            <Link to="/register" className="font-semibold underline underline-offset-2">
+              Create your workspace
+            </Link>
+          </div>
+        )}
         <Outlet context={auth} />
       </div>
     </div>

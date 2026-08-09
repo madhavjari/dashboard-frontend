@@ -1,5 +1,5 @@
 import { ArrowUpDown } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 
 export default function ItemWiseRegister({
   columns,
@@ -11,7 +11,9 @@ export default function ItemWiseRegister({
   fmtNumber,
   fmtINR,
 }) {
-  const detailRoute = context === "Sales" ? "/item" : "/purchase-item";
+  const { pathname } = useLocation();
+  const routePrefix = pathname.startsWith("/demo/") ? "/demo" : "";
+  const detailRoute = context === "Sales" ? "item" : "purchase-item";
 
   return (
     <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-200/70">
@@ -51,7 +53,7 @@ export default function ItemWiseRegister({
                 className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60"
               >
                 <td className="px-5 py-3 font-medium text-slate-900">
-                  <Link to={`${detailRoute}?item=${item.name}`} target="_blank">
+                  <Link to={`${routePrefix}/${detailRoute}?item=${item.name}`} target="_blank">
                     {item.name}
                   </Link>
                 </td>

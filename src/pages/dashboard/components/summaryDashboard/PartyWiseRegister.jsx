@@ -1,7 +1,9 @@
 import { fmtINR } from "../../../../utils/format";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 
 export default function PartyWiseRegister({ party, context }) {
+  const { pathname } = useLocation();
+  const routePrefix = pathname.startsWith("/demo/") ? "/demo" : "";
   const dealer = context === "Sales" ? "customer" : "supplier";
   const outstandingLabel = context === "Sales" ? "To Collect" : "To Pay";
   return (
@@ -21,7 +23,7 @@ export default function PartyWiseRegister({ party, context }) {
               className="rounded-lg border border-slate-100 p-3"
             >
               <Link
-                to={`/${dealer}?party=${entry.party}`}
+                to={`${routePrefix}/${dealer}?party=${entry.party}`}
                 target="_blank"
                 className="block break-words text-sm font-semibold text-slate-900"
               >
@@ -72,7 +74,7 @@ export default function PartyWiseRegister({ party, context }) {
               party.map((c) => (
                 <tr key={c.party} className="border-b border-gray-100">
                   <td className="py-2 font-medium text-gray-900">
-                    <Link to={`/${dealer}?party=${c.party}`} target="_blank">
+                    <Link to={`${routePrefix}/${dealer}?party=${c.party}`} target="_blank">
                       {c.party}
                     </Link>
                   </td>

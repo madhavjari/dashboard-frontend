@@ -6,7 +6,11 @@ import HomePage from "./pages/HomePage.jsx";
 import SignupForm from "./pages/auth/SignupForm.jsx";
 import LoginForm from "./pages/auth/LoginForm.jsx";
 import AuthProvider from "./AuthProvider.jsx";
-import { createBrowserRouter, RouterProvider } from "react-router";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router";
 import VerifyEmail from "./pages/auth/VerifyEmail.jsx";
 import ResendVerificationEmail from "./pages/auth/ResendVerificationMail.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
@@ -17,6 +21,13 @@ import GuestRoute from "./pages/auth/GuestRoute.jsx";
 import ProtectedRoute from "./pages/auth/ProtectedRoute.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import { dashboardRoutes } from "./config/dashboardRoutes.js";
+
+function createDashboardChildren() {
+  return dashboardRoutes.map(({ path, page, reportType }) => ({
+    path,
+    element: <DashboardPage page={page} reportType={reportType} />,
+  }));
+}
 
 const router = createBrowserRouter([
   {
@@ -39,15 +50,20 @@ const router = createBrowserRouter([
     ],
   },
   {
+    path: "/demo",
+    element: <DashboardLayout />,
+    children: [
+      { index: true, element: <Navigate to="dashboard-summary" replace /> },
+      ...createDashboardChildren(),
+    ],
+  },
+  {
     element: <ProtectedRoute />,
     children: [
       {
         path: "/",
         element: <DashboardLayout />,
-        children: dashboardRoutes.map(({ path, page, reportType }) => ({
-          path,
-          element: <DashboardPage page={page} reportType={reportType} />,
-        })),
+        children: createDashboardChildren(),
       },
     ],
   },

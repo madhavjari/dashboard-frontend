@@ -1,6 +1,10 @@
 import { fmtDateIN } from "../../../../utils/format";
+import { Link, useLocation } from "react-router";
 
 export default function OutstandingRegister({ invoices, fmtINR, context }) {
+  const { pathname } = useLocation();
+  const routePrefix = pathname.startsWith("/demo/") ? "/demo" : "";
+  const dealer = context === "Sales" ? "customer" : "supplier";
   const outstandingLabel = context === "Sales" ? "To Collect" : "To Pay";
   const outstandingInvoices = invoices.filter(
     (invoice) => Number(invoice.amountOutstanding) > 0,
@@ -39,7 +43,14 @@ export default function OutstandingRegister({ invoices, fmtINR, context }) {
                 <tr key={invoice.billNo} className="border-b border-gray-100">
                   <td className="py-3 pr-4 text-gray-700">{fmtDateIN(invoice.billDate)}</td>
                   <td className="py-3 pr-4 font-mono text-gray-900">{invoice.billNo}</td>
-                  <td className="py-3 pr-4 font-medium text-gray-900">{invoice.party}</td>
+                  <td className="py-3 pr-4 font-medium text-gray-900">
+                    <Link
+                      to={`${routePrefix}/${dealer}?party=${invoice.party}`}
+                      target="_blank"
+                    >
+                      {invoice.party}
+                    </Link>
+                  </td>
                   <td className="py-3 text-right text-gray-700">{fmtINR(invoice.billAmount)}</td>
                   <td className="py-3 text-right font-medium text-amber-700">
                     {fmtINR(invoice.amountOutstanding)}

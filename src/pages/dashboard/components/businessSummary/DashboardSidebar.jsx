@@ -37,9 +37,9 @@ const sections = [
   },
 ];
 
-function SidebarSection({ section }) {
+function SidebarSection({ section, routePrefix }) {
   const { pathname } = useLocation();
-  const hasActiveItem = section.items.some((item) => item.to === pathname);
+  const hasActiveItem = section.items.some((item) => `${routePrefix}${item.to}` === pathname);
   const [isOpen, setIsOpen] = useState(hasActiveItem);
   const Icon = section.icon;
 
@@ -66,7 +66,7 @@ function SidebarSection({ section }) {
           {section.items.map((item) => (
             <NavLink
               key={item.to}
-              to={item.to}
+              to={`${routePrefix}${item.to}`}
               className={({ isActive }) =>
                 `block rounded-md px-3 py-2 text-xs font-medium transition ${
                   isActive
@@ -85,6 +85,8 @@ function SidebarSection({ section }) {
 }
 
 export default function DashboardSidebar({ isOpen, onToggle }) {
+  const { pathname } = useLocation();
+  const routePrefix = pathname.startsWith("/demo") ? "/demo" : "";
   return (
     <div
       className={`grid min-w-0 overflow-hidden transition-[grid-template-rows] duration-200 ease-out lg:block ${
@@ -116,7 +118,7 @@ export default function DashboardSidebar({ isOpen, onToggle }) {
         </div>
         <nav className="space-y-1 px-3 pb-5">
           <NavLink
-            to="/dashboard-summary"
+            to={`${routePrefix}/dashboard-summary`}
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                 isActive
@@ -129,7 +131,7 @@ export default function DashboardSidebar({ isOpen, onToggle }) {
             Summary
           </NavLink>
           {sections.map((section) => (
-            <SidebarSection key={section.label} section={section} />
+            <SidebarSection key={section.label} section={section} routePrefix={routePrefix} />
           ))}
           <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500">
             <Landmark size={18} />

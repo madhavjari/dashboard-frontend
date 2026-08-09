@@ -54,7 +54,7 @@ export default function HomePage() {
                 Sign in to your workspace
               </Link>
             </div>
-            <Link to="/dashboard-summary" className="mt-4 inline-flex text-sm font-semibold text-teal-800 underline-offset-4 hover:underline">
+            <Link to="/demo/dashboard-summary" className="mt-4 inline-flex text-sm font-semibold text-teal-800 underline-offset-4 hover:underline">
               View demo business summary
             </Link>
             <div className="mt-12 sm:mt-16"><DemoAnalytics /></div>
