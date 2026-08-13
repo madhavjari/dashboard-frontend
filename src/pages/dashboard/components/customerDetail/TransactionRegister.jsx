@@ -1,41 +1,36 @@
 import { Fragment, useMemo, useState } from "react";
 import { fmtDateIN } from "../../../../utils/format";
+import {
+  getNumericQuantityForUnit,
+  getUnitKey,
+  getUnitLabel,
+} from "../../../../utils/unitOfMeasure";
 
 const GROUP_THRESHOLD = 2;
 const INVOICES_PER_PAGE = 10;
 
-function getQuantity(transaction) {
-  if (transaction.per === "W") return transaction.weight;
-  if (transaction.per === "M") return transaction.meters;
-  return transaction.pcs;
-}
-
 function formatQuantity(transaction, fmtNumber) {
-  return [fmtNumber(getQuantity(transaction), 1), transaction.per]
+  return [fmtNumber(getNumericQuantityForUnit(transaction), 1), transaction.per]
     .filter((value) => value !== null && value !== undefined && value !== "")
     .join(" ");
 }
 
 function formatInvoiceQuantity(items, fmtNumber) {
   const units = new Set(
-    items
-      .map((transaction) => transaction.per)
-      .filter((unit) => unit !== null && unit !== undefined && unit !== ""),
+    items.map((transaction) => getUnitKey(transaction.per)),
   );
   const everyItemHasUnit = items.every(
-    (transaction) =>
-      transaction.per !== null &&
-      transaction.per !== undefined &&
-      transaction.per !== "",
+    (transaction) => getUnitKey(transaction.per) !== null,
   );
 
   if (!everyItemHasUnit || units.size !== 1) return "Mixed units";
 
   const totalQuantity = items.reduce(
-    (total, transaction) => total + (Number(getQuantity(transaction)) || 0),
+    (total, transaction) =>
+      total + getNumericQuantityForUnit(transaction),
     0,
   );
-  const [unit] = units;
+  const unit = getUnitLabel(items[0]?.per);
   return [fmtNumber(totalQuantity, 1), unit].join(" ");
 }
 

@@ -11,12 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import { fmtCompact, fmtINR } from "../../../../utils/format";
-
-function getQuantity(transaction) {
-  if (transaction.per === "W") return Number(transaction.weight) || 0;
-  if (transaction.per === "M") return Number(transaction.meters) || 0;
-  return Number(transaction.pcs) || 0;
-}
+import { getNumericQuantityForUnit } from "../../../../utils/unitOfMeasure";
 
 function aggregateByParty(transactions) {
   const parties = new Map();
@@ -32,7 +27,7 @@ function aggregateByParty(transactions) {
 
     const entry = parties.get(party);
     entry.revenue += direction * (Number(transaction.totalAmount) || 0);
-    entry.quantity += direction * getQuantity(transaction);
+    entry.quantity += direction * getNumericQuantityForUnit(transaction);
   }
 
   return Array.from(parties.values()).sort((a, b) => b.revenue - a.revenue);

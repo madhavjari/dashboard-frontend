@@ -11,12 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { fmtCompact, fmtINR } from "../../../../utils/format";
-
-function getQuantity(transaction) {
-  if (transaction.per === "W") return Number(transaction.weight) || 0;
-  if (transaction.per === "M") return Number(transaction.meters) || 0;
-  return Number(transaction.pcs) || 0;
-}
+import { getNumericQuantityForUnit } from "../../../../utils/unitOfMeasure";
 
 function aggregateByItem(transactions) {
   const items = new Map();
@@ -24,7 +19,7 @@ function aggregateByItem(transactions) {
   for (const transaction of transactions) {
     const itemName = transaction.itemName || "Unknown";
     const amount = Number(transaction.totalAmount) || 0;
-    const quantity = getQuantity(transaction);
+    const quantity = getNumericQuantityForUnit(transaction);
     const isReturn = transaction.code === "SR";
 
     if (!items.has(itemName)) {

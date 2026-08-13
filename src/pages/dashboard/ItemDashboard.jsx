@@ -2,6 +2,10 @@ import { useMemo, useState } from "react";
 import Error from "../../components/dashboard/Error";
 import Loading from "../../components/dashboard/Loading";
 import useItemData from "../../utils/fetch/itemData";
+import {
+  getNumericQuantityForUnit,
+  getUnitLabel,
+} from "../../utils/unitOfMeasure";
 import ItemDashboardHeader from "./components/itemDashboard/ItemDashboardHeader";
 import ItemDashboardSummary from "./components/itemDashboard/ItemDashboardSummary";
 import ItemWiseRegister from "./components/itemDashboard/ItemWiseRegister";
@@ -47,28 +51,13 @@ export default function ItemDashboard({ ITEMS_URL, context }) {
   const items = useMemo(
     () =>
       topItems.map((item) => {
-        const pcs = toNum(item.pcs);
-        const meters = toNum(item.meters);
-        const weight = toNum(item.weight);
         const transaction = toNum(item.transaction);
         const per = item.per || "p";
-        const unit = per.toLowerCase();
-        const quantity = unit.includes("w")
-          ? weight
-          : unit.includes("m")
-            ? meters
-            : pcs;
-        const category = unit.includes("w")
-          ? "kg"
-          : unit.includes("m")
-            ? "metre"
-            : "pcs";
+        const quantity = getNumericQuantityForUnit(item);
+        const category = getUnitLabel(per);
 
         return {
           name: item.itemName,
-          pcs,
-          meters,
-          weight,
           transaction,
           per,
           quantity,

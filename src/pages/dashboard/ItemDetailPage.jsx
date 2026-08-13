@@ -4,6 +4,10 @@ import Error from "../../components/dashboard/Error";
 import Loading from "../../components/dashboard/Loading";
 import { fmtCompact, fmtINR } from "../../utils/format";
 import useItemDetailData from "../../utils/fetch/itemDetailData";
+import {
+  getNumericQuantityForUnit,
+  getUnitLabel,
+} from "../../utils/unitOfMeasure";
 import ItemDetailHeader from "./components/itemDetail/ItemDetailHeader";
 import ItemDetailSummary from "./components/itemDetail/ItemDetailSummary";
 import ItemTransactionRegister from "./components/itemDetail/ItemTransactionRegister";
@@ -19,18 +23,6 @@ function fmtNumber(number, digits = 0) {
   }).format(number);
 }
 
-function getQuantity(transaction) {
-  if (transaction.per === "W") return toNumber(transaction.weight);
-  if (transaction.per === "M") return toNumber(transaction.meters);
-  return toNumber(transaction.pcs);
-}
-
-function getUnit(per) {
-  if (per === "W") return "kg";
-  if (per === "M") return "metre";
-  return "pcs";
-}
-
 function buildSummary(transactions) {
   const summary = transactions.reduce(
     (summary, transaction) => {
@@ -43,8 +35,8 @@ function buildSummary(transactions) {
       }
 
       summary.grossAmount += amount;
-      summary.quantity += getQuantity(transaction);
-      summary.unit = getUnit(transaction.per);
+      summary.quantity += getNumericQuantityForUnit(transaction);
+      summary.unit = getUnitLabel(transaction.per);
       return summary;
     },
     {
@@ -52,7 +44,7 @@ function buildSummary(transactions) {
       returnAmount: 0,
       netAmount: 0,
       quantity: 0,
-      unit: getUnit(transactions[0]?.per),
+      unit: getUnitLabel(transactions[0]?.per),
     },
   );
 

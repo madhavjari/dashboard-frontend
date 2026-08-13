@@ -1,12 +1,7 @@
 import { fmtDateIN } from "../../../../utils/format";
+import { getNumericQuantityForUnit } from "../../../../utils/unitOfMeasure";
 
 export default function ItemTransactionRegister({ transactions, fmtNumber, fmtINR }) {
-  function getQuantity(transaction) {
-    if (transaction.per === "W") return transaction.weight;
-    if (transaction.per === "M") return transaction.meters;
-    return transaction.pcs;
-  }
-
   return (
     <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-200/70">
       <div className="border-b border-slate-100 px-5 py-4">
@@ -42,7 +37,7 @@ export default function ItemTransactionRegister({ transactions, fmtNumber, fmtIN
                 <RegisterValue label="Invoice" value={transaction.billNo} />
                 <RegisterValue
                   label="Qty"
-                  value={`${fmtNumber(getQuantity(transaction), 1)} ${transaction.per}`}
+                  value={`${fmtNumber(getNumericQuantityForUnit(transaction), 1)} ${transaction.per}`}
                 />
                 <RegisterValue
                   label="Amount"
@@ -88,7 +83,8 @@ export default function ItemTransactionRegister({ transactions, fmtNumber, fmtIN
                   <td className="px-5 py-3 font-mono">{transaction.billNo}</td>
                   <td className="px-5 py-3">{transaction.party}</td>
                   <td className="px-5 py-3 text-right font-mono">
-                    {fmtNumber(getQuantity(transaction), 1)} {transaction.per}
+                    {fmtNumber(getNumericQuantityForUnit(transaction), 1)}{" "}
+                    {transaction.per}
                   </td>
                   <td className="px-5 py-3 text-right font-mono">
                     {fmtINR(transaction.totalAmount)}
