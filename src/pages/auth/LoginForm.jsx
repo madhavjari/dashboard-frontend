@@ -6,6 +6,7 @@ import Card from "../../components/ui/Card";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import Logo from "../../components/ui/Logo";
+import { AUTH_BASE_URL } from "../../config/reportUrls";
 
 export default function LoginForm() {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ export default function LoginForm() {
     setErrors({});
 
     try {
-      const response = await fetch("http://localhost:5000/api/v1/auth/login", {
+      const response = await fetch(`${AUTH_BASE_URL}/login`, {
         method: "POST",
         credentials: "include",
         headers: {

@@ -3,6 +3,7 @@ import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import { useNavigate } from "react-router";
+import { AUTH_BASE_URL } from "../../config/reportUrls";
 
 export default function ResendVerificationEmail() {
   const [email, setEmail] = useState("");
@@ -17,7 +18,7 @@ export default function ResendVerificationEmail() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/v1/auth/resend-verification",
+        `${AUTH_BASE_URL}/resend-verification`,
         {
           method: "POST",
           headers: {

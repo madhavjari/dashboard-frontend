@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
+import { AUTH_BASE_URL } from "../../config/reportUrls";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export default function ResetPassword() {
     async function verifyToken() {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/v1/auth/verify-password-reset-token?token=${encodeURIComponent(token)}`,
+          `${AUTH_BASE_URL}/verify-password-reset-token?token=${encodeURIComponent(token)}`,
           {
             method: "POST",
             headers: {
@@ -48,7 +49,7 @@ export default function ResetPassword() {
     setErrors({});
     try {
       const response = await fetch(
-        `http://localhost:5000/api/v1/auth/reset-password?token=${encodeURIComponent(token)}`,
+        `${AUTH_BASE_URL}/reset-password?token=${encodeURIComponent(token)}`,
         {
           method: "POST",
           headers: {

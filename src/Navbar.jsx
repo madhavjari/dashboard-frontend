@@ -1,11 +1,12 @@
 import { Link, useNavigate } from "react-router";
+import { AUTH_BASE_URL } from "./config/reportUrls";
 
 export default function Navbar({ userId, updateAccessToken }) {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/v1/auth/logout", {
+      const response = await fetch(`${AUTH_BASE_URL}/logout`, {
         method: "POST",
         credentials: "include",
         headers: {

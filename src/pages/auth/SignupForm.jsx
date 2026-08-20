@@ -4,6 +4,7 @@ import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { useNavigate } from "react-router";
 import Logo from "../../components/ui/Logo";
+import { AUTH_BASE_URL } from "../../config/reportUrls";
 
 export default function SignupForm() {
   const [formData, setFormData] = useState({
@@ -27,7 +28,7 @@ export default function SignupForm() {
       phoneNumber: `+91${formData.phoneNumber}`,
     };
     try {
-      const response = await fetch("http://localhost:5000/api/v1/auth/register", {
+      const response = await fetch(`${AUTH_BASE_URL}/register`, {
         method: "POST",
         headers: {
           "Content-type": "application/json",

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { AuthContext } from "./config/AuthContext";
 import checkUser from "./config/checkUser";
+import { AUTH_BASE_URL } from "./config/reportUrls";
 
 export default function AuthProvider({ children }) {
   const [accessToken, setAccessToken] = useState(null);
@@ -24,7 +25,7 @@ export default function AuthProvider({ children }) {
 
     async function refresh() {
       try {
-        const response = await fetch("http://localhost:5000/api/v1/auth/refresh", {
+        const response = await fetch(`${AUTH_BASE_URL}/refresh`, {
           method: "POST",
           credentials: "include",
         });
@@ -50,8 +51,12 @@ export default function AuthProvider({ children }) {
       value={{ accessToken, userId, updateAccessToken, isAuthenticating }}
     >
       {isAuthenticating ? (
-        <div className="flex min-h-screen items-center justify-center bg-slate-100 text-sm font-medium text-slate-600">
-          Checking your session...
+        <div className="flex min-h-screen flex-col items-center justify-center gap-2 bg-slate-100 px-4 text-center text-sm font-medium text-slate-600">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-blue-600" />
+          <p>Checking your session...</p>
+          <p className="max-w-sm font-normal text-slate-500">
+            The server may take up to a minute to wake on the free Render plan.
+          </p>
         </div>
       ) : (
         children
