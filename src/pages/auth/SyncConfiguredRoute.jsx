@@ -1,8 +1,9 @@
-import { Navigate, Outlet } from "react-router";
+import { Navigate, Outlet, useOutletContext } from "react-router";
 import useAuth from "../../config/useAuth";
 
 export default function SyncConfiguredRoute() {
   const { accounts, accountAccessStatus } = useAuth();
+  const auth = useOutletContext();
 
   if (
     accountAccessStatus === "idle" ||
@@ -16,7 +17,7 @@ export default function SyncConfiguredRoute() {
   );
 
   return hasConfiguredAccount ? (
-    <Outlet />
+    <Outlet context={auth} />
   ) : (
     <Navigate to="/sync-setup" replace />
   );
