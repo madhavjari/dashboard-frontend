@@ -57,10 +57,20 @@ export default function LoginForm() {
         throw new Error(data.message || "Invalid login credentials");
       }
 
-      updateAccessToken(data.accessToken);
+      updateAccessToken(data.accessToken, {
+        user: { isVerified: data.isVerified },
+        accounts: data.accounts ?? [],
+      });
 
       alert("Login successful!");
-      navigate(location.state?.from?.pathname || "/dashboard-summary", {
+      const hasConfiguredAccount = data.accounts?.some(
+        (account) => account.sync?.configured,
+      );
+      const destination = hasConfiguredAccount
+        ? location.state?.from?.pathname || "/dashboard-summary"
+        : "/sync-setup";
+
+      navigate(destination, {
         replace: true,
       });
     } catch (err) {

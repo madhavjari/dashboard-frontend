@@ -5,6 +5,7 @@ import {
   CircleDollarSign,
   Landmark,
   LayoutDashboard,
+  KeyRound,
   Menu,
   ReceiptText,
 } from "lucide-react";
@@ -133,6 +134,21 @@ export default function DashboardSidebar({ isOpen, onToggle }) {
           {sections.map((section) => (
             <SidebarSection key={section.label} section={section} routePrefix={routePrefix} />
           ))}
+          {!routePrefix && (
+            <NavLink
+              to="/sync-setup"
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+                  isActive
+                    ? "bg-teal-500/15 text-teal-300"
+                    : "text-slate-300 hover:bg-white/5 hover:text-white"
+                }`
+              }
+            >
+              <KeyRound size={18} />
+              Data connection
+            </NavLink>
+          )}
           <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500">
             <Landmark size={18} />
             Cashflow <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px]">Soon</span>

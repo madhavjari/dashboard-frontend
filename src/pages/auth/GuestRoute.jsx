@@ -2,12 +2,17 @@ import { Navigate, Outlet } from "react-router";
 import useAuth from "../../config/useAuth";
 
 export default function GuestRoute() {
-  const { accessToken, isAuthenticating } = useAuth();
+  const { accessToken, accounts, accountAccessStatus, isAuthenticating } =
+    useAuth();
 
-  if (isAuthenticating) return null;
+  if (isAuthenticating || accountAccessStatus === "loading") return null;
+
+  const destination = accounts.some((account) => account.sync?.configured)
+    ? "/dashboard-summary"
+    : "/sync-setup";
 
   return accessToken ? (
-    <Navigate to="/dashboard-summary" replace />
+    <Navigate to={destination} replace />
   ) : (
     <Outlet />
   );

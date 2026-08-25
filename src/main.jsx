@@ -15,8 +15,10 @@ import DashboardPage from "./pages/dashboard/DashboardPage.jsx";
 import DashboardLayout from "./pages/dashboard/DashboardLayout.jsx";
 import GuestRoute from "./pages/auth/GuestRoute.jsx";
 import ProtectedRoute from "./pages/auth/ProtectedRoute.jsx";
+import SyncConfiguredRoute from "./pages/auth/SyncConfiguredRoute.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import { dashboardRoutes } from "./config/dashboardRoutes.js";
+import SyncSetupPage from "./pages/dashboard/SyncSetupPage.jsx";
 
 function createDashboardChildren() {
   return dashboardRoutes.map(({ path, page, reportType }) => ({
@@ -57,9 +59,18 @@ const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       {
-        path: "/",
-        element: <DashboardLayout />,
-        children: createDashboardChildren(),
+        path: "/sync-setup",
+        element: <SyncSetupPage />,
+      },
+      {
+        element: <SyncConfiguredRoute />,
+        children: [
+          {
+            path: "/",
+            element: <DashboardLayout />,
+            children: createDashboardChildren(),
+          },
+        ],
       },
     ],
   },
