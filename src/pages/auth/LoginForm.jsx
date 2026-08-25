@@ -66,8 +66,12 @@ export default function LoginForm() {
       const hasConfiguredAccount = data.accounts?.some(
         (account) => account.sync?.configured,
       );
+      const requestedLocation = location.state?.from;
+      const requestedPath = requestedLocation
+        ? `${requestedLocation.pathname}${requestedLocation.search ?? ""}${requestedLocation.hash ?? ""}`
+        : null;
       const destination = hasConfiguredAccount
-        ? location.state?.from?.pathname || "/dashboard-summary"
+        ? requestedPath || "/dashboard-summary"
         : "/sync-setup";
 
       navigate(destination, {
