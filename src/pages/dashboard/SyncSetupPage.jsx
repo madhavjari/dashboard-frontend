@@ -40,6 +40,10 @@ export default function SyncSetupPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [existingApiKey, setExistingApiKey] = useState("");
+  const [isRegisteringCompany, setIsRegisteringCompany] = useState(false);
+  const [registrationError, setRegistrationError] = useState("");
+  const [registeredCompany, setRegisteredCompany] = useState(null);
 
   const selectedAccount = useMemo(
     () =>
@@ -106,6 +110,66 @@ export default function SyncSetupPage() {
     }
   };
 
+  const handleCompanyRegistration = async (event) => {
+    event.preventDefault();
+    if (!selectedAccount) return;
+
+    const formData = new FormData(event.currentTarget);
+    const externalCompanyId = String(
+      formData.get("externalCompanyId") ?? "",
+    ).trim();
+    const companyName = String(formData.get("companyName") ?? "").trim();
+    const syncApiKey = generatedForSelectedAccount
+      ? generatedCredential.apiKey.value
+      : existingApiKey.trim();
+
+    if (!syncApiKey) {
+      setRegistrationError("Enter the API key saved on this computer.");
+      return;
+    }
+
+    setIsRegisteringCompany(true);
+    setRegistrationError("");
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/sync/companies`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${syncApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          companies: [{ externalCompanyId, name: companyName }],
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Unable to register the accounting company",
+        );
+      }
+
+      setRegisteredCompany({
+        accountId: selectedAccount.id,
+        externalCompanyId,
+        name: companyName,
+      });
+      setExistingApiKey("");
+
+      try {
+        await refreshAccountAccess(accessToken);
+      } catch {
+        // Registration succeeded; the local confirmation remains visible if
+        // refreshing the workspace status fails.
+      }
+    } catch (requestError) {
+      setRegistrationError(requestError.message);
+    } finally {
+      setIsRegisteringCompany(false);
+    }
+  };
+
   if (
     accountAccessStatus === "idle" ||
     accountAccessStatus === "loading"
@@ -155,6 +219,12 @@ export default function SyncSetupPage() {
     selectedAccount?.canManageSync && user?.isVerified && !isConfigured;
   const generatedForSelectedAccount =
     generatedCredential?.accountId === selectedAccount?.id;
+  const storedAccountingCompanies =
+    selectedAccount?.accountingCompanies ?? [];
+  const registeredForSelectedAccount =
+    registeredCompany?.accountId === selectedAccount?.id;
+  const hasRegisteredCompany =
+    storedAccountingCompanies.length > 0 || registeredForSelectedAccount;
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-10 sm:px-6">
@@ -193,6 +263,9 @@ export default function SyncSetupPage() {
                   setSelectedAccountId(event.target.value);
                   setError("");
                   setCopied(false);
+                  setExistingApiKey("");
+                  setRegistrationError("");
+                  setRegisteredCompany(null);
                 }}
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
               >
@@ -215,17 +288,21 @@ export default function SyncSetupPage() {
               </h2>
               <p className="mt-1 text-sm text-slate-600">
                 {isConfigured
-                  ? "An active accounting connection is configured."
+                  ? hasRegisteredCompany
+                    ? "Your accounting company is ready to synchronize."
+                    : "Your API key is active. Register the accounting company next."
                   : "No accounting API key has been generated yet."}
               </p>
               <span
                 className={`mt-3 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
-                  isConfigured
+                  isConfigured && hasRegisteredCompany
                     ? "bg-emerald-100 text-emerald-800"
                     : "bg-amber-100 text-amber-800"
                 }`}
               >
-                {isConfigured ? "Connected" : "Setup required"}
+                {isConfigured && hasRegisteredCompany
+                  ? "Connected"
+                  : "Setup required"}
               </span>
             </div>
           </div>
@@ -269,25 +346,13 @@ export default function SyncSetupPage() {
                 </button>
               </div>
 
-              <Link
-                to="/dashboard-summary"
-                className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-emerald-900 hover:underline"
-              >
-                Continue to dashboard <ArrowRight size={16} />
-              </Link>
             </div>
           ) : isConfigured ? (
             <div className="mt-6">
               <p className="text-sm text-slate-600">
-                The secret key cannot be displayed again. Open this page on a
-                workspace without a connection to generate a new key.
+                The secret key cannot be displayed again. You can use the key
+                saved on your accounting computer for the remaining setup.
               </p>
-              <Link
-                to="/dashboard-summary"
-                className="mt-5 inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
-              >
-                Go to dashboard <ArrowRight size={16} />
-              </Link>
             </div>
           ) : !user?.isVerified ? (
             <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
@@ -330,6 +395,147 @@ export default function SyncSetupPage() {
                 {isGenerating ? "Generating..." : "Generate API key"}
               </button>
             </form>
+          )}
+
+          {(isConfigured || generatedForSelectedAccount) && (
+            <div className="mt-8 border-t border-slate-200 pt-8">
+              <div className="flex items-start gap-3">
+                <span className="rounded-lg bg-teal-50 p-2 text-teal-700">
+                  <KeyRound size={20} />
+                </span>
+                <div>
+                  <h2 className="font-bold text-slate-950">
+                    Register accounting company
+                  </h2>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">
+                    Map the company number used in your accounting database to
+                    the name shown in Prana.
+                  </p>
+                </div>
+              </div>
+
+              {hasRegisteredCompany ? (
+                <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-5">
+                  <div className="flex items-start gap-3">
+                    <Check className="mt-0.5 text-emerald-700" size={20} />
+                    <div>
+                      <h3 className="font-bold text-emerald-950">
+                        Accounting company registered
+                      </h3>
+                      <div className="mt-2 space-y-1 text-sm text-emerald-900/80">
+                        {storedAccountingCompanies.map((company) => (
+                          <p key={company.id}>
+                            CompNo {company.externalId} — {company.name}
+                          </p>
+                        ))}
+                        {registeredForSelectedAccount &&
+                          !storedAccountingCompanies.some(
+                            (company) =>
+                              company.externalId ===
+                              registeredCompany.externalCompanyId,
+                          ) && (
+                            <p>
+                              CompNo {registeredCompany.externalCompanyId} —{" "}
+                              {registeredCompany.name}
+                            </p>
+                          )}
+                      </div>
+                    </div>
+                  </div>
+                  <Link
+                    to="/dashboard-summary"
+                    className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-emerald-900 hover:underline"
+                  >
+                    Continue to dashboard <ArrowRight size={16} />
+                  </Link>
+                </div>
+              ) : (
+                <form
+                  key={selectedAccount?.id}
+                  onSubmit={handleCompanyRegistration}
+                  className="mt-5 space-y-4"
+                >
+                  {!generatedForSelectedAccount && (
+                    <div>
+                      <label
+                        htmlFor="existing-api-key"
+                        className="mb-2 block text-sm font-semibold text-slate-800"
+                      >
+                        Existing API key
+                      </label>
+                      <input
+                        id="existing-api-key"
+                        type="password"
+                        value={existingApiKey}
+                        onChange={(event) =>
+                          setExistingApiKey(event.target.value)
+                        }
+                        autoComplete="off"
+                        required
+                        placeholder="Paste the key saved in your accounting software"
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 font-mono text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                      />
+                    </div>
+                  )}
+
+                  <div className="grid gap-4 sm:grid-cols-[0.65fr_1.35fr]">
+                    <div>
+                      <label
+                        htmlFor="external-company-id"
+                        className="mb-2 block text-sm font-semibold text-slate-800"
+                      >
+                        CompNo
+                      </label>
+                      <input
+                        id="external-company-id"
+                        name="externalCompanyId"
+                        defaultValue="1"
+                        maxLength={200}
+                        required
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="accounting-company-name"
+                        className="mb-2 block text-sm font-semibold text-slate-800"
+                      >
+                        Company name
+                      </label>
+                      <input
+                        id="accounting-company-name"
+                        name="companyName"
+                        defaultValue={selectedAccount?.name}
+                        maxLength={255}
+                        required
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                      />
+                    </div>
+                  </div>
+
+                  {registrationError && (
+                    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                      {registrationError}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={isRegisteringCompany}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                  >
+                    {isRegisteringCompany ? (
+                      <RefreshCw className="animate-spin" size={17} />
+                    ) : (
+                      <Check size={17} />
+                    )}
+                    {isRegisteringCompany
+                      ? "Registering..."
+                      : "Register company"}
+                  </button>
+                </form>
+              )}
+            </div>
           )}
         </section>
       </div>
