@@ -44,6 +44,7 @@ export default function SyncSetupPage() {
   const [isRegisteringCompany, setIsRegisteringCompany] = useState(false);
   const [registrationError, setRegistrationError] = useState("");
   const [registeredCompany, setRegisteredCompany] = useState(null);
+  const [showCompanyForm, setShowCompanyForm] = useState(false);
 
   const selectedAccount = useMemo(
     () =>
@@ -156,6 +157,7 @@ export default function SyncSetupPage() {
         name: companyName,
       });
       setExistingApiKey("");
+      setShowCompanyForm(false);
 
       try {
         await refreshAccountAccess(accessToken);
@@ -225,6 +227,14 @@ export default function SyncSetupPage() {
     registeredCompany?.accountId === selectedAccount?.id;
   const hasRegisteredCompany =
     storedAccountingCompanies.length > 0 || registeredForSelectedAccount;
+  const numericExternalCompanyIds = storedAccountingCompanies
+    .map((company) => Number(company.externalId))
+    .filter(Number.isSafeInteger);
+  const suggestedExternalCompanyId = numericExternalCompanyIds.length
+    ? String(Math.max(...numericExternalCompanyIds) + 1)
+    : "1";
+  const shouldShowCompanyForm =
+    !hasRegisteredCompany || showCompanyForm;
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-10 sm:px-6">
@@ -266,6 +276,7 @@ export default function SyncSetupPage() {
                   setExistingApiKey("");
                   setRegistrationError("");
                   setRegisteredCompany(null);
+                  setShowCompanyForm(false);
                 }}
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
               >
@@ -414,13 +425,13 @@ export default function SyncSetupPage() {
                 </div>
               </div>
 
-              {hasRegisteredCompany ? (
+              {hasRegisteredCompany && (
                 <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-5">
                   <div className="flex items-start gap-3">
                     <Check className="mt-0.5 text-emerald-700" size={20} />
                     <div>
                       <h3 className="font-bold text-emerald-950">
-                        Accounting company registered
+                        Registered accounting companies
                       </h3>
                       <div className="mt-2 space-y-1 text-sm text-emerald-900/80">
                         {storedAccountingCompanies.map((company) => (
@@ -442,16 +453,31 @@ export default function SyncSetupPage() {
                       </div>
                     </div>
                   </div>
-                  <Link
-                    to="/dashboard-summary"
-                    className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-emerald-900 hover:underline"
-                  >
-                    Continue to dashboard <ArrowRight size={16} />
-                  </Link>
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowCompanyForm(true);
+                        setRegistrationError("");
+                        setExistingApiKey("");
+                      }}
+                      className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800"
+                    >
+                      <KeyRound size={16} /> Add another company
+                    </button>
+                    <Link
+                      to="/dashboard-summary"
+                      className="inline-flex items-center gap-2 rounded-lg border border-emerald-300 bg-white px-4 py-2.5 text-sm font-semibold text-emerald-900 hover:bg-emerald-100"
+                    >
+                      Continue to dashboard <ArrowRight size={16} />
+                    </Link>
+                  </div>
                 </div>
-              ) : (
+              )}
+
+              {shouldShowCompanyForm && (
                 <form
-                  key={selectedAccount?.id}
+                  key={`${selectedAccount?.id}-${suggestedExternalCompanyId}`}
                   onSubmit={handleCompanyRegistration}
                   className="mt-5 space-y-4"
                 >
@@ -489,7 +515,7 @@ export default function SyncSetupPage() {
                       <input
                         id="external-company-id"
                         name="externalCompanyId"
-                        defaultValue="1"
+                        defaultValue={suggestedExternalCompanyId}
                         maxLength={200}
                         required
                         className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
@@ -519,20 +545,35 @@ export default function SyncSetupPage() {
                     </div>
                   )}
 
-                  <button
-                    type="submit"
-                    disabled={isRegisteringCompany}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-                  >
-                    {isRegisteringCompany ? (
-                      <RefreshCw className="animate-spin" size={17} />
-                    ) : (
-                      <Check size={17} />
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      type="submit"
+                      disabled={isRegisteringCompany}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                    >
+                      {isRegisteringCompany ? (
+                        <RefreshCw className="animate-spin" size={17} />
+                      ) : (
+                        <Check size={17} />
+                      )}
+                      {isRegisteringCompany
+                        ? "Registering..."
+                        : "Register company"}
+                    </button>
+                    {hasRegisteredCompany && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowCompanyForm(false);
+                          setExistingApiKey("");
+                          setRegistrationError("");
+                        }}
+                        className="rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        Cancel
+                      </button>
                     )}
-                    {isRegisteringCompany
-                      ? "Registering..."
-                      : "Register company"}
-                  </button>
+                  </div>
                 </form>
               )}
             </div>
