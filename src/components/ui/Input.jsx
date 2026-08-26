@@ -1,4 +1,10 @@
-export default function Input({ label, id, inputClassName = "", ...props }) {
+export default function Input({
+  label,
+  id,
+  inputClassName = "",
+  trailingElement,
+  ...props
+}) {
   return (
     <div>
       <label
@@ -8,14 +14,21 @@ export default function Input({ label, id, inputClassName = "", ...props }) {
         {label}
       </label>
 
-      <input
-        id={id}
-        className={`w-full rounded-lg border border-gray-300
-             bg-white px-4 py-2.5 text-sm text-gray-900
-              outline-none transition placeholder:text-gray-400
-               focus:border-blue-500 focus:ring-2 focus:ring-blue-200 ${inputClassName}`}
-        {...props}
-      />
+      <div className="relative">
+        <input
+          id={id}
+          className={`w-full rounded-lg border border-gray-300
+               bg-white px-4 py-2.5 text-sm text-gray-900
+                outline-none transition placeholder:text-gray-400
+                 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 ${inputClassName}`}
+          {...props}
+        />
+        {trailingElement ? (
+          <div className="absolute right-0 top-0 flex h-full items-center px-3">
+            {trailingElement}
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
