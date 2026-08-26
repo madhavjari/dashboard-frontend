@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import useAuthFetchOptions from "./authFetchOptions";
+import useFinancialYearUrl from "./reportUrl";
 
 function getAveragePaymentDaysByParty(invoices) {
   const paymentDaysByParty = new Map();
@@ -93,6 +94,7 @@ function normalizeReport(data, context) {
 
 export default function useOutstandingData(OUTSTANDING_URL, context) {
   const fetchOptions = useAuthFetchOptions();
+  const outstandingUrl = useFinancialYearUrl(OUTSTANDING_URL);
   const [summary, setSummary] = useState(null);
   const [invoices, setInvoices] = useState([]);
   const [partySummary, setPartySummary] = useState([]);
@@ -108,7 +110,7 @@ export default function useOutstandingData(OUTSTANDING_URL, context) {
         setStatus("loading");
         setMessage("Loading outstanding report...");
 
-        const response = await fetch(OUTSTANDING_URL, fetchOptions);
+        const response = await fetch(outstandingUrl, fetchOptions);
         if (!response.ok) {
           throw new Error("Failed to fetch outstanding report");
         }
@@ -134,7 +136,7 @@ export default function useOutstandingData(OUTSTANDING_URL, context) {
     return () => {
       cancelled = true;
     };
-  }, [OUTSTANDING_URL, context, fetchOptions, reloadCount]);
+  }, [context, fetchOptions, outstandingUrl, reloadCount]);
 
   return {
     summary,

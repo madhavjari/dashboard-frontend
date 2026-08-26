@@ -1,8 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useAuthFetchOptions from "./authFetchOptions";
+import useFinancialYearUrl from "./reportUrl";
 
 export default function useItemDetailData(ITEM_URL, item) {
   const fetchOptions = useAuthFetchOptions();
+  const itemBaseUrl = useMemo(
+    () => `${ITEM_URL}${encodeURIComponent(item ?? "")}`,
+    [ITEM_URL, item],
+  );
+  const itemUrl = useFinancialYearUrl(itemBaseUrl);
   const [summary, setSummary] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [status, setStatus] = useState("loading");
@@ -17,7 +23,7 @@ export default function useItemDetailData(ITEM_URL, item) {
         setMessage("Loading item details...");
 
         const response = await fetch(
-          `${ITEM_URL}${item}`,
+          itemUrl,
           fetchOptions,
         );
         if (!response.ok) {
@@ -41,7 +47,7 @@ export default function useItemDetailData(ITEM_URL, item) {
     return () => {
       cancelled = true;
     };
-  }, [ITEM_URL, fetchOptions, item]);
+  }, [fetchOptions, itemUrl]);
 
   return {
     summary,

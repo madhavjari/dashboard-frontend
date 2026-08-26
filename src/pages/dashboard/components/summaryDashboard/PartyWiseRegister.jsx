@@ -1,11 +1,26 @@
+import { useState } from "react";
 import { fmtINR } from "../../../../utils/format";
 import { Link, useLocation } from "react-router";
+import RegisterPagination, {
+  REGISTER_PAGE_SIZE,
+} from "../RegisterPagination";
 
 export default function PartyWiseRegister({ party, context }) {
   const { pathname } = useLocation();
   const routePrefix = pathname.startsWith("/demo/") ? "/demo" : "";
   const dealer = context === "Sales" ? "customer" : "supplier";
   const outstandingLabel = context === "Sales" ? "To Collect" : "To Pay";
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(party.length / REGISTER_PAGE_SIZE),
+  );
+  const activePage = Math.min(currentPage, totalPages);
+  const startIndex = (activePage - 1) * REGISTER_PAGE_SIZE;
+  const visibleParties = party.slice(
+    startIndex,
+    startIndex + REGISTER_PAGE_SIZE,
+  );
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm border border-gray-100">
       <h3 className="mb-3 text-sm font-semibold text-gray-900">
@@ -17,7 +32,7 @@ export default function PartyWiseRegister({ party, context }) {
             No {dealer} {context.toLowerCase()} data available.
           </p>
         ) : (
-          party.map((entry) => (
+          visibleParties.map((entry) => (
             <div
               key={entry.party}
               className="rounded-lg border border-slate-100 p-3"
@@ -71,7 +86,7 @@ export default function PartyWiseRegister({ party, context }) {
                 </td>
               </tr>
             ) : (
-              party.map((c) => (
+              visibleParties.map((c) => (
                 <tr key={c.party} className="border-b border-gray-100">
                   <td className="py-2 font-medium text-gray-900">
                     <Link to={`${routePrefix}/${dealer}?party=${c.party}`} target="_blank">
@@ -99,6 +114,19 @@ export default function PartyWiseRegister({ party, context }) {
           </tbody>
         </table>
       </div>
+      {party.length > 0 && (
+        <div className="-mx-5 -mb-5 mt-4">
+          <RegisterPagination
+            page={activePage}
+            totalPages={totalPages}
+            startIndex={startIndex}
+            visibleCount={visibleParties.length}
+            totalCount={party.length}
+            itemLabel="parties"
+            onChange={setCurrentPage}
+          />
+        </div>
+      )}
     </div>
   );
 }

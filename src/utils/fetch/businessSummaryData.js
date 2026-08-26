@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import useAuthFetchOptions from "./authFetchOptions";
+import useFinancialYearUrl from "./reportUrl";
 
 export default function useBusinessSummaryData({
   salesSummaryUrl,
@@ -7,6 +8,13 @@ export default function useBusinessSummaryData({
   purchaseOutstandingUrl,
 }) {
   const fetchOptions = useAuthFetchOptions();
+  const selectedSalesSummaryUrl = useFinancialYearUrl(salesSummaryUrl);
+  const selectedSalesOutstandingUrl = useFinancialYearUrl(
+    salesOutstandingUrl,
+  );
+  const selectedPurchaseOutstandingUrl = useFinancialYearUrl(
+    purchaseOutstandingUrl,
+  );
   const [data, setData] = useState(null);
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("Loading your business summary...");
@@ -20,9 +28,9 @@ export default function useBusinessSummaryData({
         setStatus("loading");
         const [salesResponse, salesOutstandingResponse, purchaseOutstandingResponse] =
           await Promise.all([
-            fetch(salesSummaryUrl, fetchOptions),
-            fetch(salesOutstandingUrl, fetchOptions),
-            fetch(purchaseOutstandingUrl, fetchOptions),
+            fetch(selectedSalesSummaryUrl, fetchOptions),
+            fetch(selectedSalesOutstandingUrl, fetchOptions),
+            fetch(selectedPurchaseOutstandingUrl, fetchOptions),
           ]);
 
         if (
@@ -63,10 +71,10 @@ export default function useBusinessSummaryData({
     };
   }, [
     fetchOptions,
-    purchaseOutstandingUrl,
+    selectedPurchaseOutstandingUrl,
     reloadCount,
-    salesOutstandingUrl,
-    salesSummaryUrl,
+    selectedSalesOutstandingUrl,
+    selectedSalesSummaryUrl,
   ]);
 
   return {

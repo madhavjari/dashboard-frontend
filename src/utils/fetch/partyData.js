@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useAuthFetchOptions from "./authFetchOptions";
+import useFinancialYearUrl from "./reportUrl";
 
 function getAveragePaymentDays(entries, party) {
   const partyName = String(party || "").trim().toUpperCase();
@@ -42,6 +43,12 @@ function getAveragePaymentDays(entries, party) {
 
 export default function usePartyData(PARTY_URL, party, OUTSTANDING_URL) {
   const fetchOptions = useAuthFetchOptions();
+  const partyBaseUrl = useMemo(
+    () => `${PARTY_URL}${encodeURIComponent(party ?? "")}`,
+    [PARTY_URL, party],
+  );
+  const partyUrl = useFinancialYearUrl(partyBaseUrl);
+  const outstandingUrl = useFinancialYearUrl(OUTSTANDING_URL);
   const [summary, setSummary] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [outstandingAmount, setOutstandingAmount] = useState(0);
@@ -61,8 +68,8 @@ export default function usePartyData(PARTY_URL, party, OUTSTANDING_URL) {
         setMessage("Loading dashboard...");
 
         const [partyResponse, outstandingResponse] = await Promise.all([
-          fetch(`${PARTY_URL}${party}`, fetchOptions),
-          fetch(OUTSTANDING_URL, fetchOptions),
+          fetch(partyUrl, fetchOptions),
+          fetch(outstandingUrl, fetchOptions),
         ]);
         if (!partyResponse.ok || !outstandingResponse.ok) {
           throw new Error("Failed to fetch sales data");
@@ -98,7 +105,7 @@ export default function usePartyData(PARTY_URL, party, OUTSTANDING_URL) {
     return () => {
       cancelled = true;
     };
-  }, [OUTSTANDING_URL, PARTY_URL, fetchOptions, party, reloadCount]);
+  }, [fetchOptions, outstandingUrl, party, partyUrl, reloadCount]);
   return {
     summary,
     transactions,

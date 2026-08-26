@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import useAuthFetchOptions from "./authFetchOptions";
+import useFinancialYearUrl from "./reportUrl";
 
 export default function useData(
   SUMMARY_URL,
@@ -7,6 +8,9 @@ export default function useData(
   MONTHLY_SALES_URL,
 ) {
   const fetchOptions = useAuthFetchOptions();
+  const summaryUrl = useFinancialYearUrl(SUMMARY_URL);
+  const partyUrl = useFinancialYearUrl(PARTY_URL);
+  const monthlySalesUrl = useFinancialYearUrl(MONTHLY_SALES_URL);
   const [summary, setSummary] = useState(null);
   const [party, setParty] = useState([]);
   const [outstandingSummary, setOutstandingSummary] = useState(null);
@@ -24,11 +28,11 @@ export default function useData(
         setMessage("Loading dashboard...");
 
         const requests = [
-          fetch(SUMMARY_URL, fetchOptions),
-          fetch(PARTY_URL, fetchOptions),
+          fetch(summaryUrl, fetchOptions),
+          fetch(partyUrl, fetchOptions),
         ];
-        if (MONTHLY_SALES_URL) {
-          requests.push(fetch(MONTHLY_SALES_URL, fetchOptions));
+        if (monthlySalesUrl) {
+          requests.push(fetch(monthlySalesUrl, fetchOptions));
         }
 
         const [summaryRes, partyRes, monthlySalesRes] = await Promise.all(
@@ -68,9 +72,9 @@ export default function useData(
       cancelled = true;
     };
   }, [
-    SUMMARY_URL,
-    PARTY_URL,
-    MONTHLY_SALES_URL,
+    summaryUrl,
+    partyUrl,
+    monthlySalesUrl,
     fetchOptions,
     reloadCount,
   ]);

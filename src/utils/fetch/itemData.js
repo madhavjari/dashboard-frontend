@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import useAuthFetchOptions from "./authFetchOptions";
+import useFinancialYearUrl from "./reportUrl";
 
 export default function useItemData(ITEMS_URL) {
   const fetchOptions = useAuthFetchOptions();
+  const itemsUrl = useFinancialYearUrl(ITEMS_URL);
   const [summary, setSummary] = useState(null);
   const [topItems, setItems] = useState([]);
   const [returnItems, setReturnItems] = useState([]);
@@ -17,7 +19,7 @@ export default function useItemData(ITEMS_URL) {
         setStatus("loading");
         setMessage("Loading dashboard...");
 
-        const response = await fetch(ITEMS_URL, fetchOptions);
+        const response = await fetch(itemsUrl, fetchOptions);
         if (!response.ok) {
           throw new Error("Failed to fetch sales data");
         }
@@ -39,7 +41,7 @@ export default function useItemData(ITEMS_URL) {
     return () => {
       cancelled = true;
     };
-  }, [ITEMS_URL, fetchOptions, reloadCount]);
+  }, [fetchOptions, itemsUrl, reloadCount]);
   return {
     summary,
     topItems,

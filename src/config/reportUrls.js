@@ -8,6 +8,8 @@ export const API_BASE_URL = (
 export const AUTH_BASE_URL = `${API_BASE_URL}/auth`;
 const REPORTS_BASE_URL = `${API_BASE_URL}/reports`;
 
+export const FINANCIAL_YEARS_URL = `${REPORTS_BASE_URL}/financial-years`;
+
 export const SALES_PARTYWISE_URL = `${REPORTS_BASE_URL}/sales/customer?party=`;
 export const PURCHASE_PARTYWISE_URL = `${REPORTS_BASE_URL}/purchases/supplier?party=`;
 

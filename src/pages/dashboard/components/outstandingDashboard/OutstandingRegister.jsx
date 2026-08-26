@@ -1,5 +1,9 @@
+import { useState } from "react";
 import { fmtDateIN } from "../../../../utils/format";
 import { Link, useLocation } from "react-router";
+import RegisterPagination, {
+  REGISTER_PAGE_SIZE,
+} from "../RegisterPagination";
 
 export default function OutstandingRegister({ invoices, fmtINR, context }) {
   const { pathname } = useLocation();
@@ -8,6 +12,17 @@ export default function OutstandingRegister({ invoices, fmtINR, context }) {
   const outstandingLabel = context === "Sales" ? "To Collect" : "To Pay";
   const outstandingInvoices = invoices.filter(
     (invoice) => Number(invoice.amountOutstanding) > 0,
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(outstandingInvoices.length / REGISTER_PAGE_SIZE),
+  );
+  const activePage = Math.min(currentPage, totalPages);
+  const startIndex = (activePage - 1) * REGISTER_PAGE_SIZE;
+  const visibleInvoices = outstandingInvoices.slice(
+    startIndex,
+    startIndex + REGISTER_PAGE_SIZE,
   );
 
   return (
@@ -26,7 +41,7 @@ export default function OutstandingRegister({ invoices, fmtINR, context }) {
             No outstanding {context.toLowerCase()} invoices available.
           </p>
         ) : (
-          outstandingInvoices.map((invoice) => (
+          visibleInvoices.map((invoice) => (
             <div
               key={invoice.billNo}
               className="rounded-lg border border-slate-100 p-3"
@@ -77,7 +92,7 @@ export default function OutstandingRegister({ invoices, fmtINR, context }) {
                 </td>
               </tr>
             ) : (
-              outstandingInvoices.map((invoice) => (
+              visibleInvoices.map((invoice) => (
                 <tr key={invoice.billNo} className="border-b border-gray-100">
                   <td className="py-3 pr-4 text-gray-700">{fmtDateIN(invoice.billDate)}</td>
                   <td className="py-3 pr-4 font-mono text-gray-900">{invoice.billNo}</td>
@@ -99,6 +114,19 @@ export default function OutstandingRegister({ invoices, fmtINR, context }) {
           </tbody>
         </table>
       </div>
+      {outstandingInvoices.length > 0 && (
+        <div className="-mx-5 -mb-5 mt-4">
+          <RegisterPagination
+            page={activePage}
+            totalPages={totalPages}
+            startIndex={startIndex}
+            visibleCount={visibleInvoices.length}
+            totalCount={outstandingInvoices.length}
+            itemLabel="invoices"
+            onChange={setCurrentPage}
+          />
+        </div>
+      )}
     </div>
   );
 }

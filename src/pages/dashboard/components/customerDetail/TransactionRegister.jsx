@@ -5,9 +5,11 @@ import {
   getUnitKey,
   getUnitLabel,
 } from "../../../../utils/unitOfMeasure";
+import RegisterPagination, {
+  REGISTER_PAGE_SIZE,
+} from "../RegisterPagination";
 
 const GROUP_THRESHOLD = 2;
-const INVOICES_PER_PAGE = 10;
 
 function formatQuantity(transaction, fmtNumber) {
   return [fmtNumber(getNumericQuantityForUnit(transaction), 1), transaction.per]
@@ -112,13 +114,13 @@ export default function TransactionRegister({
   );
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredInvoices.length / INVOICES_PER_PAGE),
+    Math.ceil(filteredInvoices.length / REGISTER_PAGE_SIZE),
   );
   const activePage = Math.min(currentPage, totalPages);
-  const firstInvoiceIndex = (activePage - 1) * INVOICES_PER_PAGE;
+  const firstInvoiceIndex = (activePage - 1) * REGISTER_PAGE_SIZE;
   const visibleInvoices = filteredInvoices.slice(
     firstInvoiceIndex,
-    firstInvoiceIndex + INVOICES_PER_PAGE,
+    firstInvoiceIndex + REGISTER_PAGE_SIZE,
   );
 
   function toggleInvoice(key) {
@@ -231,12 +233,13 @@ export default function TransactionRegister({
             </table>
           </div>
 
-          <Pagination
+          <RegisterPagination
             page={activePage}
             totalPages={totalPages}
-            firstInvoiceIndex={firstInvoiceIndex}
+            startIndex={firstInvoiceIndex}
             visibleCount={visibleInvoices.length}
-            totalInvoices={filteredInvoices.length}
+            totalCount={filteredInvoices.length}
+            itemLabel="invoices"
             onChange={changePage}
           />
         </>
@@ -458,45 +461,6 @@ function InvoiceTableColumns() {
       <col style={{ width: "9%" }} />
       <col style={{ width: "11%" }} />
     </>
-  );
-}
-
-function Pagination({
-  page,
-  totalPages,
-  firstInvoiceIndex,
-  visibleCount,
-  totalInvoices,
-  onChange,
-}) {
-  return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-5 py-4">
-      <p className="text-xs text-slate-500">
-        Showing {firstInvoiceIndex + 1}–{firstInvoiceIndex + visibleCount} of{" "}
-        {totalInvoices} invoices
-      </p>
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          disabled={page === 1}
-          onClick={() => onChange(page - 1)}
-          className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          Previous
-        </button>
-        <span className="text-xs text-slate-500">
-          Page {page} of {totalPages}
-        </span>
-        <button
-          type="button"
-          disabled={page === totalPages}
-          onClick={() => onChange(page + 1)}
-          className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          Next
-        </button>
-      </div>
-    </div>
   );
 }
 
