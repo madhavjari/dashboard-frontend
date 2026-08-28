@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import Error from "../../components/dashboard/Error";
 import Loading from "../../components/dashboard/Loading";
 import useItemData from "../../utils/fetch/itemData";
+import { fmtCompact, fmtINR } from "../../utils/format";
 import {
   getNumericQuantityForUnit,
   getUnitLabel,
@@ -10,16 +11,6 @@ import ItemDashboardHeader from "./components/itemDashboard/ItemDashboardHeader"
 import ItemDashboardSummary from "./components/itemDashboard/ItemDashboardSummary";
 import ItemWiseRegister from "./components/itemDashboard/ItemWiseRegister";
 import TransactionByItemChart from "./components/itemDashboard/TransactionByItemChart";
-import TransactionMixChart from "./components/itemDashboard/TransactionMixChart";
-
-const COLORS = {
-  ink: "#12162a",
-  gold: "#c69a3e",
-  indigo: "#3a4a9f",
-  teal: "#0f9d78",
-  grid: "#e3e5ee",
-  muted: "#6b7280",
-};
 
 function toNum(value) {
   const number = parseFloat(value);
@@ -30,17 +21,6 @@ function fmtNumber(number, digits = 0) {
   return new Intl.NumberFormat("en-IN", {
     maximumFractionDigits: digits,
   }).format(number);
-}
-
-function fmtINR(number) {
-  return `₹${fmtNumber(Math.round(number))}`;
-}
-
-function fmtCompact(number) {
-  if (number >= 1e7) return `₹${(number / 1e7).toFixed(2)} Cr`;
-  if (number >= 1e5) return `₹${(number / 1e5).toFixed(2)} L`;
-  if (number >= 1e3) return `₹${(number / 1e3).toFixed(1)}K`;
-  return `₹${fmtNumber(number)}`;
 }
 
 export default function ItemDashboard({ ITEMS_URL, context }) {
@@ -66,12 +46,6 @@ export default function ItemDashboard({ ITEMS_URL, context }) {
       }),
     [topItems],
   );
-
-  const categoryColor = {
-    kg: COLORS.gold,
-    metre: COLORS.indigo,
-    pcs: COLORS.teal,
-  };
 
   const sortedItems = useMemo(() => {
     const sorted = [...items];
@@ -106,7 +80,6 @@ export default function ItemDashboard({ ITEMS_URL, context }) {
         item.name.length > 30 ? `${item.name.slice(0, 30)}…` : item.name,
       fullName: item.name,
       transaction: item.transaction,
-      fill: categoryColor[item.category],
     }))
     .concat(
       remainingItems.length
@@ -117,19 +90,9 @@ export default function ItemDashboard({ ITEMS_URL, context }) {
               (total, item) => total + item.transaction,
               0,
             ),
-            fill: COLORS.muted,
           }
         : [],
     );
-  const categoryTotals = items.reduce((totals, item) => {
-    totals[item.category] = (totals[item.category] || 0) + item.transaction;
-    return totals;
-  }, {});
-  const pieData = Object.entries(categoryTotals).map(([name, value]) => ({
-    name,
-    value,
-    fill: categoryColor[name],
-  }));
   const columns = [
     ["name", "Item"],
     ["category", "UOM"],
@@ -147,8 +110,8 @@ export default function ItemDashboard({ ITEMS_URL, context }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-8">
-      <div className="mx-auto max-w-6xl">
+    <main className="app-page">
+      <div className="app-page-inner">
         <ItemDashboardHeader
           context={context}
           totalItems={summary.totalUniqueItems}
@@ -159,24 +122,13 @@ export default function ItemDashboard({ ITEMS_URL, context }) {
           summary={summary}
           fmtCompact={fmtCompact}
           fmtINR={fmtINR}
-          mostSoldItem={rankedItems[0]}
         />
         <div className="mb-6">
           <TransactionByItemChart
             barData={barData}
-            COLORS={COLORS}
             fmtCompact={fmtCompact}
             fmtINR={fmtINR}
-          />
-        </div>
-        <div className="mb-6">
-          <TransactionMixChart
             context={context}
-            pieData={pieData}
-            totalTransaction={summary.totalTransaction}
-            COLORS={COLORS}
-            fmtINR={fmtINR}
-            toNum={toNum}
           />
         </div>
         <ItemWiseRegister
@@ -190,6 +142,6 @@ export default function ItemDashboard({ ITEMS_URL, context }) {
           fmtINR={fmtINR}
         />
       </div>
-    </div>
+    </main>
   );
 }

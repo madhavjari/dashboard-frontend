@@ -235,6 +235,11 @@ export default function SyncSetupPage() {
     : "1";
   const shouldShowCompanyForm =
     !hasRegisteredCompany || showCompanyForm;
+  const setupSteps = [
+    { label: "Credential", complete: Boolean(isConfigured || generatedForSelectedAccount), active: !isConfigured && !generatedForSelectedAccount },
+    { label: "Company", complete: hasRegisteredCompany, active: Boolean((isConfigured || generatedForSelectedAccount) && !hasRegisteredCompany) },
+    { label: "Dashboard", complete: false, active: hasRegisteredCompany },
+  ];
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-10 sm:px-6">
@@ -257,7 +262,16 @@ export default function SyncSetupPage() {
           </p>
         </header>
 
-        <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <ol className="mt-8 grid grid-cols-3 border-y border-slate-200 bg-white" aria-label="Connection progress">
+          {setupSteps.map((step, index) => (
+            <li key={step.label} className={`flex min-w-0 items-center gap-2 px-3 py-3 text-xs sm:px-4 ${index ? "border-l border-slate-200" : ""}`} aria-current={step.active ? "step" : undefined}>
+              <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${step.complete ? "bg-emerald-100 text-emerald-800" : step.active ? "bg-teal-700 text-white" : "bg-slate-100 text-slate-500"}`}>{step.complete ? <Check size={13} strokeWidth={3} /> : index + 1}</span>
+              <span className={`truncate font-semibold ${step.active ? "text-slate-950" : "text-slate-500"}`}>{step.label}</span>
+            </li>
+          ))}
+        </ol>
+
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           {accounts.length > 1 && (
             <div className="mb-6">
               <label

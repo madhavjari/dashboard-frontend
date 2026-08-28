@@ -4,7 +4,7 @@ export default function Logo() {
   return (
     <Link
       to="/"
-      className="text-xl font-bold tracking-tight text-gray-900 transition hover:text-blue-600"
+      className="text-xl font-bold tracking-tight text-slate-900 transition hover:text-teal-700"
     >
       SaaS App
     </Link>

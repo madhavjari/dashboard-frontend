@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { CalendarRange, Menu, RefreshCw } from "lucide-react";
 import { Link, Outlet, useLocation, useOutletContext } from "react-router";
 import CompanySelector from "../../components/dashboard/CompanySelector";
+import WorkspaceSearch from "../../components/dashboard/WorkspaceSearch";
 import {
   ACCOUNTING_COMPANIES_URL,
   FINANCIAL_YEARS_URL,
@@ -15,7 +16,9 @@ export default function DashboardLayout() {
   const auth = useOutletContext();
   const { pathname } = useLocation();
   const isDemo = pathname === "/demo" || pathname.startsWith("/demo/");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() =>
+    typeof window === "undefined" ? true : window.matchMedia("(min-width: 1024px)").matches,
+  );
   const [financialYears, setFinancialYears] = useState([]);
   const [financialYear, setFinancialYear] = useState(null);
   const [financialYearStatus, setFinancialYearStatus] = useState("loading");
@@ -122,54 +125,37 @@ export default function DashboardLayout() {
 
   return (
     <div
-      className={`min-h-screen bg-slate-100 lg:grid lg:transition-[grid-template-columns] lg:duration-200 lg:ease-out ${
+      className={`min-h-screen bg-[#f4f7f6] lg:grid lg:transition-[grid-template-columns] lg:duration-200 lg:ease-out ${
         isSidebarOpen
           ? "lg:grid-cols-[16rem_minmax(0,1fr)]"
-          : "lg:grid-cols-[0_minmax(0,1fr)]"
+          : "lg:grid-cols-[4.5rem_minmax(0,1fr)]"
       }`}
     >
       <DashboardSidebar
         isOpen={isSidebarOpen}
-        onToggle={() => setIsSidebarOpen(false)}
+        onToggle={() => setIsSidebarOpen((open) => !open)}
       />
       <div className="min-w-0 flex-1">
-        <div
-          className={`grid transition-[grid-template-rows] duration-200 ease-out ${
-            isSidebarOpen
-              ? "grid-rows-[0fr] lg:grid-rows-[1fr]"
-              : "grid-rows-[1fr]"
-          }`}
-        >
-          <div className="min-h-0 overflow-hidden">
-            <div className="flex h-14 items-center px-4">
+        <header className="sticky top-0 z-30 border-b border-slate-200/90 bg-white/95 backdrop-blur">
+          <div className="flex h-16 items-center gap-3 px-4 sm:px-6 lg:px-8">
               <button
                 type="button"
                 onClick={() => setIsSidebarOpen((open) => !open)}
-                className={`rounded-lg bg-slate-950 p-2 text-slate-200 transition-opacity hover:bg-slate-800 hover:text-white ${
-                  isSidebarOpen
-                    ? "pointer-events-none opacity-0 lg:pointer-events-auto lg:opacity-100"
-                    : "opacity-100"
-                }`}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-50 hover:text-slate-950"
                 aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
                 title={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
               >
                 <Menu size={20} />
               </button>
-            </div>
-          </div>
-        </div>
-        <div className="mx-4 mb-3 flex min-h-11 flex-wrap items-center gap-x-5 gap-y-3 sm:mx-6 lg:mx-10">
+              <WorkspaceSearch />
+              <div className="ml-auto flex min-w-0 items-center gap-2">
           {companyStatus === "loading" ? (
-            <span className="inline-flex items-center gap-2 text-sm text-slate-500">
-              <RefreshCw size={15} className="animate-spin" /> Loading
-              companies...
+            <span className="hidden items-center gap-2 text-sm text-slate-500 md:inline-flex" role="status">
+              <RefreshCw size={15} className="animate-spin" /> Loading companies
             </span>
           ) : null}
           {accountingCompanies.length > 1 ? (
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-semibold text-slate-700">
-                Companies
-              </span>
+            <div className="hidden min-w-0 md:block">
               <CompanySelector
                 companies={accountingCompanies}
                 selectedCompanyIds={selectedAccountingCompanyIds}
@@ -178,45 +164,53 @@ export default function DashboardLayout() {
             </div>
           ) : null}
           {companyStatus === "error" ? (
-            <span className="text-xs text-amber-700">
+            <span className="hidden text-xs text-amber-700 md:inline">
               Company list unavailable; showing all accessible data.
             </span>
           ) : null}
 
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="mr-1 flex items-center gap-2 text-sm font-semibold text-slate-700">
-              <CalendarRange size={18} className="text-teal-700" />
-              Financial year
-            </div>
+          <div className="flex items-center gap-2">
             {financialYearStatus === "loading" && (
-              <span className="inline-flex items-center gap-2 text-sm text-slate-500">
-                <RefreshCw size={15} className="animate-spin" /> Loading...
+              <span className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm text-slate-500" role="status">
+                <RefreshCw size={15} className="animate-spin" /> <span className="hidden sm:inline">Loading year</span>
               </span>
             )}
-            {financialYears.map((year) => (
-              <button
-                key={year}
-                type="button"
-                onClick={() => setFinancialYear(year)}
-                aria-pressed={financialYear === year}
-                className={`rounded-lg border px-3 py-2 text-sm font-semibold transition ${
-                  financialYear === year
-                    ? "border-teal-700 bg-teal-700 text-white shadow-sm"
-                    : "border-slate-300 bg-white text-slate-700 hover:border-teal-400 hover:text-teal-800"
-                }`}
-              >
-                {year}
-              </button>
-            ))}
+            {financialYearStatus !== "loading" ? (
+              <label className="relative flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 hover:border-slate-300">
+                <CalendarRange size={17} className="shrink-0 text-teal-700" aria-hidden="true" />
+                <span className="sr-only">Financial year</span>
+                <select
+                  value={financialYear ?? ""}
+                  onChange={(event) => setFinancialYear(event.target.value)}
+                  className="min-w-0 appearance-none bg-transparent pr-5 text-sm outline-none"
+                  aria-label="Financial year"
+                >
+                  {(financialYears.length ? financialYears : [financialYear]).filter(Boolean).map((year) => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+                <span className="pointer-events-none absolute right-3 text-[10px] text-slate-400">▼</span>
+              </label>
+            ) : null}
             {financialYearStatus === "error" && (
-              <span className="text-xs text-amber-700">
-                Using {DEFAULT_FINANCIAL_YEAR}; year list is unavailable.
-              </span>
+              <span className="sr-only">Year list unavailable. Using {DEFAULT_FINANCIAL_YEAR}.</span>
             )}
           </div>
-        </div>
+              </div>
+          </div>
+          {accountingCompanies.length > 1 ? (
+            <div className="flex items-center gap-2 border-t border-slate-100 px-4 py-2 md:hidden">
+              <span className="text-xs font-semibold text-slate-500">Workspace</span>
+              <CompanySelector
+                companies={accountingCompanies}
+                selectedCompanyIds={selectedAccountingCompanyIds}
+                onChange={setSelectedAccountingCompanyIds}
+              />
+            </div>
+          ) : null}
+        </header>
         {isDemo && (
-          <div className="mx-4 mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-900 sm:mx-6 lg:mx-10">
+          <div className="mx-4 mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-900 sm:mx-6 lg:mx-10">
             <span>
               Demo workspace — all companies, invoices, and payments are synthetic.
             </span>

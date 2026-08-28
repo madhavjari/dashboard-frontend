@@ -73,9 +73,9 @@ export default function ItemDetailPage({ ITEM_URL, context }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-8">
-      <div className="mx-auto max-w-6xl">
-        <ItemDetailHeader item={item} />
+    <main className="app-page">
+      <div className="app-page-inner">
+        <ItemDetailHeader item={item} context={context} />
         <ItemDetailSummary
           summary={summary}
           fmtCompact={fmtCompact}
@@ -83,13 +83,13 @@ export default function ItemDetailPage({ ITEM_URL, context }) {
           fmtNumber={fmtNumber}
           context={context}
         />
-        <PartyRevenueQuantityChart transactions={transactions} />
+        <PartyRevenueQuantityChart transactions={transactions} context={context} />
         <ItemTransactionRegister
           transactions={transactions}
           fmtNumber={fmtNumber}
           fmtINR={fmtINR}
         />
       </div>
-    </div>
+    </main>
   );
 }

@@ -6,6 +6,7 @@ import OutstandingByPartyChart from "./components/outstandingDashboard/Outstandi
 import OutstandingHeader from "./components/outstandingDashboard/OutstandingHeader";
 import OutstandingRegister from "./components/outstandingDashboard/OutstandingRegister";
 import OutstandingSummary from "./components/outstandingDashboard/OutstandingSummary";
+import InvoiceAgeBreakdown from "./components/outstandingDashboard/InvoiceAgeBreakdown";
 
 export default function OutstandingDashboard({ OUTSTANDING_URL, context }) {
   const { summary, invoices, partySummary, status, message, reload } =
@@ -28,16 +29,18 @@ export default function OutstandingDashboard({ OUTSTANDING_URL, context }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-8">
-      <div className="mx-auto max-w-6xl">
+    <main className="app-page">
+      <div className="app-page-inner">
         <OutstandingHeader context={context} />
         <OutstandingSummary
           summary={summary}
           fmtCompact={fmtCompact}
           fmtINR={fmtINR}
           context={context}
+          invoices={invoices}
         />
-        <div className="mb-6 grid grid-cols-1 gap-4">
+        <div className="mb-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <InvoiceAgeBreakdown invoices={invoices} context={context} />
           <OutstandingByPartyChart
             partySummary={partySummary}
             context={context}
@@ -49,6 +52,6 @@ export default function OutstandingDashboard({ OUTSTANDING_URL, context }) {
           context={context}
         />
       </div>
-    </div>
+    </main>
   );
 }

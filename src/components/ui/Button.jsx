@@ -6,7 +6,7 @@ export default function Button({
 }) {
   return (
     <button
-      className={`w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 ${className} cursor-pointer`}
+      className={`min-h-11 w-full cursor-pointer rounded-lg bg-teal-700 px-4 py-3 font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
       disabled={loading || props.disabled}
       {...props}
     >

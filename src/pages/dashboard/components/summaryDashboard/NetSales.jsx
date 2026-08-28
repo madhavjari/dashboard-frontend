@@ -1,102 +1,23 @@
+import { ArrowRight } from "lucide-react";
+import { Link, useLocation } from "react-router";
 import ChartCard from "../../../../components/dashboard/ChartCard";
-import { fmtCompact } from "../../../../utils/format";
-import CustomTooltip from "../../../../components/dashboard/CustomTooltip";
-import { preparePartyChartData } from "./partyChartData";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-} from "recharts";
+import { fmtCompact, fmtINR } from "../../../../utils/format";
 
-export default function NetSales({ COLORS, customerChartData, context }) {
-  const chart = preparePartyChartData(customerChartData, "netAmount", {
-    regularLimit: 10,
-    skewedLimit: 10,
-  });
-  const chartHeight = Math.max(240, chart.data.length * 38);
-  const partyAxisWidth = Math.min(
-    280,
-    Math.max(170, ...chart.data.map((party) => party.party.length * 7.5)),
-  );
-  const largestAmount = Math.max(
-    1,
-    ...chart.data.map((party) => Math.abs(Number(party.netAmount) || 0)),
-  );
+export default function NetSales({ customerChartData, context }) {
+  const { pathname } = useLocation();
+  const prefix = pathname.startsWith("/demo/") ? "/demo" : "";
+  const partyRoute = context === "Sales" ? "customer" : "supplier";
+  const label = context === "Sales" ? "customer" : "supplier";
+  const data = [...customerChartData]
+    .map((party) => ({ ...party, value: Number(party.netAmount) || 0 }))
+    .sort((a, b) => b.value - a.value);
+  const visible = data.slice(0, 10);
+  const largest = Math.max(1, ...visible.map((party) => Math.abs(party.value)));
 
   return (
-    <ChartCard
-      title={`Net ${context} by Party`}
-      action={
-        chart.hiddenPartyCount > 0 ? (
-          <span className="text-xs font-medium text-slate-500">
-            Top {chart.visibleLimit} + {chart.hiddenPartyCount} others
-          </span>
-        ) : null
-      }
-    >
-      <div className="space-y-3 md:hidden">
-        {chart.data.map((party, index) => {
-          const amount = Number(party.netAmount) || 0;
-          const width = `${(Math.abs(amount) / largestAmount) * 100}%`;
-
-          return (
-            <div key={party.party}>
-              <div className="mb-1 flex items-start justify-between gap-3 text-xs">
-                <span className="min-w-0 break-words font-medium text-slate-700">
-                  {index + 1}. {party.party}
-                </span>
-                <span className="shrink-0 font-mono-num text-slate-500">
-                  {fmtCompact(amount)}
-                </span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                <div
-                  className="h-full rounded-full bg-emerald-500"
-                  style={{ width }}
-                />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <div className="hidden md:block">
-        <ResponsiveContainer width="100%" height={chartHeight} debounce={100}>
-          <BarChart
-            data={chart.data}
-            layout="vertical"
-            margin={{ top: 5, right: 20, left: 10, bottom: 0 }}
-          >
-            <CartesianGrid stroke={COLORS.grid} horizontal={false} />
-            <XAxis
-              type="number"
-              tickFormatter={fmtCompact}
-              tick={{ fontSize: 11, fill: "#64748b" }}
-              axisLine={{ stroke: COLORS.grid }}
-              tickLine={false}
-            />
-            <YAxis
-              type="category"
-              dataKey="party"
-              width={partyAxisWidth}
-              tick={{ fontSize: 12, fill: "#1e293b", fontWeight: 500 }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: "#f1f5f9" }} />
-            <Bar
-              dataKey="netAmount"
-              name={`Net ${context}`}
-              fill={COLORS.green}
-              radius={[0, 6, 6, 0]}
-              maxBarSize={34}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+    <ChartCard title={`Top ${label}s by net ${context.toLowerCase()}`} subtitle="Ranked contribution; select a name to open its ledger">
+      {visible.length ? <div className="divide-y divide-slate-100">{visible.map((party, index) => <Link key={party.party} to={`${prefix}/${partyRoute}?party=${encodeURIComponent(party.party)}`} className="group grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-2 py-3"><span className="min-w-0 truncate text-sm font-semibold text-slate-800 group-hover:text-teal-700">{index + 1}. {party.party}</span><span className="flex items-center gap-2 font-mono-num text-sm font-bold text-slate-950" title={fmtINR(party.value)}>{fmtCompact(party.value)}<ArrowRight size={14} className="text-slate-300 group-hover:text-teal-700" /></span><span className="col-span-2 h-1.5 overflow-hidden rounded-full bg-slate-100"><span className={`block h-full rounded-full ${party.value < 0 ? "bg-rose-500" : "bg-teal-600"}`} style={{ width: `${(Math.abs(party.value) / largest) * 100}%` }} /></span></Link>)}</div> : <div className="flex min-h-40 items-center justify-center text-sm text-slate-500">No {context.toLowerCase()} {label} data available.</div>}
+      {data.length > 10 ? <p className="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-500">Showing the top 10 of {data.length} {label}s. Use the register for complete detail.</p> : null}
     </ChartCard>
   );
 }

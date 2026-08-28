@@ -1,9 +1,7 @@
-import { useState } from "react";
 import {
   BarChart3,
-  ChevronDown,
   CircleDollarSign,
-  Landmark,
+  Gem,
   LayoutDashboard,
   KeyRound,
   Menu,
@@ -16,60 +14,47 @@ const sections = [
     label: "Sales",
     icon: BarChart3,
     items: [
-      { label: "Party-wise summary", to: "/sales-dashboard" },
-      { label: "Item-wise summary", to: "/sales-itemwise-dashboard" },
+      { label: "By customer", to: "/sales-dashboard" },
+      { label: "By item", to: "/sales-itemwise-dashboard" },
     ],
   },
   {
-    label: "Purchase",
+    label: "Purchases",
     icon: ReceiptText,
     items: [
-      { label: "Party-wise summary", to: "/purchase-dashboard" },
-      { label: "Item-wise summary", to: "/purchase-itemwise-dashboard" },
+      { label: "By supplier", to: "/purchase-dashboard" },
+      { label: "By item", to: "/purchase-itemwise-dashboard" },
     ],
   },
   {
-    label: "Outstanding",
+    label: "Money due",
     icon: CircleDollarSign,
     items: [
-      { label: "Sales outstanding", to: "/sales-outstanding-dashboard" },
-      { label: "Purchase outstanding", to: "/purchase-outstanding-dashboard" },
+      { label: "Receivables", to: "/sales-outstanding-dashboard" },
+      { label: "Payables", to: "/purchase-outstanding-dashboard" },
     ],
   },
 ];
 
-function SidebarSection({ section, routePrefix }) {
+function SidebarSection({ section, routePrefix, compact, onExpand }) {
   const { pathname } = useLocation();
   const hasActiveItem = section.items.some((item) => `${routePrefix}${item.to}` === pathname);
-  const [isOpen, setIsOpen] = useState(hasActiveItem);
   const Icon = section.icon;
 
+  if (compact) {
+    return <button type="button" onClick={onExpand} title={section.label} aria-label={`Open ${section.label} navigation`} className={`flex min-h-11 w-full items-center justify-center rounded-lg transition ${hasActiveItem ? "bg-teal-500/15 text-teal-300" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}><Icon size={18} /></button>;
+  }
+
   return (
-    <div>
-      <button
-        type="button"
-        onClick={() => setIsOpen((open) => !open)}
-        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition ${
-          hasActiveItem
-            ? "bg-teal-500/15 text-teal-300"
-            : "text-slate-300 hover:bg-white/5 hover:text-white"
-        }`}
-      >
-        <Icon size={18} />
-        <span className="flex-1">{section.label}</span>
-        <ChevronDown
-          size={16}
-          className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
-        />
-      </button>
-      {isOpen && (
-        <div className="mt-1 space-y-1 border-l border-slate-800 pl-3 ml-5">
+    <div className="pt-2">
+      <div className="flex items-center gap-2 px-3 pb-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500"><Icon size={14} /><span>{section.label}</span></div>
+        <div className="space-y-0.5">
           {section.items.map((item) => (
             <NavLink
               key={item.to}
               to={`${routePrefix}${item.to}`}
               className={({ isActive }) =>
-                `block rounded-md px-3 py-2 text-xs font-medium transition ${
+                `block min-h-9 rounded-md px-3 py-2 text-sm font-medium transition ${
                   isActive
                     ? "bg-teal-500/15 text-teal-300"
                     : "text-slate-400 hover:bg-white/5 hover:text-white"
@@ -80,7 +65,6 @@ function SidebarSection({ section, routePrefix }) {
             </NavLink>
           ))}
         </div>
-      )}
     </div>
   );
 }
@@ -94,18 +78,21 @@ export default function DashboardSidebar({ isOpen, onToggle }) {
         isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
       }`}
     >
+      {isOpen ? <button type="button" onClick={onToggle} className="fixed inset-0 z-30 bg-slate-950/35 lg:hidden" aria-label="Close navigation" /> : null}
       <aside
-        className={`min-h-0 w-full overflow-hidden bg-slate-950 text-slate-300 lg:min-h-screen lg:w-64 ${
+        className={`fixed inset-y-0 left-0 z-40 min-h-0 w-64 overflow-hidden bg-[#0d1c1a] text-slate-300 transition-transform duration-200 lg:sticky lg:top-0 lg:z-40 lg:min-h-screen ${
           isOpen
-            ? "border-b border-slate-800 lg:border-b-0 lg:border-r"
-            : "border-transparent"
+            ? "translate-x-0 border-r border-slate-800/80"
+            : "-translate-x-full border-transparent lg:w-[4.5rem] lg:translate-x-0 lg:border-r"
         }`}
-        aria-hidden={!isOpen}
       >
         <div className="flex items-start justify-between gap-3 px-5 py-5">
-          <Link to="/" className="block">
-            <p className="text-lg font-bold tracking-tight text-white">Prana</p>
-            <p className="mt-0.5 text-xs text-slate-400">Business command centre</p>
+          <Link to="/" className="flex min-w-0 items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-500 text-white"><Gem size={18} /></span>
+            <span className={isOpen ? "min-w-0" : "lg:hidden"}>
+              <span className="block text-lg font-bold tracking-tight text-white">Prana</span>
+              <span className="mt-0.5 block truncate text-[11px] text-slate-400">Business workspace</span>
+            </span>
           </Link>
           <button
             type="button"
@@ -129,10 +116,10 @@ export default function DashboardSidebar({ isOpen, onToggle }) {
             }
           >
             <LayoutDashboard size={18} />
-            Summary
+            <span className={isOpen ? "" : "lg:hidden"}>Overview</span>
           </NavLink>
           {sections.map((section) => (
-            <SidebarSection key={section.label} section={section} routePrefix={routePrefix} />
+            <SidebarSection key={section.label} section={section} routePrefix={routePrefix} compact={!isOpen} onExpand={onToggle} />
           ))}
           {!routePrefix && (
             <NavLink
@@ -146,13 +133,9 @@ export default function DashboardSidebar({ isOpen, onToggle }) {
               }
             >
               <KeyRound size={18} />
-              Data connection
+              <span className={isOpen ? "" : "lg:hidden"}>Data connection</span>
             </NavLink>
           )}
-          <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500">
-            <Landmark size={18} />
-            Cashflow <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px]">Soon</span>
-          </div>
         </nav>
       </aside>
     </div>

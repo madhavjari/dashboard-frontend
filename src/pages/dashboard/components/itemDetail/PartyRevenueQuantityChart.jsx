@@ -1,124 +1,31 @@
 import { useMemo } from "react";
-import {
-  Bar,
-  ComposedChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { ArrowRight } from "lucide-react";
+import { Link, useLocation } from "react-router";
 import { fmtCompact, fmtINR } from "../../../../utils/format";
-import { getNumericQuantityForUnit } from "../../../../utils/unitOfMeasure";
 
 function aggregateByParty(transactions) {
   const parties = new Map();
-
   for (const transaction of transactions) {
-    const party = transaction.party || "Unknown";
-    const isReturn = transaction.code.endsWith("R");
-    const direction = isReturn ? -1 : 1;
-
-    if (!parties.has(party)) {
-      parties.set(party, { party, revenue: 0, quantity: 0 });
-    }
-
-    const entry = parties.get(party);
-    entry.revenue += direction * (Number(transaction.totalAmount) || 0);
-    entry.quantity += direction * getNumericQuantityForUnit(transaction);
+    const party = transaction.party || "Unknown party";
+    const direction = String(transaction.code || "").endsWith("R") ? -1 : 1;
+    parties.set(party, (parties.get(party) || 0) + direction * (Number(transaction.totalAmount) || 0));
   }
-
-  return Array.from(parties.values()).sort((a, b) => b.revenue - a.revenue);
+  return [...parties.entries()].map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
 }
 
-export default function PartyRevenueQuantityChart({ transactions }) {
-  const data = useMemo(
-    () => aggregateByParty(transactions || []),
-    [transactions],
-  );
-
-  if (!data.length) {
-    return (
-      <div className="mb-6 rounded-xl bg-white p-6 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-200/70">
-        No party data available.
-      </div>
-    );
-  }
+export default function PartyRevenueQuantityChart({ transactions, context }) {
+  const { pathname } = useLocation();
+  const prefix = pathname.startsWith("/demo/") ? "/demo" : "";
+  const partyRoute = context === "Sales" ? "customer" : "supplier";
+  const data = useMemo(() => aggregateByParty(transactions || []), [transactions]);
+  const visible = data.slice(0, 10);
+  const largest = Math.max(1, ...visible.map((party) => Math.abs(party.value)));
 
   return (
-    <div className="mb-6 rounded-xl bg-white shadow-sm ring-1 ring-slate-200/70">
-      <div className="border-b border-slate-100 px-5 py-4">
-        <h3 className="font-display text-sm font-bold text-slate-900">
-          Revenue &amp; Quantity by Party
-        </h3>
-        <p className="text-xs text-slate-500">Net of returns</p>
-      </div>
-      <div className="h-[420px] w-full px-2 py-4">
-        <ResponsiveContainer width="100%" height="100%" debounce={100}>
-          <ComposedChart
-            data={data}
-            margin={{ top: 10, right: 20, left: 10, bottom: 70 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis
-              dataKey="party"
-              angle={-40}
-              textAnchor="end"
-              interval={0}
-              height={90}
-              tick={{ fontSize: 11, fill: "#475569" }}
-            />
-            <YAxis
-              yAxisId="revenue"
-              tickFormatter={fmtCompact}
-              tick={{ fontSize: 11, fill: "#475569" }}
-              label={{
-                value: "Revenue (₹)",
-                angle: -90,
-                position: "insideLeft",
-                style: { fontSize: 11, fill: "#475569" },
-              }}
-            />
-            <YAxis
-              yAxisId="quantity"
-              orientation="right"
-              tick={{ fontSize: 11, fill: "#475569" }}
-              label={{
-                value: "Quantity",
-                angle: 90,
-                position: "insideRight",
-                style: { fontSize: 11, fill: "#475569" },
-              }}
-            />
-            <Tooltip
-              formatter={(value, name) =>
-                name === "Revenue" ? [fmtINR(value), name] : [value, name]
-              }
-              labelStyle={{ fontWeight: 600 }}
-            />
-            <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Bar
-              yAxisId="revenue"
-              dataKey="revenue"
-              name="Revenue"
-              fill="#16a34a"
-              radius={[4, 4, 0, 0]}
-              barSize={28}
-            />
-            <Line
-              yAxisId="quantity"
-              type="monotone"
-              dataKey="quantity"
-              name="Quantity"
-              stroke="#2563eb"
-              strokeWidth={2}
-              dot={{ r: 3 }}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+    <section className="surface-card mb-6 overflow-hidden">
+      <div className="border-b border-slate-200 px-5 py-4 sm:px-6"><h2 className="text-sm font-bold text-slate-900">Top {context === "Sales" ? "customers" : "suppliers"} by net value</h2><p className="mt-1 text-xs text-slate-500">Returns deducted · select a name to open the party ledger</p></div>
+      {visible.length ? <div className="divide-y divide-slate-100 px-5 sm:px-6">{visible.map((party, index) => <Link key={party.name} to={`${prefix}/${partyRoute}?party=${encodeURIComponent(party.name)}`} className="group grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-2 py-3.5"><span className="min-w-0 truncate text-sm font-semibold text-slate-800 group-hover:text-teal-700">{index + 1}. {party.name}</span><span className="flex items-center gap-2 font-mono-num text-sm font-bold text-slate-950" title={fmtINR(party.value)}>{fmtCompact(party.value)}<ArrowRight size={14} className="text-slate-300 group-hover:text-teal-700" /></span><span className="col-span-2 h-1.5 overflow-hidden rounded-full bg-slate-100"><span className="block h-full rounded-full bg-teal-600" style={{ width: `${(Math.abs(party.value) / largest) * 100}%` }} /></span></Link>)}</div> : <div className="px-5 py-10 text-center text-sm text-slate-500">No party activity available.</div>}
+      {data.length > 10 ? <p className="border-t border-slate-100 bg-slate-50 px-5 py-3 text-xs text-slate-500 sm:px-6">Showing the top 10 of {data.length} parties. Use the transaction register for complete detail.</p> : null}
+    </section>
   );
 }

@@ -83,7 +83,7 @@ export default function ResetPassword() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
         <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-xl">
-          <div className="mx-auto mb-5 h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+          <div className="mx-auto mb-5 h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-teal-700" />
 
           <h1 className="text-2xl font-bold text-gray-900">
             Checking reset link
@@ -117,7 +117,7 @@ export default function ResetPassword() {
           <button
             type="button"
             onClick={() => navigate("/forgot-password")}
-            className="cursor-pointer mt-6 w-full rounded-lg bg-blue-600 px-4 py-2.5 font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="mt-6 min-h-11 w-full cursor-pointer rounded-lg bg-teal-700 px-4 py-2.5 font-semibold text-white transition hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2"
           >
             Request New Reset Link
           </button>

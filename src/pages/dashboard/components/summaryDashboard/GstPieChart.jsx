@@ -19,7 +19,7 @@ export default function GstPieChart({ taxView, setTaxView, pieData, context }) {
           <button
             onClick={() => setTaxView(`${context}`)}
             className={`rounded-full px-3 py-1 font-medium transition ${
-              taxView === context ? "bg-blue-600 text-white" : "text-gray-500"
+              taxView === context ? "bg-teal-700 text-white" : "text-slate-500"
             }`}
           >
             Sales
@@ -27,7 +27,7 @@ export default function GstPieChart({ taxView, setTaxView, pieData, context }) {
           <button
             onClick={() => setTaxView("returns")}
             className={`rounded-full px-3 py-1 font-medium transition ${
-              taxView === "returns" ? "bg-blue-600 text-white" : "text-gray-500"
+              taxView === "returns" ? "bg-teal-700 text-white" : "text-slate-500"
             }`}
           >
             Returns

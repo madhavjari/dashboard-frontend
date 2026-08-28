@@ -107,7 +107,7 @@ export default function AuthProvider({ children }) {
     >
       {isAuthenticating ? (
         <div className="flex min-h-screen flex-col items-center justify-center gap-2 bg-slate-100 px-4 text-center text-sm font-medium text-slate-600">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-blue-600" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-teal-700" />
           <p>Checking your session...</p>
           <p className="max-w-sm font-normal text-slate-500">
             The server may take up to a minute to wake on the free Render plan.

@@ -3,10 +3,12 @@ import {
   ArrowRight,
   Eye,
   EyeOff,
+  CheckCircle2,
+  Mail,
   LayoutDashboard,
   LockKeyhole,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 
 import Input from "../../components/ui/Input";
 import { AUTH_BASE_URL } from "../../config/reportUrls";
@@ -24,7 +26,6 @@ function FieldErrors({ id, errors }) {
 }
 
 export default function SignupForm() {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -38,6 +39,7 @@ export default function SignupForm() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleChange = ({ target: { name, value } }) => {
     setErrors((current) => ({
@@ -74,8 +76,7 @@ export default function SignupForm() {
         throw new Error(data.message || "Unable to create your account");
       }
 
-      alert(data.message);
-      navigate("/");
+      setSuccessMessage(data.message || "Your account has been created.");
     } catch (error) {
       setErrors({
         general: [
@@ -88,6 +89,21 @@ export default function SignupForm() {
       setLoading(false);
     }
   };
+
+  if (successMessage) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-8">
+        <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm" role="status">
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-700"><CheckCircle2 size={24} /></span>
+          <h1 className="mt-5 text-2xl font-bold text-slate-950">Workspace account created</h1>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{successMessage}</p>
+          <div className="mt-6 rounded-xl bg-slate-50 p-4 text-left"><p className="flex items-center gap-2 text-sm font-semibold text-slate-800"><Mail size={16} className="text-teal-700" /> Check your inbox</p><p className="mt-1 text-xs leading-5 text-slate-500">Verify your email before connecting an accounting computer.</p></div>
+          <Link to="/login" className="mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800">Continue to sign in <ArrowRight size={16} /></Link>
+          <Link to="/" className="mt-3 inline-flex min-h-10 items-center text-sm font-semibold text-slate-600 hover:text-teal-700">Back to homepage</Link>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-8">

@@ -1,24 +1,30 @@
-import { StrictMode } from "react";
+/* eslint-disable react-refresh/only-export-components -- application entry point defines lazy route boundaries */
+import { lazy, StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
 import HomePage from "./pages/HomePage.jsx";
-import SignupForm from "./pages/auth/SignupForm.jsx";
-import LoginForm from "./pages/auth/LoginForm.jsx";
 import AuthProvider from "./AuthProvider.jsx";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
-import VerifyEmail from "./pages/auth/VerifyEmail.jsx";
-import ResendVerificationEmail from "./pages/auth/ResendVerificationMail.jsx";
-import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
-import ResetPassword from "./pages/auth/ResetPassword.jsx";
-import DashboardPage from "./pages/dashboard/DashboardPage.jsx";
-import DashboardLayout from "./pages/dashboard/DashboardLayout.jsx";
-import GuestRoute from "./pages/auth/GuestRoute.jsx";
-import ProtectedRoute from "./pages/auth/ProtectedRoute.jsx";
-import SyncConfiguredRoute from "./pages/auth/SyncConfiguredRoute.jsx";
-import NotFoundPage from "./pages/NotFoundPage.jsx";
 import { dashboardRoutes } from "./config/dashboardRoutes.js";
-import SyncSetupPage from "./pages/dashboard/SyncSetupPage.jsx";
+
+const SignupForm = lazy(() => import("./pages/auth/SignupForm.jsx"));
+const LoginForm = lazy(() => import("./pages/auth/LoginForm.jsx"));
+const VerifyEmail = lazy(() => import("./pages/auth/VerifyEmail.jsx"));
+const ResendVerificationEmail = lazy(() => import("./pages/auth/ResendVerificationMail.jsx"));
+const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword.jsx"));
+const ResetPassword = lazy(() => import("./pages/auth/ResetPassword.jsx"));
+const DashboardPage = lazy(() => import("./pages/dashboard/DashboardPage.jsx"));
+const DashboardLayout = lazy(() => import("./pages/dashboard/DashboardLayout.jsx"));
+const GuestRoute = lazy(() => import("./pages/auth/GuestRoute.jsx"));
+const ProtectedRoute = lazy(() => import("./pages/auth/ProtectedRoute.jsx"));
+const SyncConfiguredRoute = lazy(() => import("./pages/auth/SyncConfiguredRoute.jsx"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage.jsx"));
+const SyncSetupPage = lazy(() => import("./pages/dashboard/SyncSetupPage.jsx"));
+
+function RouteFallback() {
+  return <div className="flex min-h-screen items-center justify-center bg-[#f4f7f6]" role="status" aria-label="Loading page"><span className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-teal-700" /></div>;
+}
 
 function createDashboardChildren() {
   return dashboardRoutes.map(({ path, page, reportType }) => ({
@@ -80,7 +86,9 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
-      <RouterProvider router={router} />
+      <Suspense fallback={<RouteFallback />}>
+        <RouterProvider router={router} />
+      </Suspense>
     </AuthProvider>
   </StrictMode>,
 );

@@ -13,6 +13,7 @@ export default function DashboardPage({ page, reportType }) {
       <BusinessSummaryPage
         urls={{
           salesSummaryUrl: reports.sales.summaryUrl,
+          purchaseSummaryUrl: reports.purchase.summaryUrl,
           salesOutstandingUrl: reports.sales.outstandingUrl,
           purchaseOutstandingUrl: reports.purchase.outstandingUrl,
         }}

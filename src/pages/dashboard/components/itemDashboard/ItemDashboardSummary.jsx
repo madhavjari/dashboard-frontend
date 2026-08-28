@@ -5,28 +5,34 @@ export default function ItemDashboardSummary({
   summary,
   fmtCompact,
   fmtINR,
-  mostSoldItem,
 }) {
   const itemAction = context.toLowerCase() === "purchase" ? "Purchased" : "Sold";
+  const averageItemValue = summary.totalUniqueItems
+    ? summary.totalTransaction / summary.totalUniqueItems
+    : 0;
 
   return (
-    <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <section className="metric-group mb-6 grid grid-cols-1 sm:grid-cols-3" aria-label={`${context} item summary`}>
       <StatCard
         label={`Total Items ${itemAction}`}
         value={summary.totalUniqueItems}
         sub="unique items"
-      />
-      <StatCard
-        label={`Most Item ${itemAction} by Value`}
-        value={mostSoldItem?.name || "—"}
-        sub={mostSoldItem ? fmtINR(mostSoldItem.transaction) : "No item sales"}
+        grouped
       />
       <StatCard
         label={`Total ${context}`}
         value={fmtCompact(summary.totalTransaction)}
-        sub={fmtINR(summary.totalTransaction)}
-        tone="text-green-600"
+        sub="net transaction value"
+        tone="text-teal-700"
+        exactValue={fmtINR(summary.totalTransaction)}
+        grouped
       />
-    </div>
+      <StatCard
+        label="Average value per item"
+        value={fmtCompact(averageItemValue)}
+        sub="total value ÷ unique items"
+        grouped
+      />
+    </section>
   );
 }

@@ -43,9 +43,9 @@ export default function PartyDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-8">
-      <div className="mx-auto max-w-6xl">
-        <CustomerDetailHeader party={party} />
+    <main className="app-page">
+      <div className="app-page-inner">
+        <CustomerDetailHeader party={party} context={context} />
         <CustomerSummary
           summary={summary}
           fmtCompact={fmtCompact}
@@ -55,13 +55,13 @@ export default function PartyDetailPage({
           averagePaymentDays={averagePaymentDays}
           paidInvoiceCount={paidInvoiceCount}
         />
-        <ItemValueQuantityChart transactions={transactions} />
+        <ItemValueQuantityChart transactions={transactions} context={context} />
         <TransactionRegister
           transactions={transactions}
           fmtNumber={fmtNumber}
           fmtINR={fmtINR}
         />
       </div>
-    </div>
+    </main>
   );
 }

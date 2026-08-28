@@ -143,9 +143,9 @@ export default function TransactionRegister({
     : "No transactions available.";
 
   return (
-    <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-200/70">
-      <div className="border-b border-slate-100 px-5 py-4">
-        <div className="flex flex-wrap items-start justify-between gap-2">
+    <section className="surface-card overflow-hidden">
+      <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
+        <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h3 className="font-display text-sm font-bold text-slate-900">
               Transaction Register
@@ -156,20 +156,17 @@ export default function TransactionRegister({
               {transactions.length} line items
             </p>
           </div>
-          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">
-            Grouped above {GROUP_THRESHOLD} items
-          </span>
+          <label className="block w-full sm:w-72">
+            <span className="sr-only">Search invoices or items</span>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={changeSearch}
+              placeholder="Search invoice or item"
+              className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-600 focus:ring-3 focus:ring-teal-100"
+            />
+          </label>
         </div>
-        <label className="mt-3 block">
-          <span className="sr-only">Search invoices or items</span>
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={changeSearch}
-            placeholder="Search invoice or item"
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
-          />
-        </label>
       </div>
 
       {filteredInvoices.length === 0 ? (
@@ -202,12 +199,12 @@ export default function TransactionRegister({
             )}
           </div>
 
-          <div className="hidden overflow-x-auto md:block">
+          <div className="table-scroll hidden max-h-[42rem] overflow-auto md:block">
             <table className="w-full table-fixed text-sm">
               <colgroup>
                 <InvoiceTableColumns />
               </colgroup>
-              <thead>
+              <thead className="sticky top-0 z-10 bg-slate-50">
                 <tr className="border-b border-slate-100 text-left text-[11px] uppercase tracking-wide text-slate-500">
                   <th className="px-5 py-3">Date</th>
                   <th className="px-5 py-3">Invoice</th>
@@ -244,7 +241,7 @@ export default function TransactionRegister({
           />
         </>
       )}
-    </div>
+    </section>
   );
 }
 
@@ -487,8 +484,9 @@ function TransactionTypeBadge({ code }) {
     <span
       className={
         "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium " +
-        (isReturn ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700")
+        (isReturn ? "bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-200" : "bg-slate-100 text-slate-700")
       }
+      title={isReturn ? "Return transaction" : "Sale or purchase transaction"}
     >
       {code}
     </span>

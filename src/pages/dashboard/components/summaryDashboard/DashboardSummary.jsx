@@ -14,23 +14,29 @@ export default function DashboardSummary({
       : "amount to pay ÷ net purchase × 365";
 
   return (
-    <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+    <section className="metric-group mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6" aria-label={`${context} summary`}>
+      <StatCard
+        label={`Net ${context}`}
+        value={fmtCompact(summary.netAmount)}
+        sub="after returns"
+        exactValue={fmtINR(summary.netAmount)}
+        tone="text-teal-700"
+        className="col-span-2 sm:col-span-1 lg:col-span-2"
+        grouped
+      />
       <StatCard
         label={`Gross ${context}`}
         value={fmtCompact(summary.grossAmount)}
-        sub={fmtINR(summary.grossAmount)}
+        sub="before returns"
+        exactValue={fmtINR(summary.grossAmount)}
+        grouped
       />
       <StatCard
         label="Returns"
         value={fmtCompact(summary.returns)}
         sub={`${summary.returnCount} returns · ${returnRate}%`}
-        tone="text-red-600"
-      />
-      <StatCard
-        label={`Net ${context}`}
-        value={fmtCompact(summary.netAmount)}
-        sub={fmtINR(summary.netAmount)}
-        tone="text-green-600"
+        tone="text-rose-700"
+        grouped
       />
       <StatCard
         label="Invoices"
@@ -42,12 +48,14 @@ export default function DashboardSummary({
               )}/invoice`
             : "No invoices"
         }
+        grouped
       />
       <StatCard
         label={daysLabel}
         value={debtorDays === null ? "—" : `${debtorDays.toFixed(1)} days`}
         sub={daysFormula}
+        grouped
       />
-    </div>
+    </section>
   );
 }

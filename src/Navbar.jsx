@@ -1,5 +1,12 @@
+import { ArrowRight, Gem, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { AUTH_BASE_URL } from "./config/reportUrls";
+
+const navigation = [
+  { label: "Product", href: "#product" },
+  { label: "Outcomes", href: "#outcomes" },
+  { label: "How it works", href: "#how-it-works" },
+];
 
 export default function Navbar({ userId, updateAccessToken }) {
   const navigate = useNavigate();
@@ -9,64 +16,41 @@ export default function Navbar({ userId, updateAccessToken }) {
       const response = await fetch(`${AUTH_BASE_URL}/logout`, {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
-
-      if (!response.ok) {
-        throw new Error("Invalid request");
-      }
-
-      alert("Logged out successfully!");
+      if (!response.ok) throw new Error("Invalid request");
       navigate("/");
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.error(error);
     } finally {
       updateAccessToken(null);
     }
   };
 
   return (
-    <nav className="border-b border-gray-200 bg-white">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <Link
-          to="/"
-          className="text-xl font-bold tracking-tight text-gray-900 transition hover:text-blue-600"
-        >
-          Prana
+    <nav className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur" aria-label="Primary navigation">
+      <div className="mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
+        <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="Prana home">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-700 text-white shadow-sm"><Gem size={18} aria-hidden="true" /></span>
+          <span className="text-lg font-bold tracking-tight text-slate-950">Prana</span>
         </Link>
 
-        {/* Navigation */}
-        <div className="flex items-center gap-3">
+        <div className="ml-10 hidden items-center gap-1 lg:flex">
+          {navigation.map((item) => (
+            <a key={item.href} href={item.href} className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-950">{item.label}</a>
+          ))}
+        </div>
+
+        <div className="ml-auto flex items-center gap-2">
           {userId ? (
             <>
-              {/* Future links can be added here */}
-
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="cursor-pointer rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
-              >
-                Logout
-              </button>
+              <button type="button" onClick={handleLogout} className="hidden min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-950 sm:inline-flex"><LogOut size={16} /> Sign out</button>
+              <Link to="/dashboard-summary" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-teal-700 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-teal-800">Open dashboard <ArrowRight size={15} /></Link>
             </>
           ) : (
             <>
-              <Link
-                to="/login"
-                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
-              >
-                Login
-              </Link>
-
-              <Link
-                to="/register"
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
-              >
-                Sign up
-              </Link>
+              <Link to="/login" className="inline-flex min-h-10 items-center rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-950">Sign in</Link>
+              <Link to="/demo/dashboard-summary" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-teal-700 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-teal-800">View demo <ArrowRight size={15} className="hidden sm:block" /></Link>
             </>
           )}
         </div>

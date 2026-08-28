@@ -9,7 +9,7 @@ export default function Input({
     <div>
       <label
         htmlFor={id}
-        className="mb-2 block text-sm font-medium text-gray-700"
+        className="mb-2 block text-sm font-semibold text-slate-700"
       >
         {label}
       </label>
@@ -17,10 +17,10 @@ export default function Input({
       <div className="relative">
         <input
           id={id}
-          className={`w-full rounded-lg border border-gray-300
-               bg-white px-4 py-2.5 text-sm text-gray-900
-                outline-none transition placeholder:text-gray-400
-                 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 ${inputClassName}`}
+          className={`min-h-11 w-full rounded-lg border border-slate-300
+               bg-white px-4 py-2.5 text-sm text-slate-900
+                outline-none transition placeholder:text-slate-400
+                 focus:border-teal-600 focus:ring-3 focus:ring-teal-100 ${inputClassName}`}
           {...props}
         />
         {trailingElement ? (

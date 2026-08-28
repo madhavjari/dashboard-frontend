@@ -4,6 +4,7 @@ import useFinancialYearUrl from "./reportUrl";
 
 export default function useBusinessSummaryData({
   salesSummaryUrl,
+  purchaseSummaryUrl,
   salesOutstandingUrl,
   purchaseOutstandingUrl,
 }) {
@@ -12,6 +13,7 @@ export default function useBusinessSummaryData({
   const selectedSalesOutstandingUrl = useFinancialYearUrl(
     salesOutstandingUrl,
   );
+  const selectedPurchaseSummaryUrl = useFinancialYearUrl(purchaseSummaryUrl);
   const selectedPurchaseOutstandingUrl = useFinancialYearUrl(
     purchaseOutstandingUrl,
   );
@@ -26,24 +28,27 @@ export default function useBusinessSummaryData({
     async function load() {
       try {
         setStatus("loading");
-        const [salesResponse, salesOutstandingResponse, purchaseOutstandingResponse] =
+        const [salesResponse, purchaseResponse, salesOutstandingResponse, purchaseOutstandingResponse] =
           await Promise.all([
             fetch(selectedSalesSummaryUrl, fetchOptions),
+            fetch(selectedPurchaseSummaryUrl, fetchOptions),
             fetch(selectedSalesOutstandingUrl, fetchOptions),
             fetch(selectedPurchaseOutstandingUrl, fetchOptions),
           ]);
 
         if (
           !salesResponse.ok ||
+          !purchaseResponse.ok ||
           !salesOutstandingResponse.ok ||
           !purchaseOutstandingResponse.ok
         ) {
           throw new Error("Failed to fetch your business summary");
         }
 
-        const [salesData, salesOutstandingData, purchaseOutstandingData] =
+        const [salesData, purchaseData, salesOutstandingData, purchaseOutstandingData] =
           await Promise.all([
             salesResponse.json(),
+            purchaseResponse.json(),
             salesOutstandingResponse.json(),
             purchaseOutstandingResponse.json(),
           ]);
@@ -52,6 +57,7 @@ export default function useBusinessSummaryData({
 
         setData({
           netSales: Number((salesData.data ?? salesData).netAmount) || 0,
+          netPurchases: Number((purchaseData.data ?? purchaseData).netAmount) || 0,
           salesOutstanding:
             Number(salesOutstandingData.summary?.totalToCollect) || 0,
           purchaseOutstanding:
@@ -72,6 +78,7 @@ export default function useBusinessSummaryData({
   }, [
     fetchOptions,
     selectedPurchaseOutstandingUrl,
+    selectedPurchaseSummaryUrl,
     reloadCount,
     selectedSalesOutstandingUrl,
     selectedSalesSummaryUrl,

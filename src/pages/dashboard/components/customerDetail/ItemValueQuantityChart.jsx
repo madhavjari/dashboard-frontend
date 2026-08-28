@@ -1,138 +1,31 @@
 import { useMemo } from "react";
-import {
-  ComposedChart,
-  Bar,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import { ArrowRight } from "lucide-react";
+import { Link, useLocation } from "react-router";
 import { fmtCompact, fmtINR } from "../../../../utils/format";
-import { getNumericQuantityForUnit } from "../../../../utils/unitOfMeasure";
 
 function aggregateByItem(transactions) {
   const items = new Map();
-
   for (const transaction of transactions) {
-    const itemName = transaction.itemName || "Unknown";
-    const amount = Number(transaction.totalAmount) || 0;
-    const quantity = getNumericQuantityForUnit(transaction);
-    const isReturn = transaction.code === "SR";
-
-    if (!items.has(itemName)) {
-      items.set(itemName, {
-        itemName,
-        amount: 0,
-        quantity: 0,
-      });
-    }
-
-    const item = items.get(itemName);
-    item.amount += isReturn ? -amount : amount;
-    item.quantity += isReturn ? -quantity : quantity;
+    const itemName = transaction.itemName || "Unknown item";
+    const direction = String(transaction.code || "").endsWith("R") ? -1 : 1;
+    items.set(itemName, (items.get(itemName) || 0) + direction * (Number(transaction.totalAmount) || 0));
   }
-
-  return Array.from(items.values()).sort((a, b) => b.amount - a.amount);
+  return [...items.entries()].map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
 }
 
-export default function ItemValueQuantityChart({ transactions }) {
-  const data = useMemo(
-    () => aggregateByItem(transactions || []),
-    [transactions],
-  );
-
-  if (!data.length) {
-    return (
-      <div className="rounded-xl bg-white p-6 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-200/70">
-        No item data available.
-      </div>
-    );
-  }
+export default function ItemValueQuantityChart({ transactions, context }) {
+  const { pathname } = useLocation();
+  const prefix = pathname.startsWith("/demo/") ? "/demo" : "";
+  const detailRoute = context === "Sales" ? "item" : "purchase-item";
+  const data = useMemo(() => aggregateByItem(transactions || []), [transactions]);
+  const visible = data.slice(0, 10);
+  const largest = Math.max(1, ...visible.map((item) => Math.abs(item.value)));
 
   return (
-    <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-200/70">
-      <div className="border-b border-slate-100 px-5 py-4">
-        <h3 className="font-display text-sm font-bold text-slate-900">
-          Items — Value &amp; Quantity
-        </h3>
-        <p className="text-xs text-slate-500">
-          Net of returns · {data.length} distinct items
-        </p>
-      </div>
-      <div className="h-[420px] w-full px-2 py-4">
-        <ResponsiveContainer width="100%" height="100%" debounce={100}>
-          <ComposedChart
-            data={data}
-            margin={{ top: 10, right: 20, left: 10, bottom: 70 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis
-              dataKey="itemName"
-              angle={-40}
-              textAnchor="end"
-              interval={0}
-              height={90}
-              tick={{ fontSize: 11, fill: "#475569" }}
-            />
-            <YAxis
-              yAxisId="amount"
-              orientation="left"
-              tickFormatter={fmtCompact}
-              tick={{ fontSize: 11, fill: "#475569" }}
-              label={{
-                value: "Amount (₹)",
-                angle: -90,
-                position: "insideLeft",
-                style: { fontSize: 11, fill: "#475569" },
-              }}
-            />
-            <YAxis
-              yAxisId="quantity"
-              orientation="right"
-              tick={{ fontSize: 11, fill: "#475569" }}
-              label={{
-                value: "Quantity",
-                angle: 90,
-                position: "insideRight",
-                style: { fontSize: 11, fill: "#475569" },
-              }}
-            />
-            <Tooltip
-              formatter={(value, name) => {
-                if (name === "Amount") return [fmtINR(value), name];
-                return [
-                  new Intl.NumberFormat("en-IN", {
-                    maximumFractionDigits: 1,
-                  }).format(value),
-                  name,
-                ];
-              }}
-              labelStyle={{ fontWeight: 600 }}
-            />
-            <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Bar
-              yAxisId="amount"
-              dataKey="amount"
-              name="Amount"
-              fill="#16a34a"
-              radius={[4, 4, 0, 0]}
-              barSize={28}
-            />
-            <Line
-              yAxisId="quantity"
-              type="monotone"
-              dataKey="quantity"
-              name="Quantity"
-              stroke="#2563eb"
-              strokeWidth={2}
-              dot={{ r: 3 }}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+    <section className="surface-card mb-6 overflow-hidden">
+      <div className="border-b border-slate-200 px-5 py-4 sm:px-6"><h2 className="text-sm font-bold text-slate-900">Top items by net value</h2><p className="mt-1 text-xs text-slate-500">Returns deducted · select an item to open its ledger</p></div>
+      {visible.length ? <div className="divide-y divide-slate-100 px-5 sm:px-6">{visible.map((item, index) => <Link key={item.name} to={`${prefix}/${detailRoute}?item=${encodeURIComponent(item.name)}`} className="group grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-2 py-3.5"><span className="min-w-0 truncate text-sm font-semibold text-slate-800 group-hover:text-teal-700">{index + 1}. {item.name}</span><span className="flex items-center gap-2 font-mono-num text-sm font-bold text-slate-950" title={fmtINR(item.value)}>{fmtCompact(item.value)}<ArrowRight size={14} className="text-slate-300 group-hover:text-teal-700" /></span><span className="col-span-2 h-1.5 overflow-hidden rounded-full bg-slate-100"><span className="block h-full rounded-full bg-teal-600" style={{ width: `${(Math.abs(item.value) / largest) * 100}%` }} /></span></Link>)}</div> : <div className="px-5 py-10 text-center text-sm text-slate-500">No item activity available.</div>}
+      {data.length > 10 ? <p className="border-t border-slate-100 bg-slate-50 px-5 py-3 text-xs text-slate-500 sm:px-6">Showing the top 10 of {data.length} items. Use the transaction register for complete detail.</p> : null}
+    </section>
   );
 }

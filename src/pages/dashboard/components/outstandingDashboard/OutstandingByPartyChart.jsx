@@ -1,111 +1,24 @@
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { ArrowRight } from "lucide-react";
+import { Link, useLocation } from "react-router";
 import ChartCard from "../../../../components/dashboard/ChartCard";
 import { fmtCompact, fmtINR } from "../../../../utils/format";
-import { preparePartyChartData } from "../summaryDashboard/partyChartData";
 
 export default function OutstandingByPartyChart({ partySummary, context }) {
-  const outstandingLabel = context === "Sales" ? "To Collect" : "To Pay";
-  const chart = preparePartyChartData(partySummary, "amountOutstanding", {
-    regularLimit: 10,
-    skewedLimit: 10,
-  });
-  const chartHeight = Math.max(240, chart.data.length * 38);
-  const partyAxisWidth = Math.min(
-    280,
-    Math.max(170, ...chart.data.map((party) => party.party.length * 7.5)),
-  );
-  const largestAmount = Math.max(
-    1,
-    ...chart.data.map(
-      (party) => Math.abs(Number(party.amountOutstanding)) || 0,
-    ),
-  );
+  const { pathname } = useLocation();
+  const prefix = pathname.startsWith("/demo/") ? "/demo" : "";
+  const partyRoute = context === "Sales" ? "customer" : "supplier";
+  const label = context === "Sales" ? "customer" : "supplier";
+  const data = [...partySummary]
+    .map((party) => ({ ...party, amount: Number(party.amountOutstanding) || 0 }))
+    .filter((party) => party.amount > 0)
+    .sort((a, b) => b.amount - a.amount);
+  const visible = data.slice(0, 10);
+  const largest = Math.max(1, ...visible.map((party) => party.amount));
 
   return (
-    <ChartCard
-      title={`${outstandingLabel} by Party`}
-      action={
-        chart.hiddenPartyCount > 0 ? (
-          <span className="text-xs font-medium text-slate-500">
-            Top {chart.visibleLimit} + {chart.hiddenPartyCount} others
-          </span>
-        ) : null
-      }
-    >
-      {chart.data.length === 0 ? (
-        <div className="flex h-[230px] items-center justify-center text-sm text-slate-500">
-          No outstanding balances.
-        </div>
-      ) : (
-        <>
-          <div className="space-y-3 md:hidden">
-            {chart.data.map((party, index) => {
-              const amount = Number(party.amountOutstanding) || 0;
-              const width = `${(Math.abs(amount) / largestAmount) * 100}%`;
-
-              return (
-                <div key={party.party}>
-                  <div className="mb-1 flex items-start justify-between gap-3 text-xs">
-                    <span className="min-w-0 break-words font-medium text-slate-700">
-                      {index + 1}. {party.party}
-                    </span>
-                    <span className="shrink-0 font-mono-num text-slate-500">
-                      {fmtCompact(amount)}
-                    </span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                    <div
-                      className="h-full rounded-full bg-emerald-500"
-                      style={{ width }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="hidden md:block">
-            <ResponsiveContainer width="100%" height={chartHeight} debounce={100}>
-              <BarChart
-                data={chart.data}
-                layout="vertical"
-                margin={{ top: 5, right: 20, left: 10, bottom: 0 }}
-              >
-                <CartesianGrid stroke="#e2e8f0" horizontal={false} />
-                <XAxis
-                  type="number"
-                  tickFormatter={fmtCompact}
-                  tick={{ fontSize: 11, fill: "#64748b" }}
-                  tickLine={false}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="party"
-                  width={partyAxisWidth}
-                  tick={{ fontSize: 12, fill: "#1e293b", fontWeight: 500 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip formatter={(value) => fmtINR(value)} />
-                <Bar
-                  dataKey="amountOutstanding"
-                  name={outstandingLabel}
-                  fill="#d97706"
-                  radius={[0, 6, 6, 0]}
-                  maxBarSize={34}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </>
-      )}
+    <ChartCard title={`Largest ${label} balances`} subtitle="Ranked open balances; select a name to review its ledger">
+      {visible.length ? <div className="divide-y divide-slate-100">{visible.map((party, index) => <Link key={party.party} to={`${prefix}/${partyRoute}?party=${encodeURIComponent(party.party)}`} className="group grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-2 py-3"><span className="min-w-0 truncate text-sm font-semibold text-slate-800 group-hover:text-teal-700">{index + 1}. {party.party}</span><span className="flex items-center gap-2 font-mono-num text-sm font-bold text-slate-950" title={fmtINR(party.amount)}>{fmtCompact(party.amount)}<ArrowRight size={14} className="text-slate-300 group-hover:text-teal-700" /></span><span className="col-span-2 h-1.5 overflow-hidden rounded-full bg-slate-100"><span className="block h-full rounded-full bg-amber-500" style={{ width: `${(party.amount / largest) * 100}%` }} /></span></Link>)}</div> : <div className="flex min-h-56 items-center justify-center text-sm text-slate-500">No outstanding balances.</div>}
+      {data.length > 10 ? <p className="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-500">Showing the 10 largest of {data.length} {label} balances. Search the invoice register for complete detail.</p> : null}
     </ChartCard>
   );
 }

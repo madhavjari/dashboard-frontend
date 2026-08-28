@@ -48,9 +48,9 @@ export default function VerifyEmail() {
 
         {status === "verifying" && (
           <div className="mt-6">
-            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-teal-700" />
 
-            <p className="text-blue-600">{message}</p>
+            <p className="text-teal-700">{message}</p>
           </div>
         )}
 
@@ -70,7 +70,7 @@ export default function VerifyEmail() {
 
             <button
               onClick={() => navigate("/resend-verification")}
-              className="mt-6 rounded-lg bg-blue-600 px-5 py-2.5 font-semibold text-white transition hover:bg-blue-700"
+              className="mt-6 min-h-11 rounded-lg bg-teal-700 px-5 py-2.5 font-semibold text-white transition hover:bg-teal-800"
             >
               Resend Verification Email
             </button>

@@ -1,8 +1,7 @@
 import {
-  Bar,
-  BarChart,
+  Area,
+  AreaChart,
   CartesianGrid,
-  Cell,
   ResponsiveContainer,
   ReferenceLine,
   Tooltip,
@@ -20,18 +19,37 @@ function formatAxisAmount(amount) {
   return `₹${lakhs.toFixed(Number.isInteger(lakhs) ? 0 : 1)}L`;
 }
 
+function fillMissingMonths(rows) {
+  if (rows.length < 2) return rows;
+  const sorted = [...rows].sort((a, b) => new Date(a.month) - new Date(b.month));
+  const byMonth = new Map(sorted.map((row) => {
+    const date = new Date(row.month);
+    return [`${date.getUTCFullYear()}-${date.getUTCMonth()}`, row];
+  }));
+  const first = new Date(sorted[0].month);
+  const last = new Date(sorted.at(-1).month);
+  const cursor = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth(), 1));
+  const end = new Date(Date.UTC(last.getUTCFullYear(), last.getUTCMonth(), 1));
+  const result = [];
+  while (cursor <= end) {
+    const key = `${cursor.getUTCFullYear()}-${cursor.getUTCMonth()}`;
+    result.push(byMonth.get(key) || { month: cursor.toISOString(), netAmount: 0 });
+    cursor.setUTCMonth(cursor.getUTCMonth() + 1);
+  }
+  return result;
+}
+
 export default function MonthWiseSalesChart({ monthlySales, context }) {
-  const averageNetAmount = monthlySales.length
-    ? monthlySales.reduce(
+  const completeSales = fillMissingMonths(monthlySales);
+  const averageNetAmount = completeSales.length
+    ? completeSales.reduce(
         (total, entry) => total + Number(entry.netAmount || 0),
         0,
-      ) / monthlySales.length
+      ) / completeSales.length
     : 0;
-  const data = monthlySales.map((entry, index) => ({
+  const data = completeSales.map((entry) => ({
     ...entry,
     label: new Date(entry.month).toLocaleString("en-IN", { month: "short" }),
-    isAboveAverage: Number(entry.netAmount) >= averageNetAmount,
-    isLatest: index === monthlySales.length - 1,
   }));
   const latestMonth = data.at(-1);
   const latestDifference = latestMonth && averageNetAmount
@@ -67,7 +85,8 @@ export default function MonthWiseSalesChart({ monthlySales, context }) {
       ) : (
         <>
           <ResponsiveContainer width="100%" height={250} debounce={100}>
-            <BarChart data={data} margin={{ top: 16, right: 8, left: -10 }}>
+            <AreaChart data={data} margin={{ top: 16, right: 8, left: -10 }}>
+              <defs><linearGradient id={`monthly-${context}`} x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#0f766e" stopOpacity={0.22} /><stop offset="100%" stopColor="#0f766e" stopOpacity={0} /></linearGradient></defs>
               <CartesianGrid stroke="#e2e8f0" vertical={false} />
               <XAxis
                 dataKey="label"
@@ -96,26 +115,17 @@ export default function MonthWiseSalesChart({ monthlySales, context }) {
                 strokeDasharray="5 5"
                 strokeWidth={1.5}
               />
-              <Bar
+              <Area
+                type="monotone"
                 dataKey="netAmount"
                 name={`Net ${context}`}
-                radius={[6, 6, 0, 0]}
-                maxBarSize={56}
-              >
-                {data.map((entry) => (
-                  <Cell
-                    key={entry.label}
-                    fill={
-                      entry.isLatest
-                        ? "#0f766e"
-                        : entry.isAboveAverage
-                          ? "#3da99c"
-                          : "#a7d9d3"
-                    }
-                  />
-                ))}
-              </Bar>
-            </BarChart>
+                stroke="#0f766e"
+                strokeWidth={2.5}
+                fill={`url(#monthly-${context})`}
+                dot={{ r: 3, fill: "#fff", stroke: "#0f766e", strokeWidth: 2 }}
+                activeDot={{ r: 5 }}
+              />
+            </AreaChart>
           </ResponsiveContainer>
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs">
             <span className="flex items-center gap-1.5 text-amber-700">

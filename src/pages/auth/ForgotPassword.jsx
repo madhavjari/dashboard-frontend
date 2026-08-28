@@ -50,7 +50,7 @@ export default function ForgotPassword() {
     <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
       <Card>
         <header className="mb-8 text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">
+          <p className="text-sm font-semibold uppercase tracking-widest text-teal-700">
             Forgot Password?
           </p>
 
