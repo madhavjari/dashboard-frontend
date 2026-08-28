@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router";
+import { useLocation, useOutletContext, useSearchParams } from "react-router";
 import Error from "../../components/dashboard/Error";
 import Loading from "../../components/dashboard/Loading";
 import { fmtCompact, fmtINR } from "../../utils/format";
@@ -6,6 +6,7 @@ import usePartyData from "../../utils/fetch/partyData";
 import CustomerDetailHeader from "./components/customerDetail/CustomerDetailHeader";
 import CustomerSummary from "./components/customerDetail/CustomerSummary";
 import ItemValueQuantityChart from "./components/customerDetail/ItemValueQuantityChart";
+import PartyDetailEmptyState from "./components/customerDetail/PartyDetailEmptyState";
 import TransactionRegister from "./components/customerDetail/TransactionRegister";
 
 function fmtNumber(number, digits = 0) {
@@ -20,6 +21,12 @@ export default function PartyDetailPage({
   context,
 }) {
   const [searchParams] = useSearchParams();
+  const { pathname } = useLocation();
+  const {
+    accountingCompanies = [],
+    selectedAccountingCompanyIds = [],
+    selectAllAccountingCompanies,
+  } = useOutletContext() ?? {};
   const party = searchParams.get("party");
   const {
     summary,
@@ -39,6 +46,24 @@ export default function PartyDetailPage({
   if (status === "error") {
     return (
       <Error message={message} header="Customer Summary" reload={reload} />
+    );
+  }
+
+  if (status === "empty") {
+    const routePrefix = pathname.startsWith("/demo/") ? "/demo" : "";
+    const isSales = context === "Sales";
+    const canViewAllCompanies =
+      accountingCompanies.length > 1 &&
+      selectedAccountingCompanyIds.length < accountingCompanies.length;
+
+    return (
+      <PartyDetailEmptyState
+        party={party}
+        context={context}
+        overviewUrl={`${routePrefix}/${isSales ? "sales-dashboard" : "purchase-dashboard"}`}
+        canViewAllCompanies={canViewAllCompanies}
+        onViewAllCompanies={selectAllAccountingCompanies}
+      />
     );
   }
 

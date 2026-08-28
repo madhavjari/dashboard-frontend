@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Building2, Check, ChevronDown } from "lucide-react";
+import { Building2, Check, ChevronDown, X } from "lucide-react";
+
+function haveSameIds(first, second) {
+  if (first.length !== second.length) return false;
+  const secondIds = new Set(second);
+  return first.every((id) => secondIds.has(id));
+}
 
 export default function CompanySelector({
   companies,
@@ -7,22 +13,25 @@ export default function CompanySelector({
   onChange,
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [pendingCompanyIds, setPendingCompanyIds] = useState(
+    selectedCompanyIds,
+  );
   const containerRef = useRef(null);
 
   useEffect(() => {
-    function handlePointerDown(event) {
+    function closeMenu(event) {
       if (!containerRef.current?.contains(event.target)) setIsOpen(false);
     }
 
-    function handleKeyDown(event) {
+    function closeMenuWithKeyboard(event) {
       if (event.key === "Escape") setIsOpen(false);
     }
 
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", closeMenu);
+    document.addEventListener("keydown", closeMenuWithKeyboard);
     return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", closeMenu);
+      document.removeEventListener("keydown", closeMenuWithKeyboard);
     };
   }, []);
 
@@ -30,81 +39,135 @@ export default function CompanySelector({
 
   const allCompanyIds = companies.map((company) => company.id);
   const selectedIds = new Set(selectedCompanyIds);
-  const allSelected = selectedCompanyIds.length === companies.length;
   const selectedCompanies = companies.filter((company) =>
     selectedIds.has(company.id),
   );
+  const allSelected = selectedCompanies.length === companies.length;
   const selectionLabel = allSelected
     ? "All companies"
     : selectedCompanies.length === 1
       ? selectedCompanies[0].name
       : `${selectedCompanies.length} companies`;
 
+  const pendingIds = new Set(pendingCompanyIds);
+  const pendingAllSelected = pendingCompanyIds.length === companies.length;
+  const hasChanges = !haveSameIds(
+    pendingCompanyIds,
+    selectedCompanyIds,
+  );
+
+  function toggleMenu() {
+    if (!isOpen) setPendingCompanyIds(selectedCompanyIds);
+    setIsOpen((open) => !open);
+  }
+
   function toggleCompany(companyId) {
-    if (selectedIds.has(companyId)) {
-      if (selectedCompanyIds.length === 1) return;
-      onChange(selectedCompanyIds.filter((id) => id !== companyId));
+    if (pendingIds.has(companyId)) {
+      if (pendingCompanyIds.length === 1) return;
+      setPendingCompanyIds(
+        pendingCompanyIds.filter((id) => id !== companyId),
+      );
       return;
     }
-    onChange([...selectedCompanyIds, companyId]);
+
+    const nextIds = new Set([...pendingCompanyIds, companyId]);
+    setPendingCompanyIds(
+      companies
+        .filter((company) => nextIds.has(company.id))
+        .map((company) => company.id),
+    );
+  }
+
+  function applySelection() {
+    if (hasChanges) onChange(pendingCompanyIds);
+    setIsOpen(false);
+  }
+
+  function cancelSelection() {
+    setPendingCompanyIds(selectedCompanyIds);
+    setIsOpen(false);
   }
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className="relative min-w-0 w-full md:w-auto">
       <button
         type="button"
-        onClick={() => setIsOpen((open) => !open)}
-        aria-haspopup="listbox"
+        onClick={toggleMenu}
+        aria-haspopup="dialog"
         aria-expanded={isOpen}
-        className="flex min-h-10 min-w-0 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-teal-400 hover:text-teal-800"
+        aria-label={`Company filter: ${selectionLabel}`}
+        className={`flex min-h-10 w-full min-w-0 items-center gap-2 rounded-lg border bg-white px-3 py-1.5 text-left shadow-sm transition md:w-auto ${
+          isOpen
+            ? "border-teal-600 ring-3 ring-teal-100"
+            : "border-slate-300 hover:border-teal-400"
+        }`}
       >
-        <Building2 size={17} className="shrink-0 text-teal-700" />
-        <span className="max-w-48 truncate">{selectionLabel}</span>
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-teal-50 text-teal-700">
+          <Building2 size={16} aria-hidden="true" />
+        </span>
+        <span className="min-w-0 flex-1 md:flex-initial">
+          <span className="block text-[10px] font-bold uppercase leading-3 tracking-wide text-slate-400">
+            Company view
+          </span>
+          <span className="block max-w-40 truncate text-sm font-semibold leading-5 text-slate-800">
+            {selectionLabel}
+          </span>
+        </span>
         <ChevronDown
-          size={16}
-          className={`shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
+          size={15}
+          aria-hidden="true"
+          className={`ml-1 shrink-0 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
 
       {isOpen ? (
-        <div className="absolute left-0 top-full z-20 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
-          <div className="border-b border-slate-100 px-4 py-3">
-            <p className="text-sm font-semibold text-slate-900">
-              Accounting companies
-            </p>
-            <p className="mt-1 text-xs leading-5 text-slate-500">
-              Select one or more. Reports combine data from every selection.
-            </p>
-          </div>
-
-          <div role="listbox" aria-multiselectable="true" className="p-2">
+        <section
+          role="dialog"
+          aria-label="Choose accounting companies"
+          className="absolute right-0 top-full z-50 mt-2 w-[22rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/15"
+        >
+          <div className="flex items-start gap-3 border-b border-slate-100 px-4 py-3.5">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-sm font-bold text-slate-950">
+                Choose companies
+              </h2>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Selected company data is combined in every report.
+              </p>
+            </div>
             <button
               type="button"
-              role="option"
-              aria-selected={allSelected}
-              onClick={() => onChange(allCompanyIds)}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition hover:bg-slate-50"
+              onClick={cancelSelection}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+              aria-label="Close company menu"
             >
-              <span
-                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
-                  allSelected
-                    ? "border-teal-700 bg-teal-700 text-white"
-                    : "border-slate-300 bg-white text-transparent"
-                }`}
-              >
-                <Check size={14} strokeWidth={3} />
-              </span>
-              <span className="font-semibold text-slate-800">
-                All companies
-              </span>
+              <X size={17} aria-hidden="true" />
             </button>
+          </div>
 
-            <div className="my-1 border-t border-slate-100" />
+          <div className="flex items-center justify-between gap-3 bg-slate-50 px-4 py-2.5">
+            <span className="text-xs font-semibold text-slate-600">
+              {pendingCompanyIds.length} of {companies.length} selected
+            </span>
+            <button
+              type="button"
+              onClick={() => setPendingCompanyIds(allCompanyIds)}
+              disabled={pendingAllSelected}
+              className="text-xs font-bold text-teal-700 transition hover:text-teal-900 disabled:cursor-default disabled:text-slate-400"
+            >
+              {pendingAllSelected ? "All selected" : "Select all"}
+            </button>
+          </div>
 
+          <div
+            role="listbox"
+            aria-multiselectable="true"
+            className="max-h-72 space-y-1 overflow-y-auto p-2"
+          >
             {companies.map((company) => {
-              const isSelected = selectedIds.has(company.id);
+              const isSelected = pendingIds.has(company.id);
               const isOnlySelection =
-                isSelected && selectedCompanyIds.length === 1;
+                isSelected && pendingCompanyIds.length === 1;
 
               return (
                 <button
@@ -112,25 +175,29 @@ export default function CompanySelector({
                   type="button"
                   role="option"
                   aria-selected={isSelected}
-                  aria-disabled={isOnlySelection}
+                  disabled={isOnlySelection}
                   onClick={() => toggleCompany(company.id)}
-                  className="flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-slate-50"
+                  className={`flex w-full items-center gap-3 rounded-lg border px-3 py-3 text-left transition ${
+                    isSelected
+                      ? "border-teal-200 bg-teal-50/70"
+                      : "border-transparent hover:border-slate-200 hover:bg-slate-50"
+                  } disabled:cursor-default disabled:opacity-70`}
                 >
                   <span
-                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition ${
                       isSelected
                         ? "border-teal-700 bg-teal-700 text-white"
                         : "border-slate-300 bg-white text-transparent"
                     }`}
                   >
-                    <Check size={14} strokeWidth={3} />
+                    <Check size={14} strokeWidth={3} aria-hidden="true" />
                   </span>
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium text-slate-800">
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-semibold text-slate-800">
                       {company.name}
                     </span>
                     {company.accountName ? (
-                      <span className="mt-0.5 block truncate text-xs text-slate-400">
+                      <span className="mt-0.5 block truncate text-xs text-slate-500">
                         {company.accountName}
                       </span>
                     ) : null}
@@ -139,7 +206,25 @@ export default function CompanySelector({
               );
             })}
           </div>
-        </div>
+
+          <div className="flex items-center justify-end gap-2 border-t border-slate-100 bg-white px-4 py-3">
+            <button
+              type="button"
+              onClick={cancelSelection}
+              className="min-h-10 rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={applySelection}
+              disabled={!hasChanges}
+              className="min-h-10 rounded-lg bg-teal-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-default disabled:bg-slate-200 disabled:text-slate-500"
+            >
+              Update reports
+            </button>
+          </div>
+        </section>
       ) : null}
     </div>
   );

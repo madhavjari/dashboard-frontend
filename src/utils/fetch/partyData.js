@@ -57,7 +57,7 @@ export default function usePartyData(PARTY_URL, party, OUTSTANDING_URL) {
     paidInvoiceCount: 0,
   });
   const [status, setStatus] = useState("loading");
-  const [message, setMessage] = useState("Loading dashboard...");
+  const [message, setMessage] = useState("Loading party details...");
   const [reloadCount, setReloadCount] = useState(0);
 
   useEffect(() => {
@@ -65,14 +65,26 @@ export default function usePartyData(PARTY_URL, party, OUTSTANDING_URL) {
     async function load() {
       try {
         setStatus("loading");
-        setMessage("Loading dashboard...");
+        setMessage("Loading party details...");
 
         const [partyResponse, outstandingResponse] = await Promise.all([
           fetch(partyUrl, fetchOptions),
           fetch(outstandingUrl, fetchOptions),
         ]);
+        if (partyResponse.status === 404) {
+          if (cancelled) return;
+          setSummary(null);
+          setTransactions([]);
+          setOutstandingAmount(0);
+          setPaymentTiming({
+            averagePaymentDays: null,
+            paidInvoiceCount: 0,
+          });
+          setStatus("empty");
+          return;
+        }
         if (!partyResponse.ok || !outstandingResponse.ok) {
-          throw new Error("Failed to fetch sales data");
+          throw new Error("Unable to load party details");
         }
         const [data, outstandingData] = await Promise.all([
           partyResponse.json(),
@@ -86,15 +98,18 @@ export default function usePartyData(PARTY_URL, party, OUTSTANDING_URL) {
           (entry) => String(entry.party || "").toUpperCase() === partyName,
         );
 
-        setTransactions(data.data ?? []);
-        setSummary(data.summary?.[0] ?? null);
+        const nextTransactions = Array.isArray(data.data) ? data.data : [];
+        const nextSummary = data.summary?.[0] ?? null;
+
+        setTransactions(nextTransactions);
+        setSummary(nextSummary);
         setOutstandingAmount(
           Number(
             partyOutstanding?.amountToCollect ?? partyOutstanding?.amountToPay,
           ) || 0,
         );
         setPaymentTiming(getAveragePaymentDays(outstandingData.data ?? [], party));
-        setStatus("success");
+        setStatus(nextSummary === null ? "empty" : "success");
       } catch (err) {
         if (cancelled) return;
         setMessage(err.message || "Something went wrong while loading data");

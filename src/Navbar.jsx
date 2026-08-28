@@ -44,6 +44,15 @@ export default function Navbar({ userId, updateAccessToken }) {
         <div className="ml-auto flex items-center gap-2">
           {userId ? (
             <>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 sm:hidden"
+                aria-label="Sign out"
+                title="Sign out"
+              >
+                <LogOut size={17} aria-hidden="true" />
+              </button>
               <button type="button" onClick={handleLogout} className="hidden min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-950 sm:inline-flex"><LogOut size={16} /> Sign out</button>
               <Link to="/dashboard-summary" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-teal-700 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-teal-800">Open dashboard <ArrowRight size={15} /></Link>
             </>

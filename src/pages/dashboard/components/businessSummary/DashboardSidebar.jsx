@@ -4,6 +4,7 @@ import {
   Gem,
   LayoutDashboard,
   KeyRound,
+  LogOut,
   Menu,
   ReceiptText,
 } from "lucide-react";
@@ -69,7 +70,12 @@ function SidebarSection({ section, routePrefix, compact, onExpand }) {
   );
 }
 
-export default function DashboardSidebar({ isOpen, onToggle }) {
+export default function DashboardSidebar({
+  isOpen,
+  onToggle,
+  onSignOut,
+  isSigningOut,
+}) {
   const { pathname } = useLocation();
   const routePrefix = pathname.startsWith("/demo") ? "/demo" : "";
   return (
@@ -80,7 +86,7 @@ export default function DashboardSidebar({ isOpen, onToggle }) {
     >
       {isOpen ? <button type="button" onClick={onToggle} className="fixed inset-0 z-30 bg-slate-950/35 lg:hidden" aria-label="Close navigation" /> : null}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 min-h-0 w-64 overflow-hidden bg-[#0d1c1a] text-slate-300 transition-transform duration-200 lg:sticky lg:top-0 lg:z-40 lg:min-h-screen ${
+        className={`fixed inset-y-0 left-0 z-40 flex min-h-0 w-64 flex-col overflow-hidden bg-[#0d1c1a] text-slate-300 transition-transform duration-200 lg:sticky lg:top-0 lg:z-40 lg:min-h-screen ${
           isOpen
             ? "translate-x-0 border-r border-slate-800/80"
             : "-translate-x-full border-transparent lg:w-[4.5rem] lg:translate-x-0 lg:border-r"
@@ -104,7 +110,7 @@ export default function DashboardSidebar({ isOpen, onToggle }) {
             <Menu size={20} />
           </button>
         </div>
-        <nav className="space-y-1 px-3 pb-5">
+        <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-5">
           <NavLink
             to={`${routePrefix}/dashboard-summary`}
             className={({ isActive }) =>
@@ -137,6 +143,22 @@ export default function DashboardSidebar({ isOpen, onToggle }) {
             </NavLink>
           )}
         </nav>
+        {onSignOut ? (
+          <div className="shrink-0 border-t border-white/10 p-3">
+            <button
+              type="button"
+              onClick={onSignOut}
+              disabled={isSigningOut}
+              title="Sign out"
+              className="flex min-h-11 w-full items-center justify-center gap-3 rounded-lg px-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white disabled:cursor-wait disabled:opacity-60"
+            >
+              <LogOut size={18} aria-hidden="true" />
+              <span className={isOpen ? "" : "lg:hidden"}>
+                {isSigningOut ? "Signing out..." : "Sign out"}
+              </span>
+            </button>
+          </div>
+        ) : null}
       </aside>
     </div>
   );

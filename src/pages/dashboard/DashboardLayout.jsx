@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react";
 import { CalendarRange, Menu, RefreshCw } from "lucide-react";
-import { Link, Outlet, useLocation, useOutletContext } from "react-router";
+import {
+  Link,
+  Outlet,
+  useLocation,
+  useNavigate,
+  useOutletContext,
+} from "react-router";
 import CompanySelector from "../../components/dashboard/CompanySelector";
 import WorkspaceSearch from "../../components/dashboard/WorkspaceSearch";
 import {
   ACCOUNTING_COMPANIES_URL,
+  AUTH_BASE_URL,
   FINANCIAL_YEARS_URL,
 } from "../../config/reportUrls";
+import useAuth from "../../config/useAuth";
 import { appendReportFilters } from "../../utils/fetch/reportUrl";
 import DashboardSidebar from "./components/businessSummary/DashboardSidebar";
 
@@ -14,6 +22,8 @@ const DEFAULT_FINANCIAL_YEAR = "2025-2026";
 
 export default function DashboardLayout() {
   const auth = useOutletContext();
+  const { updateAccessToken } = useAuth();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const isDemo = pathname === "/demo" || pathname.startsWith("/demo/");
   const [isSidebarOpen, setIsSidebarOpen] = useState(() =>
@@ -26,6 +36,27 @@ export default function DashboardLayout() {
   const [selectedAccountingCompanyIds, setSelectedAccountingCompanyIds] =
     useState([]);
   const [companyStatus, setCompanyStatus] = useState("loading");
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    if (isSigningOut) return;
+    setIsSigningOut(true);
+
+    try {
+      const response = await fetch(`${AUTH_BASE_URL}/logout`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) throw new Error("Unable to sign out on the server");
+    } catch (error) {
+      console.error(error);
+    } finally {
+      updateAccessToken(null);
+      navigate("/", { replace: true });
+      setIsSigningOut(false);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -134,6 +165,8 @@ export default function DashboardLayout() {
       <DashboardSidebar
         isOpen={isSidebarOpen}
         onToggle={() => setIsSidebarOpen((open) => !open)}
+        onSignOut={isDemo ? undefined : handleSignOut}
+        isSigningOut={isSigningOut}
       />
       <div className="min-w-0 flex-1">
         <header className="sticky top-0 z-30 border-b border-slate-200/90 bg-white/95 backdrop-blur">
@@ -199,8 +232,7 @@ export default function DashboardLayout() {
               </div>
           </div>
           {accountingCompanies.length > 1 ? (
-            <div className="flex items-center gap-2 border-t border-slate-100 px-4 py-2 md:hidden">
-              <span className="text-xs font-semibold text-slate-500">Workspace</span>
+            <div className="border-t border-slate-100 px-4 py-2 md:hidden">
               <CompanySelector
                 companies={accountingCompanies}
                 selectedCompanyIds={selectedAccountingCompanyIds}
@@ -225,7 +257,12 @@ export default function DashboardLayout() {
             context={{
               ...(auth ?? {}),
               financialYear,
+              accountingCompanies,
               selectedAccountingCompanyIds,
+              selectAllAccountingCompanies: () =>
+                setSelectedAccountingCompanyIds(
+                  accountingCompanies.map((company) => company.id),
+                ),
             }}
           />
         )}
