@@ -28,3 +28,4 @@ export const PURCHASE_ITEMWISE_URL = `${REPORTS_BASE_URL}/purchases/item?item=`;
 
 export const SALES_OUTSTANDING_URL = `${REPORTS_BASE_URL}/outstanding/sales`;
 export const PURCHASE_OUTSTANDING_URL = `${REPORTS_BASE_URL}/outstanding/purchases`;
+export const SALES_INVOICES_URL = SALES_OUTSTANDING_URL;

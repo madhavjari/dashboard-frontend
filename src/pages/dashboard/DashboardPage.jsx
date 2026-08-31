@@ -5,6 +5,7 @@ import PartyDetailPage from "./PartyDetailPage";
 import ItemDashboard from "./ItemDashboard";
 import ItemDetailPage from "./ItemDetailPage";
 import OutstandingDashboard from "./OutstandingDashboard";
+import InvoiceDashboard from "./InvoiceDashboard";
 import SummaryDashboard from "./SummaryDashboard";
 
 export default function DashboardPage({ page, reportType }) {
@@ -44,6 +45,13 @@ export default function DashboardPage({ page, reportType }) {
       return (
         <OutstandingDashboard
           OUTSTANDING_URL={report.outstandingUrl}
+          context={report.label}
+        />
+      );
+    case "invoices":
+      return (
+        <InvoiceDashboard
+          INVOICES_URL={report.invoicesUrl}
           context={report.label}
         />
       );

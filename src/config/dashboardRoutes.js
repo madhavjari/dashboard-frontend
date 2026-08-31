@@ -2,6 +2,7 @@ export const dashboardRoutes = [
   { path: "dashboard-summary", page: "business-summary" },
   { path: "sales-dashboard", page: "summary", reportType: "sales" },
   { path: "sales-itemwise-dashboard", page: "items", reportType: "sales" },
+  { path: "sales-invoices", page: "invoices", reportType: "sales" },
   { path: "purchase-dashboard", page: "summary", reportType: "purchase" },
   {
     path: "purchase-itemwise-dashboard",

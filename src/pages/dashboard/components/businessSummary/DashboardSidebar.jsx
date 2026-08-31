@@ -17,6 +17,7 @@ const sections = [
     items: [
       { label: "By customer", to: "/sales-dashboard" },
       { label: "By item", to: "/sales-itemwise-dashboard" },
+      { label: "All invoices", to: "/sales-invoices" },
     ],
   },
   {

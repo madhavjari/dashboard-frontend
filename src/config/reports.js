@@ -7,6 +7,7 @@ import {
   PURCHASE_PARTYWISE_URL,
   PURCHASE_SUMMARY_URL,
   SALES_ITEMS_URL,
+  SALES_INVOICES_URL,
   SALES_ITEMWISE_URL,
   SALES_MONTHLY_URL,
   SALES_OUTSTANDING_URL,
@@ -25,6 +26,7 @@ export const reports = {
     itemsUrl: SALES_ITEMS_URL,
     itemDetailsUrl: SALES_ITEMWISE_URL,
     outstandingUrl: SALES_OUTSTANDING_URL,
+    invoicesUrl: SALES_INVOICES_URL,
   },
   purchase: {
     label: "Purchase",
