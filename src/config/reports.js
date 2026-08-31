@@ -1,5 +1,6 @@
 import {
   PURCHASE_ITEMS_URL,
+  PURCHASE_INVOICES_URL,
   PURCHASE_ITEMWISE_URL,
   PURCHASE_MONTHLY_URL,
   PURCHASE_OUTSTANDING_URL,
@@ -37,5 +38,6 @@ export const reports = {
     itemsUrl: PURCHASE_ITEMS_URL,
     itemDetailsUrl: PURCHASE_ITEMWISE_URL,
     outstandingUrl: PURCHASE_OUTSTANDING_URL,
+    invoicesUrl: PURCHASE_INVOICES_URL,
   },
 };

@@ -26,6 +26,7 @@ const sections = [
     items: [
       { label: "By supplier", to: "/purchase-dashboard" },
       { label: "By item", to: "/purchase-itemwise-dashboard" },
+      { label: "All invoices", to: "/purchase-invoices" },
     ],
   },
   {

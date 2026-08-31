@@ -9,6 +9,7 @@ export const dashboardRoutes = [
     page: "items",
     reportType: "purchase",
   },
+  { path: "purchase-invoices", page: "invoices", reportType: "purchase" },
   {
     path: "sales-outstanding-dashboard",
     page: "outstanding",

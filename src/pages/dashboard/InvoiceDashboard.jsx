@@ -40,6 +40,9 @@ function Items({ itemNames }) {
 }
 
 export default function InvoiceDashboard({ INVOICES_URL, context }) {
+  const isSales = context === "Sales";
+  const reportName = isSales ? "Sales invoices" : "Purchase invoices";
+  const partyLabel = isSales ? "customer" : "supplier";
   const { summary, invoices, status, message, reload } = useOutstandingData(
     INVOICES_URL,
     context,
@@ -83,11 +86,11 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
   }, [invoiceRows, query, sort, statusFilter]);
 
   if (status === "loading") {
-    return <Loading message={message} header="Sales invoices" />;
+    return <Loading message={message} header={reportName} />;
   }
 
   if (status === "error") {
-    return <Error message={message} header="Sales invoices" reload={reload} />;
+    return <Error message={message} header={reportName} reload={reload} />;
   }
 
   const totalPages = Math.max(
@@ -112,12 +115,12 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
     <main className="app-page">
       <div className="app-page-inner">
         <header className="mb-7">
-          <p className="text-sm font-semibold text-teal-700">Sales</p>
+          <p className="text-sm font-semibold text-teal-700">{context}</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
             All invoices
           </h1>
           <p className="mt-1.5 text-sm text-slate-600">
-            Bill, item, customer, value, and payment status for the selected financial year
+            Bill, item, {partyLabel}, value, and payment status for the selected financial year
           </p>
         </header>
 
@@ -240,7 +243,11 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
                 </article>
               ))
             ) : (
-              <EmptyState hasFilters={hasFilters} onClear={clearFilters} />
+              <EmptyState
+                hasFilters={hasFilters}
+                onClear={clearFilters}
+                context={context}
+              />
             )}
           </div>
 
@@ -286,7 +293,11 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
                 ) : (
                   <tr>
                     <td colSpan={6}>
-                      <EmptyState hasFilters={hasFilters} onClear={clearFilters} />
+                      <EmptyState
+                        hasFilters={hasFilters}
+                        onClear={clearFilters}
+                        context={context}
+                      />
                     </td>
                   </tr>
                 )}
@@ -342,11 +353,14 @@ function MobileValue({ label, value, strong = false }) {
   );
 }
 
-function EmptyState({ hasFilters, onClear }) {
+function EmptyState({ hasFilters, onClear, context }) {
+  const isSales = context === "Sales";
   return (
     <div className="px-5 py-12 text-center">
       <p className="text-sm font-semibold text-slate-800">
-        {hasFilters ? "No invoices match these filters" : "No sales invoices found"}
+        {hasFilters
+          ? "No invoices match these filters"
+          : `No ${isSales ? "sales" : "purchase"} invoices found`}
       </p>
       <p className="mx-auto mt-1 max-w-sm text-xs leading-5 text-slate-500">
         {hasFilters
