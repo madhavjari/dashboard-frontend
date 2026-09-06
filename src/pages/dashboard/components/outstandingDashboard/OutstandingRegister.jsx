@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ArrowUpRight, Search, SlidersHorizontal, X } from "lucide-react";
 import { fmtDateIN } from "../../../../utils/format";
+import InvoiceCard from "../../../../components/dashboard/InvoiceCard";
 import { Link, useLocation } from "react-router";
 import RegisterPagination, { REGISTER_PAGE_SIZE } from "../RegisterPagination";
 import { getAgeBand, getInvoiceAgeDays } from "../../../../utils/invoiceAge";
@@ -70,14 +71,25 @@ export default function OutstandingRegister({ invoices, fmtINR, context }) {
         {hasFilters ? <button type="button" onClick={clearFilters} className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:text-teal-900"><X size={14} /> Clear all filters</button> : null}
       </div>
 
-      <div className="space-y-3 p-4 md:hidden">
+      <div
+        id={`${context.toLowerCase()}-outstanding-register`}
+        className="scroll-mt-12 space-y-3 p-4 md:hidden"
+      >
         {visibleInvoices.length === 0 ? <EmptyState hasFilters={hasFilters} context={context} onClear={clearFilters} /> : visibleInvoices.map((invoice) => (
-          <article key={`${invoice.billNo}-${invoice.party}`} className="rounded-xl border border-slate-200 p-4">
-            <div className="flex items-start justify-between gap-3"><Link to={partyUrl(invoice.party)} className="min-w-0 break-words text-sm font-bold text-slate-900 hover:text-teal-700">{invoice.party}</Link><AgeBadge days={invoice.ageDays} /></div>
-            <p className="mt-1 font-mono text-xs text-slate-500">{invoice.billNo} · {fmtDateIN(invoice.billDate)}</p>
-            <div className="mt-4 grid grid-cols-2 gap-4 text-xs"><RegisterValue label="Bill amount" value={fmtINR(invoice.billAmount)} /><RegisterValue label={outstandingLabel} value={fmtINR(invoice.amountOutstanding)} emphasized /></div>
-            <Link to={partyUrl(invoice.party)} className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-slate-100 px-3 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800">View {dealer} ledger <ArrowUpRight size={15} /></Link>
-          </article>
+          <InvoiceCard
+            key={`${invoice.billNo}-${invoice.party}`}
+            invoiceNumber={invoice.billNo}
+            date={fmtDateIN(invoice.billDate)}
+            title={<Link to={partyUrl(invoice.party)} className="hover:text-teal-700">{invoice.party}</Link>}
+            subtitle={<AgeBadge days={invoice.ageDays} />}
+            amount={fmtINR(invoice.amountOutstanding)}
+            status="Unpaid"
+          >
+            <div className="grid grid-cols-2 gap-4 text-xs">
+              <RegisterValue label="Bill amount" value={fmtINR(invoice.billAmount)} />
+              <RegisterValue label={outstandingLabel} value={fmtINR(invoice.amountOutstanding)} emphasized />
+            </div>
+          </InvoiceCard>
         ))}
       </div>
 
@@ -89,7 +101,7 @@ export default function OutstandingRegister({ invoices, fmtINR, context }) {
           ))}</tbody>
         </table>
       </div>
-      {filteredInvoices.length > 0 ? <RegisterPagination page={activePage} totalPages={totalPages} startIndex={startIndex} visibleCount={visibleInvoices.length} totalCount={filteredInvoices.length} itemLabel="invoices" onChange={setCurrentPage} /> : null}
+      {filteredInvoices.length > 0 ? <RegisterPagination page={activePage} totalPages={totalPages} startIndex={startIndex} visibleCount={visibleInvoices.length} totalCount={filteredInvoices.length} itemLabel="invoices" onChange={setCurrentPage} scrollTargetId={`${context.toLowerCase()}-outstanding-register`} /> : null}
     </section>
   );
 }

@@ -27,7 +27,7 @@ export default function ItemWiseRegister({ columns, context, sortedItems, sortKe
         <label className="relative block w-full sm:w-72"><span className="sr-only">Search item or unit</span><Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" /><input value={query} onChange={(event) => { setQuery(event.target.value); setCurrentPage(1); }} placeholder="Search item or unit" className="h-10 w-full rounded-lg border border-slate-300 pl-9 pr-8 text-sm outline-none focus:border-teal-600 focus:ring-3 focus:ring-teal-100" />{query ? <button type="button" onClick={() => setQuery("")} className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400 hover:bg-slate-100" aria-label="Clear search"><X size={14} /></button> : null}</label>
       </div>
 
-      <div className="space-y-3 p-4 md:hidden">
+      <div id="item-register" className="scroll-mt-12 space-y-3 p-4 md:hidden">
         {visibleItems.length ? visibleItems.map((item) => <article key={item.name} className="rounded-xl border border-slate-200 p-4"><Link to={itemUrl(item.name)} className="break-words text-sm font-bold text-slate-900 hover:text-teal-700">{item.name}</Link><div className="mt-3 grid grid-cols-2 gap-3 text-xs"><Value label="Value" value={fmtINR(item.transaction)} strong /><Value label="Quantity" value={item.quantity === null ? "—" : `${fmtNumber(item.quantity, 1)} ${item.category}`} /><Value label={`Share of ${context.toLowerCase()}`} value={`${summary.totalTransaction ? ((item.transaction / summary.totalTransaction) * 100).toFixed(1) : "0.0"}%`} /><Value label="Net rate (inc. GST)" value={item.quantity > 0 ? `₹${(item.transaction / item.quantity).toFixed(2)}` : "—"} /></div></article>) : <Empty query={query} />}
       </div>
 
@@ -37,7 +37,7 @@ export default function ItemWiseRegister({ columns, context, sortedItems, sortKe
           <tbody>{visibleItems.length ? visibleItems.map((item) => <tr key={item.name} className="border-b border-slate-100 transition hover:bg-teal-50/40"><td className="px-5 py-3 font-semibold text-slate-900"><Link to={itemUrl(item.name)} className="hover:text-teal-700 hover:underline">{item.name}</Link></td><td className="px-5 py-3 text-slate-600">{item.category}</td><td className="px-5 py-3 text-right font-mono-num text-slate-700">{item.quantity === null ? "—" : fmtNumber(item.quantity, 1)}</td><td className="px-5 py-3 text-right font-mono-num font-semibold text-slate-900">{fmtINR(item.transaction)}</td><td className="px-5 py-3 text-right font-mono-num text-slate-600">{summary.totalTransaction ? ((item.transaction / summary.totalTransaction) * 100).toFixed(1) : "0.0"}%</td><td className="px-5 py-3 text-right font-mono-num text-slate-600">{item.quantity > 0 ? `₹${(item.transaction / item.quantity).toFixed(2)}` : "—"}</td></tr>) : <tr><td colSpan={6}><Empty query={query} /></td></tr>}</tbody>
         </table>
       </div>
-      {filteredItems.length ? <RegisterPagination page={activePage} totalPages={totalPages} startIndex={startIndex} visibleCount={visibleItems.length} totalCount={filteredItems.length} itemLabel="items" onChange={setCurrentPage} /> : null}
+      {filteredItems.length ? <RegisterPagination page={activePage} totalPages={totalPages} startIndex={startIndex} visibleCount={visibleItems.length} totalCount={filteredItems.length} itemLabel="items" onChange={setCurrentPage} scrollTargetId="item-register" /> : null}
     </section>
   );
 }

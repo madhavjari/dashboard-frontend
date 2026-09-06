@@ -39,7 +39,13 @@ const sections = [
   },
 ];
 
-function SidebarSection({ section, routePrefix, compact, onExpand }) {
+function SidebarSection({
+  section,
+  routePrefix,
+  compact,
+  onExpand,
+  onNavigate,
+}) {
   const { pathname } = useLocation();
   const hasActiveItem = section.items.some((item) => `${routePrefix}${item.to}` === pathname);
   const Icon = section.icon;
@@ -56,6 +62,7 @@ function SidebarSection({ section, routePrefix, compact, onExpand }) {
             <NavLink
               key={item.to}
               to={`${routePrefix}${item.to}`}
+              onClick={onNavigate}
               className={({ isActive }) =>
                 `block min-h-9 rounded-md px-3 py-2 text-sm font-medium transition ${
                   isActive
@@ -80,6 +87,16 @@ export default function DashboardSidebar({
 }) {
   const { pathname } = useLocation();
   const routePrefix = pathname.startsWith("/demo") ? "/demo" : "";
+  const handleNavigation = () => {
+    if (
+      isOpen &&
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 1023px)").matches
+    ) {
+      onToggle();
+    }
+  };
+
   return (
     <div
       className={`grid min-w-0 overflow-hidden transition-[grid-template-rows] duration-200 ease-out lg:block ${
@@ -95,7 +112,11 @@ export default function DashboardSidebar({
         }`}
       >
         <div className="flex items-start justify-between gap-3 px-5 py-5">
-          <Link to="/" className="flex min-w-0 items-center gap-3">
+          <Link
+            to="/"
+            onClick={handleNavigation}
+            className="flex min-w-0 items-center gap-3"
+          >
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-500 text-white"><Gem size={18} /></span>
             <span className={isOpen ? "min-w-0" : "lg:hidden"}>
               <span className="block text-lg font-bold tracking-tight text-white">Prana</span>
@@ -115,6 +136,7 @@ export default function DashboardSidebar({
         <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-5">
           <NavLink
             to={`${routePrefix}/dashboard-summary`}
+            onClick={handleNavigation}
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                 isActive
@@ -127,11 +149,19 @@ export default function DashboardSidebar({
             <span className={isOpen ? "" : "lg:hidden"}>Overview</span>
           </NavLink>
           {sections.map((section) => (
-            <SidebarSection key={section.label} section={section} routePrefix={routePrefix} compact={!isOpen} onExpand={onToggle} />
+            <SidebarSection
+              key={section.label}
+              section={section}
+              routePrefix={routePrefix}
+              compact={!isOpen}
+              onExpand={onToggle}
+              onNavigate={handleNavigation}
+            />
           ))}
           {!routePrefix && (
             <NavLink
               to="/sync-setup"
+              onClick={handleNavigation}
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                   isActive

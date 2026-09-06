@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import Error from "../../components/dashboard/Error";
+import InvoiceCard from "../../components/dashboard/InvoiceCard";
 import Loading from "../../components/dashboard/Loading";
 import useOutstandingData from "../../utils/fetch/outstandingData";
 import { fmtDateIN, fmtINR } from "../../utils/format";
@@ -214,33 +215,21 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
             ) : null}
           </div>
 
-          <div className="space-y-3 p-4 md:hidden">
+          <div
+            id={`${context.toLowerCase()}-invoice-register`}
+            className="scroll-mt-12 space-y-3 p-4 md:hidden"
+          >
             {visibleInvoices.length ? (
               visibleInvoices.map((invoice, index) => (
-                <article
+                <InvoiceCard
                   key={`${invoice.billNo}-${invoice.party}-${index}`}
-                  className="rounded-xl border border-slate-200 p-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-mono text-xs font-semibold text-slate-900">
-                        {invoice.billNo || "No bill number"}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        {fmtDateIN(invoice.billDate)}
-                      </p>
-                    </div>
-                    <StatusBadge status={invoice.paymentStatus} />
-                  </div>
-                  <dl className="mt-4 grid gap-3 text-xs">
-                    <MobileValue label="Party" value={invoice.party || "No party name"} />
-                    <MobileValue
-                      label="Items"
-                      value={<Items itemNames={invoice.itemNames} />}
-                    />
-                    <MobileValue label="Value" value={fmtINR(invoice.billAmount)} strong />
-                  </dl>
-                </article>
+                  invoiceNumber={invoice.billNo}
+                  date={fmtDateIN(invoice.billDate)}
+                  title={invoice.party || "No party name"}
+                  subtitle={<Items itemNames={invoice.itemNames} />}
+                  amount={fmtINR(invoice.billAmount)}
+                  status={invoice.paymentStatus}
+                />
               ))
             ) : (
               <EmptyState
@@ -314,6 +303,7 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
               totalCount={filteredInvoices.length}
               itemLabel="invoices"
               onChange={setCurrentPage}
+              scrollTargetId={`${context.toLowerCase()}-invoice-register`}
             />
           ) : null}
         </section>
@@ -338,17 +328,6 @@ function SummaryCard({ label, value, tone }) {
       <p className={`mt-2 text-2xl font-bold font-mono-num ${valueClass}`}>
         {Number(value) || 0}
       </p>
-    </div>
-  );
-}
-
-function MobileValue({ label, value, strong = false }) {
-  return (
-    <div>
-      <dt className="uppercase tracking-wide text-slate-400">{label}</dt>
-      <dd className={`mt-1 break-words ${strong ? "font-bold text-slate-950" : "text-slate-700"}`}>
-        {value}
-      </dd>
     </div>
   );
 }

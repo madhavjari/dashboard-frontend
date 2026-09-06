@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import useAuthFetchOptions from "./authFetchOptions";
 import useFinancialYearUrl from "./reportUrl";
+import {
+  createInvoiceStatusMap,
+  getInvoiceStatus,
+} from "../invoiceStatus";
 
 function getAveragePaymentDays(entries, party) {
   const partyName = String(party || "").trim().toUpperCase();
@@ -98,7 +102,15 @@ export default function usePartyData(PARTY_URL, party, OUTSTANDING_URL) {
           (entry) => String(entry.party || "").toUpperCase() === partyName,
         );
 
-        const nextTransactions = Array.isArray(data.data) ? data.data : [];
+        const invoiceStatusMap = createInvoiceStatusMap(
+          outstandingData.data ?? [],
+        );
+        const nextTransactions = (
+          Array.isArray(data.data) ? data.data : []
+        ).map((transaction) => ({
+          ...transaction,
+          paymentStatus: getInvoiceStatus(invoiceStatusMap, transaction),
+        }));
         const nextSummary = data.summary?.[0] ?? null;
 
         setTransactions(nextTransactions);
