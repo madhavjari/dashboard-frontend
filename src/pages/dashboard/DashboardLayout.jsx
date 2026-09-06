@@ -22,10 +22,11 @@ const DEFAULT_FINANCIAL_YEAR = "2025-2026";
 
 export default function DashboardLayout() {
   const auth = useOutletContext();
-  const { updateAccessToken } = useAuth();
+  const { updateAccessToken, user } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isDemo = pathname === "/demo" || pathname.startsWith("/demo/");
+  const greetingName = user?.firstName?.trim() || "there";
   const [isSidebarOpen, setIsSidebarOpen] = useState(() =>
     typeof window === "undefined" ? true : window.matchMedia("(min-width: 1024px)").matches,
   );
@@ -241,6 +242,16 @@ export default function DashboardLayout() {
             </div>
           ) : null}
         </header>
+        {!isDemo && (
+          <div className="border-b border-teal-100 bg-teal-50/70 px-4 py-3 sm:px-6 lg:px-8">
+            <p className="text-sm font-semibold text-teal-900">
+              Hi, {greetingName}!
+            </p>
+            <p className="mt-0.5 text-xs text-teal-800/75">
+              Welcome back to your dashboard.
+            </p>
+          </div>
+        )}
         {isDemo && (
           <div className="mx-4 mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-900 sm:mx-6 lg:mx-10">
             <span>

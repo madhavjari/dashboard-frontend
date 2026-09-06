@@ -15,7 +15,7 @@ import { AUTH_BASE_URL } from "../../config/reportUrls";
 export default function LoginForm() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { updateAccessToken } = useAuth();
+  const { refreshAccountAccess, updateAccessToken } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -60,6 +60,12 @@ export default function LoginForm() {
         user: { isVerified: data.isVerified },
         accounts: data.accounts ?? [],
       });
+      try {
+        await refreshAccountAccess(data.accessToken);
+      } catch (error) {
+        // Login succeeded; keep the session even if the profile refresh fails.
+        console.error("Unable to load the signed-in user's profile:", error);
+      }
 
       const hasConfiguredAccount = data.accounts?.some(
         (account) => account.sync?.configured,

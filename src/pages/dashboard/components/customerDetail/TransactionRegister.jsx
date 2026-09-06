@@ -12,7 +12,10 @@ import RegisterPagination, {
 const GROUP_THRESHOLD = 2;
 
 function formatQuantity(transaction, fmtNumber) {
-  return [fmtNumber(getNumericQuantityForUnit(transaction), 1), transaction.per]
+  return [
+    fmtNumber(getNumericQuantityForUnit(transaction), 1),
+    getUnitLabel(transaction.per),
+  ]
     .filter((value) => value !== null && value !== undefined && value !== "")
     .join(" ");
 }
