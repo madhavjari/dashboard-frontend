@@ -30,6 +30,10 @@ export function normalizeUnitCode(per) {
   return String(per ?? "").trim().toUpperCase();
 }
 
+export function isMixedUnit(per) {
+  return normalizeUnitCode(per) === "MIXED UNITS";
+}
+
 export function getUnitDefinition(per) {
   return UNIT_BY_ALIAS.get(normalizeUnitCode(per)) ?? DEFAULT_UNIT;
 }
@@ -43,6 +47,7 @@ export function getUnitKey(per) {
 
 export function getUnitLabel(per) {
   const code = normalizeUnitCode(per);
+  if (isMixedUnit(code)) return "Mixed units";
   if (!code) return DEFAULT_UNIT.label;
 
   return UNIT_BY_ALIAS.get(code)?.label ?? DEFAULT_UNIT.label;

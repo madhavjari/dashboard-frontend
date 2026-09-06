@@ -6,6 +6,7 @@ import { fmtCompact, fmtINR } from "../../utils/format";
 import {
   getNumericQuantityForUnit,
   getUnitLabel,
+  isMixedUnit,
 } from "../../utils/unitOfMeasure";
 import ItemDashboardHeader from "./components/itemDashboard/ItemDashboardHeader";
 import ItemDashboardSummary from "./components/itemDashboard/ItemDashboardSummary";
@@ -33,7 +34,9 @@ export default function ItemDashboard({ ITEMS_URL, context }) {
       topItems.map((item) => {
         const transaction = toNum(item.transaction);
         const per = item.per || "p";
-        const quantity = getNumericQuantityForUnit(item);
+        const quantity = isMixedUnit(per)
+          ? null
+          : getNumericQuantityForUnit(item);
         const category = getUnitLabel(per);
 
         return {
@@ -70,7 +73,10 @@ export default function ItemDashboard({ ITEMS_URL, context }) {
     return <Error message={message} header="Item Dashboard" reload={reload} />;
   }
 
-  const totalQuantity = items.reduce((total, item) => total + item.quantity, 0);
+  const totalQuantity = items.reduce(
+    (total, item) => total + (item.quantity ?? 0),
+    0,
+  );
   const rankedItems = [...items].sort((a, b) => b.transaction - a.transaction);
   const topTenItems = rankedItems.slice(0, 10);
   const remainingItems = rankedItems.slice(10);

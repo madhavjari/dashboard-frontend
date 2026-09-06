@@ -6,6 +6,7 @@ import { fmtCompact, fmtINR } from "../../utils/format";
 import useItemDetailData from "../../utils/fetch/itemDetailData";
 import {
   getNumericQuantityForUnit,
+  getUnitKey,
   getUnitLabel,
 } from "../../utils/unitOfMeasure";
 import ItemDetailHeader from "./components/itemDetail/ItemDetailHeader";
@@ -24,6 +25,12 @@ function fmtNumber(number, digits = 0) {
 }
 
 function buildSummary(transactions) {
+  const units = new Set(
+    transactions
+      .map((transaction) => getUnitKey(transaction.per))
+      .filter((unit) => unit !== null),
+  );
+  const hasMixedUnits = units.size > 1;
   const summary = transactions.reduce(
     (summary, transaction) => {
       const isReturn = transaction.code.endsWith("R");
@@ -35,8 +42,10 @@ function buildSummary(transactions) {
       }
 
       summary.grossAmount += amount;
-      summary.quantity += getNumericQuantityForUnit(transaction);
-      summary.unit = getUnitLabel(transaction.per);
+      if (!hasMixedUnits) {
+        summary.quantity += getNumericQuantityForUnit(transaction);
+        summary.unit = getUnitLabel(transaction.per);
+      }
       return summary;
     },
     {
@@ -44,7 +53,9 @@ function buildSummary(transactions) {
       returnAmount: 0,
       netAmount: 0,
       quantity: 0,
-      unit: getUnitLabel(transactions[0]?.per),
+      unit: hasMixedUnits
+        ? "Mixed units"
+        : getUnitLabel(transactions[0]?.per),
     },
   );
 
