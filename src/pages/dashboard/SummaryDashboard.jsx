@@ -36,15 +36,6 @@ export default function SummaryDashboard({
   const returnRate = summary.grossAmount
     ? ((summary.returns / summary.grossAmount) * 100).toFixed(2)
     : "0.00";
-  const outstandingAmount =
-    outstandingSummary?.totalToCollect ?? outstandingSummary?.totalToPay;
-
-  const debtorDays =
-    summary?.netAmount != null &&
-    summary.netAmount !== 0 &&
-    outstandingAmount != null
-      ? (outstandingAmount / summary.netAmount) * 365
-      : null;
 
   const gstRows = [
     {
@@ -81,7 +72,7 @@ export default function SummaryDashboard({
           summary={summary}
           returnRate={returnRate}
           context={context}
-          debtorDays={debtorDays}
+          outstandingSummary={outstandingSummary}
         />
 
         {MONTHLY_SALES_URL && (

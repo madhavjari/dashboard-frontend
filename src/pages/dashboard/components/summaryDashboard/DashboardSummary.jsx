@@ -5,23 +5,20 @@ export default function DashboardSummary({
   summary,
   returnRate,
   context,
-  debtorDays,
+  outstandingSummary,
 }) {
-  const daysLabel = context === "Sales" ? "Debtor Days" : "Creditor Days";
-  const daysFormula =
-    context === "Sales"
-      ? "payment left ÷ net sales × 365"
-      : "amount to pay ÷ net purchase × 365";
-
   return (
-    <section className="metric-group mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6" aria-label={`${context} summary`}>
+    <section
+      className="metric-group mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
+      aria-label={`${context} summary`}
+    >
       <StatCard
         label={`Net ${context}`}
         value={fmtCompact(summary.netAmount)}
         sub="after returns"
         exactValue={fmtINR(summary.netAmount)}
         tone="text-teal-700"
-        className="col-span-2 sm:col-span-1 lg:col-span-2"
+        className="col-span-2 sm:col-span-1 lg:col-span-1"
         grouped
       />
       <StatCard
@@ -51,9 +48,17 @@ export default function DashboardSummary({
         grouped
       />
       <StatCard
-        label={daysLabel}
-        value={debtorDays === null ? "—" : `${debtorDays.toFixed(1)} days`}
-        sub={daysFormula}
+        label="Average Payment Days"
+        value={
+          outstandingSummary?.averagePaymentDays == null
+            ? "—"
+            : `${Number(outstandingSummary.averagePaymentDays).toFixed(1)} days`
+        }
+        sub={
+          outstandingSummary?.partyPaymentCount
+            ? `${outstandingSummary.partyPaymentCount} paid ${outstandingSummary.partyPaymentCount === 1 ? "party" : "parties"}`
+            : "No paid invoices"
+        }
         grouped
       />
     </section>
