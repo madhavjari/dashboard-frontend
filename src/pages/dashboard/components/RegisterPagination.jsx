@@ -11,6 +11,7 @@ export default function RegisterPagination({
   itemLabel,
   onChange,
   scrollTargetId,
+  placement = "bottom",
 }) {
   const pageInputRef = useRef(null);
   const previousPageRef = useRef(page);
@@ -60,7 +61,11 @@ export default function RegisterPagination({
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-5 py-4">
+    <div
+      className={`flex flex-wrap items-center justify-between gap-3 border-slate-100 px-5 py-3 ${
+        placement === "top" ? "border-b" : "border-t"
+      }`}
+    >
       <p className="text-xs text-slate-500">
         Showing {startIndex + 1}-{startIndex + visibleCount} of {totalCount}{" "}
         {itemLabel}
@@ -76,13 +81,13 @@ export default function RegisterPagination({
         </button>
         <form onSubmit={jumpToPage} className="flex items-center gap-1.5">
           <label
-            htmlFor={`${scrollTargetId || itemLabel}-page`}
+            htmlFor={`${scrollTargetId || itemLabel}-page-${placement}`}
             className="sr-only"
           >
             Jump to page
           </label>
           <input
-            id={`${scrollTargetId || itemLabel}-page`}
+            id={`${scrollTargetId || itemLabel}-page-${placement}`}
             key={page}
             ref={pageInputRef}
             type="number"

@@ -3,9 +3,9 @@ import InvoiceCard from "../../../../components/dashboard/InvoiceCard";
 import { fmtDateIN } from "../../../../utils/format";
 import {
   getNumericQuantityForUnit,
-  getUnitKey,
   getUnitLabel,
 } from "../../../../utils/unitOfMeasure";
+import { formatInvoiceQuantity as formatGroupedInvoiceQuantity } from "../../../../utils/invoiceQuantity";
 import RegisterPagination, {
   REGISTER_PAGE_SIZE,
 } from "../RegisterPagination";
@@ -19,25 +19,6 @@ function formatQuantity(transaction, fmtNumber) {
   ]
     .filter((value) => value !== null && value !== undefined && value !== "")
     .join(" ");
-}
-
-function formatInvoiceQuantity(items, fmtNumber) {
-  const units = new Set(
-    items.map((transaction) => getUnitKey(transaction.per)),
-  );
-  const everyItemHasUnit = items.every(
-    (transaction) => getUnitKey(transaction.per) !== null,
-  );
-
-  if (!everyItemHasUnit || units.size !== 1) return "Mixed units";
-
-  const totalQuantity = items.reduce(
-    (total, transaction) =>
-      total + getNumericQuantityForUnit(transaction),
-    0,
-  );
-  const unit = getUnitLabel(items[0]?.per);
-  return [fmtNumber(totalQuantity, 1), unit].join(" ");
 }
 
 function groupByInvoice(transactions) {
@@ -184,6 +165,17 @@ export default function TransactionRegister({
         </p>
       ) : (
         <>
+          <RegisterPagination
+            page={activePage}
+            totalPages={totalPages}
+            startIndex={firstInvoiceIndex}
+            visibleCount={visibleInvoices.length}
+            totalCount={filteredInvoices.length}
+            itemLabel="invoices"
+            onChange={changePage}
+            scrollTargetId="party-transaction-register"
+            placement="top"
+          />
           <div
             id="party-transaction-register"
             className="scroll-mt-12 space-y-3 p-4 md:hidden"
@@ -262,20 +254,15 @@ function TransactionCard({ transaction, fmtNumber, fmtINR }) {
   return (
     <InvoiceCard
       invoiceNumber={transaction.billNo}
+      billDate={transaction.billDate}
       date={fmtDateIN(transaction.billDate)}
       title={transaction.party}
       subtitle={transaction.itemName}
+      quantity={formatQuantity(transaction, fmtNumber)}
+      type={transaction.code}
       amount={fmtINR(transaction.totalAmount)}
       status={transaction.paymentStatus}
-    >
-      <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-[11px]">
-        <RegisterValue
-          label="Qty"
-          value={formatQuantity(transaction, fmtNumber)}
-        />
-        <RegisterValue label="Type" value={<TransactionTypeBadge code={transaction.code} />} />
-      </div>
-    </InvoiceCard>
+    />
   );
 }
 
@@ -289,19 +276,15 @@ function GroupedInvoiceCard({
   return (
     <InvoiceCard
       invoiceNumber={invoice.billNo}
+      billDate={invoice.billDate}
       date={fmtDateIN(invoice.billDate)}
       title={invoice.party}
       subtitle={`${invoice.items.length} items`}
+      quantity={formatGroupedInvoiceQuantity(invoice.items, fmtNumber)}
+      type={invoice.code}
       amount={fmtINR(invoice.totalAmount)}
       status={invoice.paymentStatus}
     >
-      <div className="grid grid-cols-2 gap-x-4 text-[11px]">
-        <RegisterValue
-          label="Qty"
-          value={formatInvoiceQuantity(invoice.items, fmtNumber)}
-        />
-        <RegisterValue label="Type" value={<TransactionTypeBadge code={invoice.code} />} />
-      </div>
       <div className="mt-3 flex justify-end">
         <button
           type="button"
@@ -356,7 +339,7 @@ function InvoiceRows({ invoice, expanded, onToggle, fmtNumber, fmtINR }) {
           {invoice.items.length} items
         </td>
         <td className="px-5 py-3 text-right font-mono">
-          {formatInvoiceQuantity(invoice.items, fmtNumber)}
+          {formatGroupedInvoiceQuantity(invoice.items, fmtNumber)}
         </td>
         <td className="px-5 py-3 text-right font-mono font-medium">
           {fmtINR(invoice.totalAmount)}
@@ -458,22 +441,6 @@ function InvoiceTableColumns() {
       <col style={{ width: "9%" }} />
       <col style={{ width: "11%" }} />
     </>
-  );
-}
-
-function RegisterValue({ label, value, emphasized = false }) {
-  return (
-    <div>
-      <p className="uppercase tracking-wide text-slate-400">{label}</p>
-      <p
-        className={
-          "mt-0.5 break-words font-mono-num " +
-          (emphasized ? "font-semibold text-slate-900" : "text-slate-700")
-        }
-      >
-        {value}
-      </p>
-    </div>
   );
 }
 

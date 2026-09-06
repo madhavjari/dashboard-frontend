@@ -3,6 +3,7 @@ import { ArrowUpRight, Search, SlidersHorizontal, X } from "lucide-react";
 import { fmtDateIN } from "../../../../utils/format";
 import InvoiceCard from "../../../../components/dashboard/InvoiceCard";
 import { Link, useLocation } from "react-router";
+import { formatInvoiceQuantity } from "../../../../utils/invoiceQuantity";
 import RegisterPagination, { REGISTER_PAGE_SIZE } from "../RegisterPagination";
 import { getAgeBand, getInvoiceAgeDays } from "../../../../utils/invoiceAge";
 
@@ -71,6 +72,8 @@ export default function OutstandingRegister({ invoices, fmtINR, context }) {
         {hasFilters ? <button type="button" onClick={clearFilters} className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:text-teal-900"><X size={14} /> Clear all filters</button> : null}
       </div>
 
+      {filteredInvoices.length > 0 ? <RegisterPagination page={activePage} totalPages={totalPages} startIndex={startIndex} visibleCount={visibleInvoices.length} totalCount={filteredInvoices.length} itemLabel="invoices" onChange={setCurrentPage} scrollTargetId={`${context.toLowerCase()}-outstanding-register`} placement="top" /> : null}
+
       <div
         id={`${context.toLowerCase()}-outstanding-register`}
         className="scroll-mt-12 space-y-3 p-4 md:hidden"
@@ -79,11 +82,14 @@ export default function OutstandingRegister({ invoices, fmtINR, context }) {
           <InvoiceCard
             key={`${invoice.billNo}-${invoice.party}`}
             invoiceNumber={invoice.billNo}
+            billDate={invoice.billDate}
             date={fmtDateIN(invoice.billDate)}
             title={<Link to={partyUrl(invoice.party)} className="hover:text-teal-700">{invoice.party}</Link>}
-            subtitle={<AgeBadge days={invoice.ageDays} />}
+            quantity={formatInvoiceQuantity(invoice.items)}
+            type={invoice.code}
             amount={fmtINR(invoice.amountOutstanding)}
             status="Unpaid"
+            unpaidDays={invoice.ageDays}
           >
             <div className="grid grid-cols-2 gap-4 text-xs">
               <RegisterValue label="Bill amount" value={fmtINR(invoice.billAmount)} />

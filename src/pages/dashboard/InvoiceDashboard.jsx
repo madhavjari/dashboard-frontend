@@ -5,6 +5,7 @@ import InvoiceCard from "../../components/dashboard/InvoiceCard";
 import Loading from "../../components/dashboard/Loading";
 import useOutstandingData from "../../utils/fetch/outstandingData";
 import { fmtDateIN, fmtINR } from "../../utils/format";
+import { formatInvoiceQuantity } from "../../utils/invoiceQuantity";
 import RegisterPagination, {
   REGISTER_PAGE_SIZE,
 } from "./components/RegisterPagination";
@@ -215,6 +216,20 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
             ) : null}
           </div>
 
+          {filteredInvoices.length ? (
+            <RegisterPagination
+              page={activePage}
+              totalPages={totalPages}
+              startIndex={startIndex}
+              visibleCount={visibleInvoices.length}
+              totalCount={filteredInvoices.length}
+              itemLabel="invoices"
+              onChange={setCurrentPage}
+              scrollTargetId={`${context.toLowerCase()}-invoice-register`}
+              placement="top"
+            />
+          ) : null}
+
           <div
             id={`${context.toLowerCase()}-invoice-register`}
             className="scroll-mt-12 space-y-3 p-4 md:hidden"
@@ -224,9 +239,12 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
                 <InvoiceCard
                   key={`${invoice.billNo}-${invoice.party}-${index}`}
                   invoiceNumber={invoice.billNo}
+                  billDate={invoice.billDate}
                   date={fmtDateIN(invoice.billDate)}
                   title={invoice.party || "No party name"}
                   subtitle={<Items itemNames={invoice.itemNames} />}
+                  quantity={formatInvoiceQuantity(invoice.items)}
+                  type={invoice.code}
                   amount={fmtINR(invoice.billAmount)}
                   status={invoice.paymentStatus}
                 />

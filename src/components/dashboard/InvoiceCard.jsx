@@ -1,3 +1,5 @@
+import { getInvoiceAgeDays } from "../../utils/invoiceAge";
+
 const accentClass = {
   Paid: "border-l-emerald-500",
   Unpaid: "border-l-rose-500",
@@ -11,15 +13,21 @@ const statusClass = {
 
 export default function InvoiceCard({
   invoiceNumber,
+  billDate,
   date,
   title,
   subtitle,
+  quantity,
+  type,
   amount,
   status,
+  unpaidDays,
   children,
   action,
 }) {
   const accent = accentClass[status] || accentClass.neutral;
+  const daysUnpaid =
+    unpaidDays ?? (billDate ? getInvoiceAgeDays(billDate) : null);
 
   return (
     <article
@@ -27,7 +35,7 @@ export default function InvoiceCard({
     >
       <div className="flex items-start justify-between gap-3">
         <p className="min-w-0 break-words font-mono text-[11px] font-semibold text-slate-500">
-          {invoiceNumber || "No bill number"}
+          Bill No: {invoiceNumber || "No bill number"}
         </p>
         <p className="shrink-0 text-[11px] text-slate-400">{date}</p>
       </div>
@@ -43,14 +51,24 @@ export default function InvoiceCard({
         ) : null}
       </div>
 
+      <p className="mt-2 text-xs font-semibold text-slate-500">
+        {quantity || "—"}
+        {type ? ` · Type: ${type}` : ""}
+      </p>
+
       {children ? <div className="mt-2">{children}</div> : null}
 
       <div className="mt-3 flex items-end justify-between gap-2">
         <p className="font-mono-num text-lg font-bold tracking-tight text-slate-950">
           {amount}
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-end gap-1">
           {action ? action : null}
+          {status === "Unpaid" && Number.isFinite(Number(daysUnpaid)) ? (
+            <span className="text-[10px] font-semibold text-rose-600">
+              {daysUnpaid} {Number(daysUnpaid) === 1 ? "day" : "days"}
+            </span>
+          ) : null}
           {status ? (
             <span
               className={`shrink-0 rounded-lg px-2 py-1 text-[11px] font-bold ${

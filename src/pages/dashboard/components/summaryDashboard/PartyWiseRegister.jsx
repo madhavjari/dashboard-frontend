@@ -40,6 +40,19 @@ export default function PartyWiseRegister({ party, context }) {
         <div><h2 className="text-base font-bold text-slate-900">{context === "Sales" ? "Customer" : "Supplier"} performance</h2><p className="mt-1 text-xs text-slate-500">Open a party to review its ledger and transactions.</p></div>
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row"><label className="relative block w-full sm:w-64"><span className="sr-only">Search {dealer}</span><Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" /><input value={query} onChange={(event) => { setQuery(event.target.value); setCurrentPage(1); }} className="h-10 w-full rounded-lg border border-slate-300 pl-9 pr-8 text-sm outline-none focus:border-teal-600 focus:ring-3 focus:ring-teal-100" placeholder={`Search ${dealer}`} />{query ? <button type="button" onClick={() => setQuery("")} className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400" aria-label="Clear search"><X size={14} /></button> : null}</label><label className="flex h-10 items-center gap-2 rounded-lg border border-slate-300 px-3 text-xs text-slate-500"><span>Sort</span><select value={sort} onChange={(event) => { setSort(event.target.value); setCurrentPage(1); }} className="bg-transparent text-sm font-semibold text-slate-700 outline-none"><option value="net-desc">Net value</option><option value="outstanding-desc">Outstanding</option><option value="invoices-desc">Invoices</option><option value="name">Name A–Z</option></select></label></div>
       </div>
+      {filteredParties.length > 0 && (
+        <RegisterPagination
+          page={activePage}
+          totalPages={totalPages}
+          startIndex={startIndex}
+          visibleCount={visibleParties.length}
+          totalCount={filteredParties.length}
+          itemLabel="parties"
+          onChange={setCurrentPage}
+          scrollTargetId={`${context.toLowerCase()}-party-register`}
+          placement="top"
+        />
+      )}
       <div className="p-5 pt-3 sm:p-6 sm:pt-3">
       <div id={`${context.toLowerCase()}-party-register`} className="scroll-mt-12 space-y-3 md:hidden">
         {filteredParties.length === 0 ? (
