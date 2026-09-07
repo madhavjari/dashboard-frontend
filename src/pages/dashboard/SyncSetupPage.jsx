@@ -61,10 +61,10 @@ export default function SyncSetupPage() {
     const groups = new Map();
 
     for (const company of storedAccountingCompanies) {
-      const key = `${company.syncSourceId}\u0000${String(company.name ?? "")
+      const key = String(company.name ?? "")
         .trim()
         .replace(/\s+/g, " ")
-        .toLocaleUpperCase()}`;
+        .toLocaleUpperCase();
       if (!groups.has(key)) groups.set(key, company);
     }
 
