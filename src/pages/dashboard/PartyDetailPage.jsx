@@ -24,7 +24,7 @@ export default function PartyDetailPage({
   const { pathname } = useLocation();
   const {
     accountingCompanies = [],
-    selectedAccountingCompanyIds = [],
+    selectedAccountingCompanyGroupIds = [],
     selectAllAccountingCompanies,
   } = useOutletContext() ?? {};
   const party = searchParams.get("party");
@@ -54,7 +54,7 @@ export default function PartyDetailPage({
     const isSales = context === "Sales";
     const canViewAllCompanies =
       accountingCompanies.length > 1 &&
-      selectedAccountingCompanyIds.length < accountingCompanies.length;
+      selectedAccountingCompanyGroupIds.length < accountingCompanies.length;
 
     return (
       <PartyDetailEmptyState

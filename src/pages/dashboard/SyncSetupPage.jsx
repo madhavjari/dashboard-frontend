@@ -53,6 +53,23 @@ export default function SyncSetupPage() {
       accounts[0],
     [accounts, selectedAccountId],
   );
+  const storedAccountingCompanies = useMemo(
+    () => selectedAccount?.accountingCompanies ?? [],
+    [selectedAccount?.accountingCompanies],
+  );
+  const storedAccountingCompanyGroups = useMemo(() => {
+    const groups = new Map();
+
+    for (const company of storedAccountingCompanies) {
+      const key = `${company.syncSourceId}\u0000${String(company.name ?? "")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLocaleUpperCase()}`;
+      if (!groups.has(key)) groups.set(key, company);
+    }
+
+    return [...groups.values()];
+  }, [storedAccountingCompanies]);
 
   const handleGenerate = async (event) => {
     event.preventDefault();
@@ -221,8 +238,6 @@ export default function SyncSetupPage() {
     selectedAccount?.canManageSync && user?.isVerified && !isConfigured;
   const generatedForSelectedAccount =
     generatedCredential?.accountId === selectedAccount?.id;
-  const storedAccountingCompanies =
-    selectedAccount?.accountingCompanies ?? [];
   const registeredForSelectedAccount =
     registeredCompany?.accountId === selectedAccount?.id;
   const hasRegisteredCompany =
@@ -448,10 +463,8 @@ export default function SyncSetupPage() {
                         Registered accounting companies
                       </h3>
                       <div className="mt-2 space-y-1 text-sm text-emerald-900/80">
-                        {storedAccountingCompanies.map((company) => (
-                          <p key={company.id}>
-                            CompNo {company.externalId} — {company.name}
-                          </p>
+                        {storedAccountingCompanyGroups.map((company) => (
+                          <p key={company.id}>{company.name}</p>
                         ))}
                         {registeredForSelectedAccount &&
                           !storedAccountingCompanies.some(
@@ -459,10 +472,7 @@ export default function SyncSetupPage() {
                               company.externalId ===
                               registeredCompany.externalCompanyId,
                           ) && (
-                            <p>
-                              CompNo {registeredCompany.externalCompanyId} —{" "}
-                              {registeredCompany.name}
-                            </p>
+                            <p>{registeredCompany.name}</p>
                           )}
                       </div>
                     </div>

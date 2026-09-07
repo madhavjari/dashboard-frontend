@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CalendarRange, Menu, RefreshCw } from "lucide-react";
 import {
   Link,
@@ -34,10 +34,20 @@ export default function DashboardLayout() {
   const [financialYear, setFinancialYear] = useState(null);
   const [financialYearStatus, setFinancialYearStatus] = useState("loading");
   const [accountingCompanies, setAccountingCompanies] = useState([]);
-  const [selectedAccountingCompanyIds, setSelectedAccountingCompanyIds] =
+  const [selectedAccountingCompanyGroupIds, setSelectedAccountingCompanyGroupIds] =
     useState([]);
   const [companyStatus, setCompanyStatus] = useState("loading");
   const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const selectedAccountingCompanyIds = useMemo(
+    () =>
+      accountingCompanies
+        .filter((company) =>
+          selectedAccountingCompanyGroupIds.includes(company.id),
+        )
+        .flatMap((company) => company.accountingCompanyIds ?? [company.id]),
+    [accountingCompanies, selectedAccountingCompanyGroupIds],
+  );
 
   async function handleSignOut() {
     if (isSigningOut) return;
@@ -79,14 +89,14 @@ export default function DashboardLayout() {
         if (cancelled) return;
 
         setAccountingCompanies(companies);
-        setSelectedAccountingCompanyIds(
+        setSelectedAccountingCompanyGroupIds(
           companies.map((company) => company.id),
         );
         setCompanyStatus("success");
       } catch {
         if (cancelled) return;
         setAccountingCompanies([]);
-        setSelectedAccountingCompanyIds([]);
+        setSelectedAccountingCompanyGroupIds([]);
         setCompanyStatus("error");
       }
     }
@@ -102,7 +112,7 @@ export default function DashboardLayout() {
     if (
       companyStatus === "success" &&
       accountingCompanies.length > 0 &&
-      selectedAccountingCompanyIds.length === 0
+      selectedAccountingCompanyGroupIds.length === 0
     ) {
       return undefined;
     }
@@ -152,6 +162,7 @@ export default function DashboardLayout() {
     accountingCompanies.length,
     auth?.accessToken,
     companyStatus,
+    selectedAccountingCompanyGroupIds,
     selectedAccountingCompanyIds,
   ]);
 
@@ -192,8 +203,8 @@ export default function DashboardLayout() {
             <div className="hidden min-w-0 md:block">
               <CompanySelector
                 companies={accountingCompanies}
-                selectedCompanyIds={selectedAccountingCompanyIds}
-                onChange={setSelectedAccountingCompanyIds}
+                selectedCompanyIds={selectedAccountingCompanyGroupIds}
+                onChange={setSelectedAccountingCompanyGroupIds}
               />
             </div>
           ) : null}
@@ -236,8 +247,8 @@ export default function DashboardLayout() {
             <div className="border-t border-slate-100 px-4 py-2 md:hidden">
               <CompanySelector
                 companies={accountingCompanies}
-                selectedCompanyIds={selectedAccountingCompanyIds}
-                onChange={setSelectedAccountingCompanyIds}
+                selectedCompanyIds={selectedAccountingCompanyGroupIds}
+                onChange={setSelectedAccountingCompanyGroupIds}
               />
             </div>
           ) : null}
@@ -270,8 +281,9 @@ export default function DashboardLayout() {
               financialYear,
               accountingCompanies,
               selectedAccountingCompanyIds,
+              selectedAccountingCompanyGroupIds,
               selectAllAccountingCompanies: () =>
-                setSelectedAccountingCompanyIds(
+                setSelectedAccountingCompanyGroupIds(
                   accountingCompanies.map((company) => company.id),
                 ),
             }}
