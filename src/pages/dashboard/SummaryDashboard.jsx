@@ -4,6 +4,7 @@ import TaxBreakdown from "./components/summaryDashboard/TaxBreakdown";
 import NetSales from "./components/summaryDashboard/NetSales";
 import PartyWiseRegister from "./components/summaryDashboard/PartyWiseRegister";
 import MonthWiseSalesChart from "./components/summaryDashboard/MonthWiseSalesChart";
+import PeriodPerformanceCard from "./components/summaryDashboard/PeriodPerformanceCard";
 import Loading from "../../components/dashboard/Loading";
 import Error from "../../components/dashboard/Error";
 
@@ -74,6 +75,8 @@ export default function SummaryDashboard({
           context={context}
           outstandingSummary={outstandingSummary}
         />
+
+        <PeriodPerformanceCard context={context} summaryUrl={SUMMARY_URL} />
 
         {MONTHLY_SALES_URL && (
           <div className="mb-6">

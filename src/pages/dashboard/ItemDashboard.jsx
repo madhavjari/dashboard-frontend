@@ -26,7 +26,7 @@ function fmtNumber(number, digits = 0) {
 
 export default function ItemDashboard({ ITEMS_URL, context }) {
   const { summary, topItems, message, reload, status } = useItemData(ITEMS_URL);
-  const [sortKey, setSortKey] = useState("revenue");
+  const [sortKey, setSortKey] = useState("transaction");
   const [sortDir, setSortDir] = useState("desc");
 
   const items = useMemo(
