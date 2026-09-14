@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { ReceiptIndianRupee, Search, SlidersHorizontal, X } from "lucide-react";
+import { useOutletContext } from "react-router";
 import Error from "../../components/dashboard/Error";
 import InvoiceCard from "../../components/dashboard/InvoiceCard";
 import Loading from "../../components/dashboard/Loading";
@@ -9,6 +10,7 @@ import { formatInvoiceQuantity } from "../../utils/invoiceQuantity";
 import RegisterPagination, {
   REGISTER_PAGE_SIZE,
 } from "./components/RegisterPagination";
+import ManualPaymentDialog from "./components/invoiceDashboard/ManualPaymentDialog";
 
 const statusOptions = ["All statuses", "Paid", "Unpaid"];
 
@@ -42,6 +44,7 @@ function Items({ itemNames }) {
 }
 
 export default function InvoiceDashboard({ INVOICES_URL, context }) {
+  const { accessToken, financialYear } = useOutletContext() ?? {};
   const isSales = context === "Sales";
   const reportName = isSales ? "Sales invoices" : "Purchase invoices";
   const partyLabel = isSales ? "customer" : "supplier";
@@ -53,6 +56,7 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
   const [statusFilter, setStatusFilter] = useState("All statuses");
   const [sort, setSort] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
 
   const invoiceRows = useMemo(
     () =>
@@ -247,6 +251,15 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
                   type={invoice.code}
                   amount={fmtINR(invoice.billAmount)}
                   status={invoice.paymentStatus}
+                  action={accessToken ? (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedInvoice(invoice)}
+                      className="inline-flex items-center gap-1 rounded-md bg-teal-50 px-2 py-1 text-[10px] font-bold text-teal-700"
+                    >
+                      <ReceiptIndianRupee size={12} /> Payment
+                    </button>
+                  ) : null}
                 />
               ))
             ) : (
@@ -268,6 +281,7 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
                   <th className="px-4 py-3">Party name</th>
                   <th className="px-4 py-3 text-right">Value</th>
                   <th className="px-6 py-3 text-center">Status</th>
+                  {accessToken ? <th className="px-6 py-3 text-right">Action</th> : null}
                 </tr>
               </thead>
               <tbody>
@@ -275,7 +289,16 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
                   visibleInvoices.map((invoice, index) => (
                     <tr
                       key={`${invoice.billNo}-${invoice.party}-${index}`}
-                      className="border-b border-slate-100 transition hover:bg-teal-50/40"
+                      className={`border-b border-slate-100 transition hover:bg-teal-50/40 ${accessToken ? "cursor-pointer" : ""}`}
+                      onClick={accessToken ? () => setSelectedInvoice(invoice) : undefined}
+                      onKeyDown={accessToken ? (event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setSelectedInvoice(invoice);
+                        }
+                      } : undefined}
+                      role={accessToken ? "button" : undefined}
+                      tabIndex={accessToken ? 0 : undefined}
                     >
                       <td className="px-6 py-3.5 font-mono text-xs font-semibold text-slate-900">
                         {invoice.billNo || "-"}
@@ -295,11 +318,18 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
                       <td className="px-6 py-3.5 text-center">
                         <StatusBadge status={invoice.paymentStatus} />
                       </td>
+                      {accessToken ? (
+                        <td className="px-6 py-3.5 text-right">
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-teal-700">
+                            <ReceiptIndianRupee size={14} /> Payment
+                          </span>
+                        </td>
+                      ) : null}
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6}>
+                    <td colSpan={accessToken ? 7 : 6}>
                       <EmptyState
                         hasFilters={hasFilters}
                         onClear={clearFilters}
@@ -326,6 +356,16 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
           ) : null}
         </section>
       </div>
+      {selectedInvoice ? (
+        <ManualPaymentDialog
+          accessToken={accessToken}
+          context={context}
+          financialYear={financialYear || selectedInvoice.financialYear}
+          invoice={selectedInvoice}
+          onClose={() => setSelectedInvoice(null)}
+          onSaved={reload}
+        />
+      ) : null}
     </main>
   );
 }

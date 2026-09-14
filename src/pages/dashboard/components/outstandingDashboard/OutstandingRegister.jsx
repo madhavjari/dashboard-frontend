@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowUpRight, Search, SlidersHorizontal, X } from "lucide-react";
+import { ArrowUpRight, ReceiptIndianRupee, Search, SlidersHorizontal, X } from "lucide-react";
 import { fmtDateIN } from "../../../../utils/format";
 import InvoiceCard from "../../../../components/dashboard/InvoiceCard";
 import { Link, useLocation } from "react-router";
@@ -14,7 +14,13 @@ function AgeBadge({ days }) {
   return <span className={`inline-flex whitespace-nowrap rounded-full px-2 py-1 text-xs font-semibold ring-1 ring-inset ${tone}`}>{days} days</span>;
 }
 
-export default function OutstandingRegister({ invoices, fmtINR, context }) {
+export default function OutstandingRegister({
+  invoices,
+  fmtINR,
+  context,
+  canRecordPayments,
+  onRecordPayment,
+}) {
   const { pathname } = useLocation();
   const routePrefix = pathname.startsWith("/demo/") ? "/demo" : "";
   const dealer = context === "Sales" ? "customer" : "supplier";
@@ -90,6 +96,15 @@ export default function OutstandingRegister({ invoices, fmtINR, context }) {
             amount={fmtINR(invoice.amountOutstanding)}
             status="Unpaid"
             unpaidDays={invoice.ageDays}
+            action={canRecordPayments ? (
+              <button
+                type="button"
+                onClick={() => onRecordPayment(invoice)}
+                className="inline-flex items-center gap-1 rounded-md bg-teal-50 px-2 py-1 text-[10px] font-bold text-teal-700"
+              >
+                <ReceiptIndianRupee size={12} /> Payment
+              </button>
+            ) : null}
           >
             <div className="grid grid-cols-2 gap-4 text-xs">
               <RegisterValue label="Bill amount" value={fmtINR(invoice.billAmount)} />
@@ -101,9 +116,9 @@ export default function OutstandingRegister({ invoices, fmtINR, context }) {
 
       <div className="table-scroll hidden max-h-[42rem] overflow-auto md:block">
         <table className="w-full min-w-[760px] text-sm">
-          <thead className="sticky top-0 z-10 bg-slate-50"><tr className="border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500"><th className="px-6 py-3">Invoice date</th><th className="px-4 py-3">Invoice</th><th className="px-4 py-3">{context === "Sales" ? "Customer" : "Supplier"}</th><th className="px-4 py-3">Age</th><th className="px-4 py-3 text-right">Bill amount</th><th className="px-6 py-3 text-right">{outstandingLabel}</th><th className="w-12 px-3 py-3"><span className="sr-only">Actions</span></th></tr></thead>
-          <tbody>{visibleInvoices.length === 0 ? <tr><td colSpan={7}><EmptyState hasFilters={hasFilters} context={context} onClear={clearFilters} /></td></tr> : visibleInvoices.map((invoice) => (
-            <tr key={`${invoice.billNo}-${invoice.party}`} className="border-b border-slate-100 transition hover:bg-teal-50/40"><td className="whitespace-nowrap px-6 py-3.5 text-slate-600">{fmtDateIN(invoice.billDate)}</td><td className="px-4 py-3.5 font-mono text-xs font-medium text-slate-800">{invoice.billNo}</td><td className="px-4 py-3.5 font-semibold text-slate-900"><Link to={partyUrl(invoice.party)} className="hover:text-teal-700 hover:underline">{invoice.party}</Link></td><td className="px-4 py-3.5"><AgeBadge days={invoice.ageDays} /></td><td className="px-4 py-3.5 text-right font-mono-num text-slate-600">{fmtINR(invoice.billAmount)}</td><td className="px-6 py-3.5 text-right font-mono-num font-bold text-slate-950">{fmtINR(invoice.amountOutstanding)}</td><td className="px-3 py-3.5"><Link to={partyUrl(invoice.party)} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:bg-white hover:text-teal-700" aria-label={`View ${invoice.party} ledger`} title={`View ${dealer} ledger`}><ArrowUpRight size={17} /></Link></td></tr>
+          <thead className="sticky top-0 z-10 bg-slate-50"><tr className="border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500"><th className="px-6 py-3">Invoice date</th><th className="px-4 py-3">Invoice</th><th className="px-4 py-3">{context === "Sales" ? "Customer" : "Supplier"}</th><th className="px-4 py-3">Age</th><th className="px-4 py-3 text-right">Bill amount</th><th className="px-6 py-3 text-right">{outstandingLabel}</th>{canRecordPayments ? <th className="px-3 py-3 text-right">Payment</th> : null}<th className="w-12 px-3 py-3"><span className="sr-only">Ledger</span></th></tr></thead>
+          <tbody>{visibleInvoices.length === 0 ? <tr><td colSpan={canRecordPayments ? 8 : 7}><EmptyState hasFilters={hasFilters} context={context} onClear={clearFilters} /></td></tr> : visibleInvoices.map((invoice) => (
+            <tr key={`${invoice.billNo}-${invoice.party}`} className="border-b border-slate-100 transition hover:bg-teal-50/40"><td className="whitespace-nowrap px-6 py-3.5 text-slate-600">{fmtDateIN(invoice.billDate)}</td><td className="px-4 py-3.5 font-mono text-xs font-medium text-slate-800">{invoice.billNo}</td><td className="px-4 py-3.5 font-semibold text-slate-900"><Link to={partyUrl(invoice.party)} className="hover:text-teal-700 hover:underline">{invoice.party}</Link></td><td className="px-4 py-3.5"><AgeBadge days={invoice.ageDays} /></td><td className="px-4 py-3.5 text-right font-mono-num text-slate-600">{fmtINR(invoice.billAmount)}</td><td className="px-6 py-3.5 text-right font-mono-num font-bold text-slate-950">{fmtINR(invoice.amountOutstanding)}</td>{canRecordPayments ? <td className="px-3 py-3.5 text-right"><button type="button" onClick={() => onRecordPayment(invoice)} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-teal-200 bg-teal-50 px-3 text-xs font-semibold text-teal-700 hover:bg-teal-100"><ReceiptIndianRupee size={15} /> Record</button></td> : null}<td className="px-3 py-3.5"><Link to={partyUrl(invoice.party)} className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:bg-white hover:text-teal-700" aria-label={`View ${invoice.party} ledger`} title={`View ${dealer} ledger`}><ArrowUpRight size={17} /></Link></td></tr>
           ))}</tbody>
         </table>
       </div>

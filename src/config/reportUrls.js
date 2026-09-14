@@ -6,6 +6,7 @@ export const API_BASE_URL = (
 ).replace(/\/+$/, "");
 
 export const AUTH_BASE_URL = `${API_BASE_URL}/auth`;
+export const MANUAL_PAYMENTS_URL = `${API_BASE_URL}/manual-payments`;
 const REPORTS_BASE_URL = `${API_BASE_URL}/reports`;
 
 export const FINANCIAL_YEARS_URL = `${REPORTS_BASE_URL}/financial-years`;

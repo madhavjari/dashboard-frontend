@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useOutletContext } from "react-router";
 import Error from "../../components/dashboard/Error";
 import Loading from "../../components/dashboard/Loading";
 import { fmtCompact, fmtINR } from "../../utils/format";
@@ -7,8 +9,11 @@ import OutstandingHeader from "./components/outstandingDashboard/OutstandingHead
 import OutstandingRegister from "./components/outstandingDashboard/OutstandingRegister";
 import OutstandingSummary from "./components/outstandingDashboard/OutstandingSummary";
 import InvoiceAgeBreakdown from "./components/outstandingDashboard/InvoiceAgeBreakdown";
+import ManualPaymentDialog from "./components/invoiceDashboard/ManualPaymentDialog";
 
 export default function OutstandingDashboard({ OUTSTANDING_URL, context }) {
+  const { accessToken, financialYear } = useOutletContext() ?? {};
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
   const { summary, invoices, partySummary, status, message, reload } =
     useOutstandingData(OUTSTANDING_URL, context);
 
@@ -50,8 +55,20 @@ export default function OutstandingDashboard({ OUTSTANDING_URL, context }) {
           invoices={invoices}
           fmtINR={fmtINR}
           context={context}
+          canRecordPayments={Boolean(accessToken)}
+          onRecordPayment={setSelectedInvoice}
         />
       </div>
+      {selectedInvoice ? (
+        <ManualPaymentDialog
+          accessToken={accessToken}
+          context={context}
+          financialYear={financialYear || selectedInvoice.financialYear}
+          invoice={selectedInvoice}
+          onClose={() => setSelectedInvoice(null)}
+          onSaved={reload}
+        />
+      ) : null}
     </main>
   );
 }
