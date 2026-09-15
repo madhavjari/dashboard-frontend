@@ -67,6 +67,7 @@ export default function DashboardPage({ page, reportType }) {
       return (
         <ItemDetailPage
           ITEM_URL={report.itemDetailsUrl}
+          OUTSTANDING_URL={report.outstandingUrl}
           context={report.label}
         />
       );

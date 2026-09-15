@@ -53,6 +53,7 @@ function buildSummary(transactions) {
       returnAmount: 0,
       netAmount: 0,
       quantity: 0,
+      pricePerUnit: null,
       unit: hasMixedUnits
         ? "Mixed units"
         : getUnitLabel(transactions[0]?.per),
@@ -62,16 +63,20 @@ function buildSummary(transactions) {
   return summary;
 }
 
-export default function ItemDetailPage({ ITEM_URL, context }) {
+export default function ItemDetailPage({ ITEM_URL, OUTSTANDING_URL, context }) {
   const [searchParams] = useSearchParams();
   const item = searchParams.get("item");
   const { transactions, status, message, reload } = useItemDetailData(
     ITEM_URL,
     item,
+    OUTSTANDING_URL,
   );
   const summary = useMemo(() => {
     const itemSummary = buildSummary(transactions);
     itemSummary.netAmount = itemSummary.grossAmount - itemSummary.returnAmount;
+    itemSummary.pricePerUnit = itemSummary.quantity
+      ? itemSummary.grossAmount / itemSummary.quantity
+      : null;
     return itemSummary;
   }, [transactions]);
 

@@ -22,12 +22,21 @@ export default function InvoiceCard({
   amount,
   status,
   unpaidDays,
+  statusDays,
   children,
   action,
 }) {
   const accent = accentClass[status] || accentClass.neutral;
   const daysUnpaid =
     unpaidDays ?? (billDate ? getInvoiceAgeDays(billDate) : null);
+  const displayedDays = statusDays ?? daysUnpaid;
+  const showStatusDays =
+    status === "Unpaid"
+      ? displayedDays !== null && Number.isFinite(Number(displayedDays))
+      : status === "Paid" &&
+        statusDays !== null &&
+        statusDays !== undefined &&
+        Number.isFinite(Number(statusDays));
 
   return (
     <article
@@ -64,19 +73,25 @@ export default function InvoiceCard({
         </p>
         <div className="flex flex-col items-end gap-1">
           {action ? action : null}
-          {status === "Unpaid" && Number.isFinite(Number(daysUnpaid)) ? (
-            <span className="text-[10px] font-semibold text-rose-600">
-              {daysUnpaid} {Number(daysUnpaid) === 1 ? "day" : "days"}
-            </span>
-          ) : null}
           {status ? (
-            <span
-              className={`shrink-0 rounded-lg px-2 py-1 text-[11px] font-bold ${
-                statusClass[status] || "bg-slate-100 text-slate-700"
-              }`}
-            >
-              {status}
-            </span>
+            <div className="flex flex-col items-end gap-1">
+              <span
+                className={`shrink-0 rounded-lg px-2 py-1 text-[11px] font-bold ${
+                  statusClass[status] || "bg-slate-100 text-slate-700"
+                }`}
+              >
+                {status}
+              </span>
+              {showStatusDays ? (
+                <span
+                  className={`text-[10px] font-semibold ${
+                    status === "Paid" ? "text-emerald-700" : "text-rose-600"
+                  }`}
+                >
+                  {displayedDays} {Number(displayedDays) === 1 ? "day" : "days"}
+                </span>
+              ) : null}
+            </div>
           ) : null}
         </div>
       </div>

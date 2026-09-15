@@ -11,6 +11,7 @@ import RegisterPagination, {
   REGISTER_PAGE_SIZE,
 } from "./components/RegisterPagination";
 import ManualPaymentDialog from "./components/invoiceDashboard/ManualPaymentDialog";
+import { getInvoiceAgeDays, getInvoicePaymentDays } from "../../utils/invoiceAge";
 
 const statusOptions = ["All statuses", "Paid", "Unpaid"];
 
@@ -40,6 +41,22 @@ function Items({ itemNames }) {
     <span title={itemNames.join(", ")}>
       {itemNames.join(", ")}
     </span>
+  );
+}
+
+function InvoiceStatus({ invoice }) {
+  const isPaid = invoice.paymentStatus === "Paid";
+  const days = isPaid
+    ? getInvoicePaymentDays(invoice.billDate, invoice.payments)
+    : getInvoiceAgeDays(invoice.billDate);
+
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <StatusBadge status={invoice.paymentStatus} />
+      <span className={`text-[11px] font-medium ${isPaid ? "text-emerald-700" : "text-rose-700"}`}>
+        {days === null ? "—" : `${days} ${days === 1 ? "day" : "days"}`}
+      </span>
+    </div>
   );
 }
 
@@ -251,6 +268,9 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
                   type={invoice.code}
                   amount={fmtINR(invoice.billAmount)}
                   status={invoice.paymentStatus}
+                  statusDays={invoice.paymentStatus === "Paid"
+                    ? getInvoicePaymentDays(invoice.billDate, invoice.payments)
+                    : undefined}
                   action={accessToken ? (
                     <button
                       type="button"
@@ -316,7 +336,7 @@ export default function InvoiceDashboard({ INVOICES_URL, context }) {
                         {fmtINR(invoice.billAmount)}
                       </td>
                       <td className="px-6 py-3.5 text-center">
-                        <StatusBadge status={invoice.paymentStatus} />
+                        <InvoiceStatus invoice={invoice} />
                       </td>
                       {accessToken ? (
                         <td className="px-6 py-3.5 text-right">

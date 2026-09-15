@@ -39,6 +39,7 @@ function groupByInvoice(transactions) {
         party: transaction.party,
         code: transaction.code,
         paymentStatus: transaction.paymentStatus,
+        statusDays: transaction.statusDays,
         items: [],
         totalAmount: 0,
         originalIndex: index,
@@ -50,6 +51,9 @@ function groupByInvoice(transactions) {
     invoice.totalAmount += Number(transaction.totalAmount) || 0;
     if (invoice.paymentStatus !== transaction.paymentStatus) {
       invoice.paymentStatus = null;
+    }
+    if (invoice.statusDays !== transaction.statusDays) {
+      invoice.statusDays = null;
     }
   });
 
@@ -216,7 +220,8 @@ export default function TransactionRegister({
                   <th className="px-5 py-3 text-right">Qty</th>
                   <th className="px-5 py-3 text-right">Amount</th>
                   <th className="px-5 py-3 text-center">Type</th>
-                  <th className="px-5 py-3 text-right">Details</th>
+                  <th className="px-5 py-3 text-center">Status</th>
+                  <th className="px-5 py-3 text-right">Items</th>
                 </tr>
               </thead>
               <tbody>
@@ -262,6 +267,7 @@ function TransactionCard({ transaction, fmtNumber, fmtINR }) {
       type={transaction.code}
       amount={fmtINR(transaction.totalAmount)}
       status={transaction.paymentStatus}
+      statusDays={transaction.statusDays}
     />
   );
 }
@@ -284,6 +290,7 @@ function GroupedInvoiceCard({
       type={invoice.code}
       amount={fmtINR(invoice.totalAmount)}
       status={invoice.paymentStatus}
+      statusDays={invoice.statusDays}
     >
       <div className="mt-3 flex justify-end">
         <button
@@ -325,6 +332,17 @@ function InvoiceRows({ invoice, expanded, onToggle, fmtNumber, fmtINR }) {
         <td className="px-5 py-3 text-center">
           <TransactionTypeBadge code={transaction.code} />
         </td>
+        {index === 0 ? (
+          <td
+            rowSpan={invoice.items.length}
+            className="px-3 py-3 text-center align-middle"
+          >
+            <TransactionStatus
+              status={invoice.paymentStatus}
+              days={invoice.statusDays}
+            />
+          </td>
+        ) : null}
         <td aria-hidden="true" />
       </tr>
     ));
@@ -347,6 +365,12 @@ function InvoiceRows({ invoice, expanded, onToggle, fmtNumber, fmtINR }) {
         <td className="px-5 py-3 text-center">
           <TransactionTypeBadge code={invoice.code} />
         </td>
+        <td className="px-3 py-3 text-center">
+          <TransactionStatus
+            status={invoice.paymentStatus}
+            days={invoice.statusDays}
+          />
+        </td>
         <td className="px-5 py-3 text-right">
           <button
             type="button"
@@ -354,13 +378,13 @@ function InvoiceRows({ invoice, expanded, onToggle, fmtNumber, fmtINR }) {
             aria-expanded={expanded}
             className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
           >
-            {expanded ? "Hide" : "View"}
+            {expanded ? "Hide items" : "View items"}
           </button>
         </td>
       </tr>
       {expanded && (
         <tr>
-          <td colSpan={7} className="bg-slate-50 p-0">
+          <td colSpan={8} className="bg-slate-50 p-0">
             <DesktopInvoiceItemLines
               items={invoice.items}
               fmtNumber={fmtNumber}
@@ -422,6 +446,7 @@ function DesktopInvoiceItemLines({ items, fmtNumber, fmtINR }) {
               </td>
               <td aria-hidden="true" />
               <td aria-hidden="true" />
+              <td aria-hidden="true" />
             </tr>
           ))}
         </tbody>
@@ -433,14 +458,39 @@ function DesktopInvoiceItemLines({ items, fmtNumber, fmtINR }) {
 function InvoiceTableColumns() {
   return (
     <>
+      <col style={{ width: "12%" }} />
       <col style={{ width: "13%" }} />
-      <col style={{ width: "15%" }} />
-      <col style={{ width: "27%" }} />
-      <col style={{ width: "11%" }} />
-      <col style={{ width: "14%" }} />
-      <col style={{ width: "9%" }} />
-      <col style={{ width: "11%" }} />
+      <col style={{ width: "22%" }} />
+      <col style={{ width: "10%" }} />
+      <col style={{ width: "12%" }} />
+      <col style={{ width: "8%" }} />
+      <col style={{ width: "13%" }} />
+      <col style={{ width: "10%" }} />
     </>
+  );
+}
+
+function TransactionStatus({ status, days }) {
+  if (!status) return <span className="text-slate-400">—</span>;
+
+  const badgeClass =
+    status === "Paid"
+      ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+      : "bg-rose-50 text-rose-700 ring-rose-200";
+  const daysClass = status === "Paid" ? "text-emerald-700" : "text-rose-700";
+  const showDays = days !== null && days !== undefined && Number.isFinite(Number(days));
+
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset ${badgeClass}`}>
+        {status}
+      </span>
+      {showDays ? (
+        <span className={`whitespace-nowrap text-[10px] font-medium ${daysClass}`}>
+          {days} {Number(days) === 1 ? "day" : "days"}
+        </span>
+      ) : null}
+    </div>
   );
 }
 

@@ -8,9 +8,21 @@ export default function ItemDetailSummary({
   context,
 }) {
   const quantityAction = context === "Sales" ? "Sold" : "Purchased";
+  const hasSingleUnit = summary.unit !== "Mixed units";
+  const pricePerUnit = hasSingleUnit && summary.pricePerUnit !== null
+    ? fmtINR(summary.pricePerUnit, 2)
+    : "—";
 
   return (
-    <section className="metric-group mb-6 grid grid-cols-2 lg:grid-cols-4" aria-label={`${context} item detail summary`}>
+    <section className="metric-group mb-6 grid grid-cols-2 lg:grid-cols-5" aria-label={`${context} item detail summary`}>
+      <StatCard
+        label={`Net ${context}`}
+        value={fmtCompact(summary.netAmount)}
+        sub="after returns"
+        exactValue={fmtINR(summary.netAmount)}
+        className="col-span-2 lg:col-span-1"
+        grouped
+      />
       <StatCard
         label={`Total ${context}`}
         value={fmtCompact(summary.grossAmount)}
@@ -27,15 +39,16 @@ export default function ItemDetailSummary({
         grouped
       />
       <StatCard
-        label={`Net ${context}`}
-        value={fmtCompact(summary.netAmount)}
-        sub="after returns"
-        exactValue={fmtINR(summary.netAmount)}
+        label={`Total Quantity ${quantityAction}`}
+        value={`${fmtNumber(summary.quantity, 2)} ${summary.unit}`}
         grouped
       />
       <StatCard
-        label={`Total Quantity ${quantityAction}`}
-        value={`${fmtNumber(summary.quantity, 2)} ${summary.unit}`}
+        label="Price per UOM"
+        value={pricePerUnit}
+        sub={hasSingleUnit ? `Gross sales per ${summary.unit}` : "Multiple units; rate unavailable"}
+        exactValue={summary.pricePerUnit === null ? undefined : fmtINR(summary.pricePerUnit, 2)}
+        tone="text-teal-700"
         grouped
       />
     </section>

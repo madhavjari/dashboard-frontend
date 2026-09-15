@@ -2,9 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import useAuthFetchOptions from "./authFetchOptions";
 import useFinancialYearUrl from "./reportUrl";
 import {
+  createInvoiceDetailsMap,
   createInvoiceStatusMap,
+  getInvoiceDetails,
   getInvoiceStatus,
 } from "../invoiceStatus";
+import { getInvoiceAgeDays, getInvoicePaymentDays } from "../invoiceAge";
 
 function getAveragePaymentDays(entries, party) {
   const partyName = String(party || "").trim().toUpperCase();
@@ -102,15 +105,32 @@ export default function usePartyData(PARTY_URL, party, OUTSTANDING_URL) {
           (entry) => String(entry.party || "").toUpperCase() === partyName,
         );
 
-        const invoiceStatusMap = createInvoiceStatusMap(
-          outstandingData.data ?? [],
+        const outstandingInvoices = outstandingData.data ?? [];
+        const invoiceStatusMap = createInvoiceStatusMap(outstandingInvoices);
+        const invoiceDetailsMap = createInvoiceDetailsMap(outstandingInvoices);
+        const nextTransactions = (Array.isArray(data.data) ? data.data : []).map(
+          (transaction) => {
+            const paymentStatus = getInvoiceStatus(
+              invoiceStatusMap,
+              transaction,
+            );
+            const invoiceDetails = getInvoiceDetails(
+              invoiceDetailsMap,
+              transaction,
+            );
+            const statusDays =
+              paymentStatus === "Paid"
+                ? getInvoicePaymentDays(
+                    invoiceDetails?.billDate,
+                    invoiceDetails?.payments,
+                  )
+                : paymentStatus === "Unpaid"
+                  ? getInvoiceAgeDays(transaction.billDate)
+                  : null;
+
+            return { ...transaction, paymentStatus, statusDays };
+          },
         );
-        const nextTransactions = (
-          Array.isArray(data.data) ? data.data : []
-        ).map((transaction) => ({
-          ...transaction,
-          paymentStatus: getInvoiceStatus(invoiceStatusMap, transaction),
-        }));
         const nextSummary = data.summary?.[0] ?? null;
 
         setTransactions(nextTransactions);
