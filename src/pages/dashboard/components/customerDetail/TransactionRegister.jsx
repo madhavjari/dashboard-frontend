@@ -98,6 +98,7 @@ export default function TransactionRegister({
   fmtINR,
 }) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [unpaidOnly, setUnpaidOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedInvoice, setExpandedInvoice] = useState(null);
 
@@ -108,10 +109,16 @@ export default function TransactionRegister({
   const searchTerm = searchQuery.trim().toLowerCase();
   const filteredInvoices = useMemo(
     () =>
-      invoiceGroups.filter((invoice) =>
-        invoiceMatchesSearch(invoice, searchTerm),
+      invoiceGroups.filter(
+        (invoice) =>
+          (!unpaidOnly || invoice.paymentStatus === "Unpaid") &&
+          invoiceMatchesSearch(invoice, searchTerm),
       ),
-    [invoiceGroups, searchTerm],
+    [invoiceGroups, searchTerm, unpaidOnly],
+  );
+  const filteredLineItemCount = filteredInvoices.reduce(
+    (total, invoice) => total + invoice.items.length,
+    0,
   );
   const totalPages = Math.max(
     1,
@@ -139,9 +146,19 @@ export default function TransactionRegister({
     setExpandedInvoice(null);
   }
 
-  const emptyMessage = invoiceGroups.length
-    ? "No invoices match your search."
-    : "No transactions available.";
+  function changeUnpaidOnly(event) {
+    setUnpaidOnly(event.target.checked);
+    setCurrentPage(1);
+    setExpandedInvoice(null);
+  }
+
+  const emptyMessage = !invoiceGroups.length
+    ? "No transactions available."
+    : unpaidOnly
+      ? searchTerm
+        ? "No unpaid invoices match your search."
+        : "No unpaid invoices."
+      : "No invoices match your search.";
 
   return (
     <section className="surface-card overflow-hidden">
@@ -152,21 +169,35 @@ export default function TransactionRegister({
               Transaction Register
             </h3>
             <p className="mt-0.5 text-xs text-slate-500">
-              {invoiceGroups.length}{" "}
-              {invoiceGroups.length === 1 ? "invoice" : "invoices"} ·{" "}
-              {transactions.length} line items
+              {filteredInvoices.length} of {invoiceGroups.length} invoices ·{" "}
+              {filteredLineItemCount} line items shown
             </p>
           </div>
-          <label className="block w-full sm:w-72">
-            <span className="sr-only">Search invoices or items</span>
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={changeSearch}
-              placeholder="Search invoice or item"
-              className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-600 focus:ring-3 focus:ring-teal-100"
-            />
-          </label>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <label className="block w-full sm:w-72">
+              <span className="sr-only">Search invoices or items</span>
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={changeSearch}
+                placeholder="Search invoice or item"
+                className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-600 focus:ring-3 focus:ring-teal-100"
+              />
+            </label>
+            <label className="inline-flex h-10 w-fit cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700">
+              <input
+                type="checkbox"
+                checked={unpaidOnly}
+                onChange={changeUnpaidOnly}
+                className="peer sr-only"
+              />
+              <span
+                aria-hidden="true"
+                className="relative h-5 w-9 rounded-full bg-slate-300 transition-colors duration-200 after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform after:duration-200 after:content-[''] peer-checked:bg-teal-600 peer-checked:after:translate-x-4 peer-focus-visible:ring-2 peer-focus-visible:ring-teal-600 peer-focus-visible:ring-offset-2"
+              />
+              Unpaid only
+            </label>
+          </div>
         </div>
       </div>
 
