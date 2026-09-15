@@ -9,6 +9,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Link } from "react-router";
+import Logo from "../../components/ui/Logo";
 import useAuth from "../../config/useAuth";
 import { API_BASE_URL } from "../../config/reportUrls";
 
@@ -259,9 +260,7 @@ export default function SyncSetupPage() {
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-10 sm:px-6">
       <div className="mx-auto max-w-3xl">
-        <Link to="/" className="text-xl font-bold tracking-tight text-slate-950">
-          Prana
-        </Link>
+        <Logo />
 
         <header className="mt-10">
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-teal-700">

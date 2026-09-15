@@ -1,6 +1,7 @@
-import { ArrowRight, Gem, LogOut } from "lucide-react";
+import { ArrowRight, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { AUTH_BASE_URL } from "./config/reportUrls";
+import Logo from "./components/ui/Logo";
 
 const navigation = [
   { label: "Product", href: "#product" },
@@ -30,10 +31,7 @@ export default function Navbar({ userId, updateAccessToken }) {
   return (
     <nav className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur" aria-label="Primary navigation">
       <div className="mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="Prana home">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-700 text-white shadow-sm"><Gem size={18} aria-hidden="true" /></span>
-          <span className="text-lg font-bold tracking-tight text-slate-950">Prana</span>
-        </Link>
+        <Logo />
 
         <div className="ml-10 hidden items-center gap-1 lg:flex">
           {navigation.map((item) => (

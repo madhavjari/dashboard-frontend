@@ -1,14 +1,14 @@
 import {
   BarChart3,
   CircleDollarSign,
-  Gem,
   LayoutDashboard,
   KeyRound,
   LogOut,
   Menu,
   ReceiptText,
 } from "lucide-react";
-import { Link, NavLink, useLocation } from "react-router";
+import { NavLink, useLocation } from "react-router";
+import Logo from "../../../../components/ui/Logo";
 
 const sections = [
   {
@@ -112,17 +112,12 @@ export default function DashboardSidebar({
         }`}
       >
         <div className="flex items-start justify-between gap-3 px-5 py-5">
-          <Link
-            to="/"
+          <Logo
             onClick={handleNavigation}
-            className="flex min-w-0 items-center gap-3"
-          >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-500 text-white"><Gem size={18} /></span>
-            <span className={isOpen ? "min-w-0" : "lg:hidden"}>
-              <span className="block text-lg font-bold tracking-tight text-white">Prana</span>
-              <span className="mt-0.5 block truncate text-[11px] text-slate-400">Business workspace</span>
-            </span>
-          </Link>
+            compact={!isOpen}
+            inverse
+            tagline="Business workspace"
+          />
           <button
             type="button"
             onClick={onToggle}

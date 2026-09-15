@@ -5,12 +5,12 @@ import {
   EyeOff,
   CheckCircle2,
   Mail,
-  LayoutDashboard,
   LockKeyhole,
 } from "lucide-react";
 import { Link } from "react-router";
 
 import Input from "../../components/ui/Input";
+import Logo from "../../components/ui/Logo";
 import { AUTH_BASE_URL } from "../../config/reportUrls";
 
 function FieldErrors({ id, errors }) {
@@ -108,19 +108,10 @@ export default function SignupForm() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-8">
       <div className="w-full max-w-xl">
-        <Link to="/" className="mb-6 flex items-center justify-center gap-3">
-          <span className="rounded-lg bg-slate-950 p-2 text-white">
-            <LayoutDashboard aria-hidden="true" size={20} />
-          </span>
-          <span>
-            <span className="block text-lg font-bold tracking-tight text-slate-950">
-              Prana
-            </span>
-            <span className="block text-xs text-slate-500">
-              Breathing Life into Businesses
-            </span>
-          </span>
-        </Link>
+        <Logo
+          className="mb-6 justify-center"
+          tagline="Breathing Life into Businesses"
+        />
 
         <section className="rounded-2xl border border-gray-100 bg-white p-8 shadow-xl">
           <header className="mb-8">
