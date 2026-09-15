@@ -1,5 +1,15 @@
 export const dashboardRoutes = [
   { path: "dashboard-summary", page: "business-summary" },
+  {
+    path: "profit-estimator",
+    page: "profit-estimator",
+    estimatorView: "yearly",
+  },
+  {
+    path: "profit-estimator/itemwise",
+    page: "profit-estimator",
+    estimatorView: "itemwise",
+  },
   { path: "sales-dashboard", page: "summary", reportType: "sales" },
   { path: "sales-itemwise-dashboard", page: "items", reportType: "sales" },
   { path: "sales-invoices", page: "invoices", reportType: "sales" },

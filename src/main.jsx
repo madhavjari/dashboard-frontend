@@ -27,9 +27,15 @@ function RouteFallback() {
 }
 
 function createDashboardChildren() {
-  return dashboardRoutes.map(({ path, page, reportType }) => ({
+  return dashboardRoutes.map(({ path, page, reportType, estimatorView }) => ({
     path,
-    element: <DashboardPage page={page} reportType={reportType} />,
+    element: (
+      <DashboardPage
+        page={page}
+        reportType={reportType}
+        estimatorView={estimatorView}
+      />
+    ),
   }));
 }
 

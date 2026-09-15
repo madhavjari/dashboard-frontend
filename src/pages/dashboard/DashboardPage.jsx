@@ -1,5 +1,7 @@
+import { lazy, Suspense } from "react";
 import { reports } from "../../config/reports";
 import useData from "../../utils/fetch/useData";
+import Loading from "../../components/dashboard/Loading";
 import BusinessSummaryPage from "./BusinessSummaryPage";
 import PartyDetailPage from "./PartyDetailPage";
 import ItemDashboard from "./ItemDashboard";
@@ -8,7 +10,9 @@ import OutstandingDashboard from "./OutstandingDashboard";
 import InvoiceDashboard from "./InvoiceDashboard";
 import SummaryDashboard from "./SummaryDashboard";
 
-export default function DashboardPage({ page, reportType }) {
+const ProfitEstimator = lazy(() => import("./ProfitEstimator"));
+
+export default function DashboardPage({ page, reportType, estimatorView }) {
   if (page === "business-summary") {
     return (
       <BusinessSummaryPage
@@ -19,6 +23,26 @@ export default function DashboardPage({ page, reportType }) {
           purchaseOutstandingUrl: reports.purchase.outstandingUrl,
         }}
       />
+    );
+  }
+
+  if (page === "profit-estimator") {
+    return (
+      <Suspense
+        fallback={
+          <Loading
+            header="Profit estimator"
+            message="Preparing profit estimator..."
+          />
+        }
+      >
+        <ProfitEstimator
+          salesSummaryUrl={reports.sales.summaryUrl}
+          purchaseSummaryUrl={reports.purchase.summaryUrl}
+          salesItemsUrl={reports.sales.itemsUrl}
+          view={estimatorView}
+        />
+      </Suspense>
     );
   }
 

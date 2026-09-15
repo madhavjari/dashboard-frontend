@@ -26,6 +26,31 @@ function createIdempotencyKey() {
 
 const fieldClass =
   "mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-teal-600 focus:ring-3 focus:ring-teal-100";
+const paymentDayPresets = [30, 40, 45, 60, 90, 120, 150];
+
+function addDaysToBillDate(value, days) {
+  const dateParts = String(value ?? "").match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (String(days ?? "").trim() === "") return "";
+  const dayCount = Number(days);
+  if (
+    !dateParts ||
+    !Number.isInteger(dayCount) ||
+    dayCount < 0 ||
+    dayCount > 36500
+  ) {
+    return "";
+  }
+
+  return new Date(
+    Date.UTC(
+      Number(dateParts[1]),
+      Number(dateParts[2]) - 1,
+      Number(dateParts[3]) + dayCount,
+    ),
+  )
+    .toISOString()
+    .slice(0, 10);
+}
 
 export default function ManualPaymentDialog({
   accessToken,
@@ -38,6 +63,9 @@ export default function ManualPaymentDialog({
   const [intent, setIntent] = useState("FULL");
   const [amount, setAmount] = useState("");
   const [paymentDate, setPaymentDate] = useState(todayInIndia);
+  const [paymentDateMode, setPaymentDateMode] = useState("date");
+  const [daysAfterBill, setDaysAfterBill] = useState("30");
+  const [customDays, setCustomDays] = useState("");
   const [mode, setMode] = useState("");
   const [chequeNo, setChequeNo] = useState("");
   const [referenceNo, setReferenceNo] = useState("");
@@ -51,6 +79,14 @@ export default function ManualPaymentDialog({
     () => (invoice.payments ?? []).filter((payment) => payment.source === "MANUAL"),
     [invoice.payments],
   );
+  const selectedDayCount =
+    daysAfterBill === "custom" ? customDays : daysAfterBill;
+  const calculatedPaymentDate = addDaysToBillDate(
+    invoice.billDate,
+    selectedDayCount,
+  );
+  const resolvedPaymentDate =
+    paymentDateMode === "days" ? calculatedPaymentDate : paymentDate;
 
   useEffect(() => {
     function handleKeyDown(event) {
@@ -63,6 +99,14 @@ export default function ManualPaymentDialog({
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
+    if (!resolvedPaymentDate) {
+      setError(
+        paymentDateMode === "days"
+          ? "Enter a valid number of days after the bill date."
+          : "Choose a payment date.",
+      );
+      return;
+    }
     setSubmitting(true);
 
     try {
@@ -74,7 +118,7 @@ export default function ManualPaymentDialog({
         billNo: String(invoice.billNo),
         intent,
         amount: intent === "PARTIAL" ? amount : null,
-        paymentDate,
+        paymentDate: resolvedPaymentDate,
         mode,
         chequeNo,
         referenceNo,
@@ -238,19 +282,109 @@ export default function ManualPaymentDialog({
               ) : null}
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <label className="block text-sm font-semibold text-slate-700">
-                  Payment date
-                  <span className="relative block">
-                    <CalendarDays className="pointer-events-none absolute left-3 top-1/2 mt-0.5 -translate-y-1/2 text-slate-400" size={16} />
-                    <input
-                      required
-                      type="date"
-                      value={paymentDate}
-                      onChange={(event) => setPaymentDate(event.target.value)}
-                      className={`${fieldClass} pl-9`}
-                    />
-                  </span>
-                </label>
+                <fieldset className="sm:col-span-2">
+                  <legend className="text-sm font-semibold text-slate-700">
+                    Payment date
+                  </legend>
+                  <div className="mt-2 grid max-w-md grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentDateMode("date")}
+                      aria-pressed={paymentDateMode === "date"}
+                      className={`rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+                        paymentDateMode === "date"
+                          ? "border-teal-600 bg-teal-50 text-teal-800"
+                          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      Choose a date
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentDateMode("days")}
+                      aria-pressed={paymentDateMode === "days"}
+                      className={`rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+                        paymentDateMode === "days"
+                          ? "border-teal-600 bg-teal-50 text-teal-800"
+                          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      Days after bill
+                    </button>
+                  </div>
+
+                  {paymentDateMode === "date" ? (
+                    <label className="mt-3 block max-w-sm text-sm font-semibold text-slate-700">
+                      Custom payment date
+                      <span className="relative block">
+                        <CalendarDays className="pointer-events-none absolute left-3 top-1/2 mt-0.5 -translate-y-1/2 text-slate-400" size={16} />
+                        <input
+                          required
+                          type="date"
+                          value={paymentDate}
+                          onChange={(event) => setPaymentDate(event.target.value)}
+                          className={`${fieldClass} pl-9`}
+                        />
+                      </span>
+                    </label>
+                  ) : (
+                    <div className="mt-3">
+                      <p className="text-xs font-medium text-slate-600">
+                        Choose how many days after the bill the payment was made.
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {paymentDayPresets.map((days) => (
+                          <button
+                            key={days}
+                            type="button"
+                            onClick={() => setDaysAfterBill(String(days))}
+                            aria-pressed={daysAfterBill === String(days)}
+                            className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${
+                              daysAfterBill === String(days)
+                                ? "border-teal-600 bg-teal-50 text-teal-800"
+                                : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                            }`}
+                          >
+                            {days} days
+                          </button>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => setDaysAfterBill("custom")}
+                          aria-pressed={daysAfterBill === "custom"}
+                          className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${
+                            daysAfterBill === "custom"
+                              ? "border-teal-600 bg-teal-50 text-teal-800"
+                              : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                          }`}
+                        >
+                          Custom days
+                        </button>
+                      </div>
+                      {daysAfterBill === "custom" ? (
+                        <label className="mt-3 block max-w-xs text-sm font-semibold text-slate-700">
+                          Days after bill date
+                          <input
+                            required
+                            type="number"
+                            min="0"
+                            max="36500"
+                            step="1"
+                            value={customDays}
+                            onChange={(event) => setCustomDays(event.target.value)}
+                            className={fieldClass}
+                            placeholder="Enter number of days"
+                          />
+                        </label>
+                      ) : null}
+                      <p className="mt-2 text-xs text-slate-600">
+                        {calculatedPaymentDate
+                          ? `Payment date: ${fmtDateIN(calculatedPaymentDate)}`
+                          : "Enter a valid number of days to calculate the payment date."}
+                      </p>
+                    </div>
+                  )}
+                </fieldset>
                 <label className="block text-sm font-semibold text-slate-700">
                   Mode <span className="font-normal text-slate-400">(optional)</span>
                   <input

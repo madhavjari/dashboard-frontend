@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  Calculator,
   CircleDollarSign,
   LayoutDashboard,
   KeyRound,
@@ -37,6 +38,14 @@ const sections = [
       { label: "Payables", to: "/purchase-outstanding-dashboard" },
     ],
   },
+  {
+    label: "Profit estimator",
+    icon: Calculator,
+    items: [
+      { label: "Itemwise", to: "/profit-estimator/itemwise" },
+      { label: "Yearly", to: "/profit-estimator" },
+    ],
+  },
 ];
 
 function SidebarSection({
@@ -62,6 +71,7 @@ function SidebarSection({
             <NavLink
               key={item.to}
               to={`${routePrefix}${item.to}`}
+              end
               onClick={onNavigate}
               className={({ isActive }) =>
                 `block min-h-9 rounded-md px-3 py-2 text-sm font-medium transition ${

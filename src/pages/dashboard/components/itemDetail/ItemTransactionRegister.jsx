@@ -89,18 +89,11 @@ export default function ItemTransactionRegister({
       >
         {visible.length ? (
           visible.map((transaction, index) => (
-            <InvoiceCard
+            <ItemInvoiceCard
               key={`${transaction.billNo}-${startIndex + index}`}
-              invoiceNumber={transaction.billNo}
-              billDate={transaction.billDate}
-              date={fmtDateIN(transaction.billDate)}
-              title={transaction.party}
-              subtitle={transaction.itemName}
-              quantity={`${fmtNumber(getNumericQuantityForUnit(transaction), 1)} ${getUnitLabel(transaction.per)}`}
-              type={transaction.code}
-              amount={fmtINR(transaction.totalAmount)}
-              status={transaction.paymentStatus}
-              statusDays={transaction.statusDays}
+              transaction={transaction}
+              fmtNumber={fmtNumber}
+              fmtINR={fmtINR}
             />
           ))
         ) : (
@@ -142,6 +135,10 @@ export default function ItemTransactionRegister({
                   </td>
                   <td className="px-5 py-3 text-right font-mono-num font-semibold text-slate-950">
                     {fmtINR(transaction.totalAmount)}
+                    <TransactionRate
+                      transaction={transaction}
+                      fmtINR={fmtINR}
+                    />
                   </td>
                   <td className="px-5 py-3 text-center">
                     <TransactionTypeBadge code={transaction.code} />
@@ -178,6 +175,46 @@ export default function ItemTransactionRegister({
         />
       ) : null}
     </section>
+  );
+}
+
+function getTransactionRate(transaction) {
+  const quantity = getNumericQuantityForUnit(transaction);
+  const hasTaxableAmount =
+    transaction.taxableAmount !== null &&
+    transaction.taxableAmount !== undefined;
+
+  if (!hasTaxableAmount || quantity <= 0) return null;
+  return Number(transaction.taxableAmount) / quantity;
+}
+
+function TransactionRate({ transaction, fmtINR }) {
+  const rate = getTransactionRate(transaction);
+  if (rate === null || !Number.isFinite(rate)) return null;
+
+  return (
+    <span className="mt-0.5 block text-[10px] font-medium text-slate-500">
+      {fmtINR(rate, 2)}/{getUnitLabel(transaction.per)} ex GST
+    </span>
+  );
+}
+
+function ItemInvoiceCard({ transaction, fmtNumber, fmtINR }) {
+  return (
+    <InvoiceCard
+      invoiceNumber={transaction.billNo}
+      billDate={transaction.billDate}
+      date={fmtDateIN(transaction.billDate)}
+      title={transaction.party}
+      subtitle={transaction.itemName}
+      quantity={`${fmtNumber(getNumericQuantityForUnit(transaction), 1)} ${getUnitLabel(transaction.per)}`}
+      type={transaction.code}
+      amount={fmtINR(transaction.totalAmount)}
+      status={transaction.paymentStatus}
+      statusDays={transaction.statusDays}
+    >
+      <TransactionRate transaction={transaction} fmtINR={fmtINR} />
+    </InvoiceCard>
   );
 }
 

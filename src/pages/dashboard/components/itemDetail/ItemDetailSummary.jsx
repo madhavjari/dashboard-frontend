@@ -44,9 +44,9 @@ export default function ItemDetailSummary({
         grouped
       />
       <StatCard
-        label="Price per UOM"
+        label="Price per UOM · ex GST"
         value={pricePerUnit}
-        sub={hasSingleUnit ? `Gross sales per ${summary.unit}` : "Multiple units; rate unavailable"}
+        sub={hasSingleUnit ? `Average before GST per ${summary.unit}` : "Multiple units; rate unavailable"}
         exactValue={summary.pricePerUnit === null ? undefined : fmtINR(summary.pricePerUnit, 2)}
         tone="text-teal-700"
         grouped

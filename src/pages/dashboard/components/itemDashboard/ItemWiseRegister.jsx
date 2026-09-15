@@ -216,10 +216,10 @@ export default function ItemWiseRegister({
                   }
                 />
                 <Value
-                  label="Net rate (inc. GST)"
+                  label="Avg. rate (ex GST)"
                   value={
-                    item.quantity > 0
-                      ? fmtINR(item.transaction / item.quantity, 2)
+                    item.quantity > 0 && item.taxableAmount !== null
+                      ? fmtINR(item.taxableAmount / item.quantity, 2)
                       : "—"
                   }
                 />
@@ -256,7 +256,7 @@ export default function ItemWiseRegister({
                 </th>
               ))}
               <th className="px-4 py-3 text-right">Share</th>
-              <th className="px-4 py-3 text-right">Net rate (inc. GST)</th>
+              <th className="px-4 py-3 text-right">Avg. rate (ex GST)</th>
               <th className="w-12 px-3 py-3">
                 <span className="sr-only">Actions</span>
               </th>
@@ -297,8 +297,8 @@ export default function ItemWiseRegister({
                       <ShareValue value={share} />
                     </td>
                     <td className="px-4 py-3.5 text-right font-mono-num text-slate-600">
-                      {item.quantity > 0
-                        ? fmtINR(item.transaction / item.quantity, 2)
+                      {item.quantity > 0 && item.taxableAmount !== null
+                        ? fmtINR(item.taxableAmount / item.quantity, 2)
                         : "—"}
                     </td>
                     <td className="px-3 py-3.5">

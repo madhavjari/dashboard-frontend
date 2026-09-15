@@ -35,6 +35,9 @@ function buildSummary(transactions) {
     (summary, transaction) => {
       const isReturn = transaction.code.endsWith("R");
       const amount = toNumber(transaction.totalAmount);
+      const hasTaxableAmount =
+        transaction.taxableAmount !== null &&
+        transaction.taxableAmount !== undefined;
 
       if (isReturn) {
         summary.returnAmount += amount;
@@ -42,6 +45,10 @@ function buildSummary(transactions) {
       }
 
       summary.grossAmount += amount;
+      summary.grossTaxableAmount =
+        summary.grossTaxableAmount !== null && hasTaxableAmount
+          ? summary.grossTaxableAmount + toNumber(transaction.taxableAmount)
+          : null;
       if (!hasMixedUnits) {
         summary.quantity += getNumericQuantityForUnit(transaction);
         summary.unit = getUnitLabel(transaction.per);
@@ -50,6 +57,7 @@ function buildSummary(transactions) {
     },
     {
       grossAmount: 0,
+      grossTaxableAmount: 0,
       returnAmount: 0,
       netAmount: 0,
       quantity: 0,
@@ -74,9 +82,10 @@ export default function ItemDetailPage({ ITEM_URL, OUTSTANDING_URL, context }) {
   const summary = useMemo(() => {
     const itemSummary = buildSummary(transactions);
     itemSummary.netAmount = itemSummary.grossAmount - itemSummary.returnAmount;
-    itemSummary.pricePerUnit = itemSummary.quantity
-      ? itemSummary.grossAmount / itemSummary.quantity
-      : null;
+    itemSummary.pricePerUnit =
+      itemSummary.quantity && itemSummary.grossTaxableAmount !== null
+        ? itemSummary.grossTaxableAmount / itemSummary.quantity
+        : null;
     return itemSummary;
   }, [transactions]);
 

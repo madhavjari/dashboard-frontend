@@ -33,6 +33,10 @@ export default function ItemDashboard({ ITEMS_URL, context }) {
     () =>
       topItems.map((item) => {
         const transaction = toNum(item.transaction);
+        const taxableAmount =
+          item.taxableAmount === null || item.taxableAmount === undefined
+            ? null
+            : toNum(item.taxableAmount);
         const per = item.per || "p";
         const quantity = isMixedUnit(per)
           ? null
@@ -42,6 +46,7 @@ export default function ItemDashboard({ ITEMS_URL, context }) {
         return {
           name: item.itemName,
           transaction,
+          taxableAmount,
           per,
           quantity,
           category,
