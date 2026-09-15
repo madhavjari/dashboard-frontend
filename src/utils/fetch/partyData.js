@@ -127,8 +127,20 @@ export default function usePartyData(PARTY_URL, party, OUTSTANDING_URL) {
                 : paymentStatus === "Unpaid"
                   ? getInvoiceAgeDays(transaction.billDate)
                   : null;
+            const invoiceOutstandingAmount = Math.max(
+              0,
+              Number(
+                invoiceDetails?.amountToCollect ??
+                  invoiceDetails?.amountToPay,
+              ) || 0,
+            );
 
-            return { ...transaction, paymentStatus, statusDays };
+            return {
+              ...transaction,
+              paymentStatus,
+              statusDays,
+              invoiceOutstandingAmount,
+            };
           },
         );
         const nextSummary = data.summary?.[0] ?? null;

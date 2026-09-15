@@ -40,6 +40,7 @@ function groupByInvoice(transactions) {
         code: transaction.code,
         paymentStatus: transaction.paymentStatus,
         statusDays: transaction.statusDays,
+        outstandingAmount: transaction.invoiceOutstandingAmount,
         items: [],
         totalAmount: 0,
         originalIndex: index,
@@ -57,15 +58,21 @@ function groupByInvoice(transactions) {
     }
   });
 
-  return Array.from(invoices.values()).sort((first, second) => {
+  const orderedInvoices = Array.from(invoices.values()).sort((first, second) => {
     const firstTime = new Date(first.billDate).getTime();
     const secondTime = new Date(second.billDate).getTime();
 
     if (Number.isFinite(firstTime) && Number.isFinite(secondTime)) {
-      return secondTime - firstTime;
+      return firstTime - secondTime;
     }
 
     return first.originalIndex - second.originalIndex;
+  });
+
+  let runningBalance = 0;
+  return orderedInvoices.map((invoice) => {
+    runningBalance += Math.max(0, Number(invoice.outstandingAmount) || 0);
+    return { ...invoice, runningBalance };
   });
 }
 
@@ -190,6 +197,7 @@ export default function TransactionRegister({
                   <TransactionCard
                     key={[invoice.key, index].join("-")}
                     transaction={transaction}
+                    runningBalance={index === 0 ? invoice.runningBalance : null}
                     fmtNumber={fmtNumber}
                     fmtINR={fmtINR}
                   />
@@ -208,7 +216,7 @@ export default function TransactionRegister({
           </div>
 
           <div className="table-scroll hidden max-h-[42rem] overflow-auto md:block">
-            <table className="w-full table-fixed text-sm">
+            <table className="w-full min-w-[1100px] table-fixed text-sm">
               <colgroup>
                 <InvoiceTableColumns />
               </colgroup>
@@ -221,6 +229,7 @@ export default function TransactionRegister({
                   <th className="px-5 py-3 text-right">Amount</th>
                   <th className="px-5 py-3 text-center">Type</th>
                   <th className="px-5 py-3 text-center">Status</th>
+                  <th className="px-5 py-3 text-right">Running balance</th>
                   <th className="px-5 py-3 text-right">Items</th>
                 </tr>
               </thead>
@@ -255,7 +264,7 @@ export default function TransactionRegister({
   );
 }
 
-function TransactionCard({ transaction, fmtNumber, fmtINR }) {
+function TransactionCard({ transaction, runningBalance, fmtNumber, fmtINR }) {
   return (
     <InvoiceCard
       invoiceNumber={transaction.billNo}
@@ -268,6 +277,11 @@ function TransactionCard({ transaction, fmtNumber, fmtINR }) {
       amount={fmtINR(transaction.totalAmount)}
       status={transaction.paymentStatus}
       statusDays={transaction.statusDays}
+      runningBalance={
+        runningBalance === null || runningBalance === undefined
+          ? undefined
+          : fmtINR(runningBalance)
+      }
     />
   );
 }
@@ -291,6 +305,7 @@ function GroupedInvoiceCard({
       amount={fmtINR(invoice.totalAmount)}
       status={invoice.paymentStatus}
       statusDays={invoice.statusDays}
+      runningBalance={fmtINR(invoice.runningBalance)}
     >
       <div className="mt-3 flex justify-end">
         <button
@@ -333,15 +348,23 @@ function InvoiceRows({ invoice, expanded, onToggle, fmtNumber, fmtINR }) {
           <TransactionTypeBadge code={transaction.code} />
         </td>
         {index === 0 ? (
-          <td
-            rowSpan={invoice.items.length}
-            className="px-3 py-3 text-center align-middle"
-          >
-            <TransactionStatus
-              status={invoice.paymentStatus}
-              days={invoice.statusDays}
-            />
-          </td>
+          <>
+            <td
+              rowSpan={invoice.items.length}
+              className="px-3 py-3 text-center align-middle"
+            >
+              <TransactionStatus
+                status={invoice.paymentStatus}
+                days={invoice.statusDays}
+              />
+            </td>
+            <td
+              rowSpan={invoice.items.length}
+              className="whitespace-nowrap px-4 py-3 text-right align-middle font-mono-num text-xs font-semibold text-slate-800"
+            >
+              {fmtINR(invoice.runningBalance)}
+            </td>
+          </>
         ) : null}
         <td aria-hidden="true" />
       </tr>
@@ -371,6 +394,9 @@ function InvoiceRows({ invoice, expanded, onToggle, fmtNumber, fmtINR }) {
             days={invoice.statusDays}
           />
         </td>
+        <td className="whitespace-nowrap px-4 py-3 text-right font-mono-num text-xs font-semibold text-slate-800">
+          {fmtINR(invoice.runningBalance)}
+        </td>
         <td className="px-5 py-3 text-right">
           <button
             type="button"
@@ -384,7 +410,7 @@ function InvoiceRows({ invoice, expanded, onToggle, fmtNumber, fmtINR }) {
       </tr>
       {expanded && (
         <tr>
-          <td colSpan={8} className="bg-slate-50 p-0">
+          <td colSpan={9} className="bg-slate-50 p-0">
             <DesktopInvoiceItemLines
               items={invoice.items}
               fmtNumber={fmtNumber}
@@ -447,6 +473,7 @@ function DesktopInvoiceItemLines({ items, fmtNumber, fmtINR }) {
               <td aria-hidden="true" />
               <td aria-hidden="true" />
               <td aria-hidden="true" />
+              <td aria-hidden="true" />
             </tr>
           ))}
         </tbody>
@@ -459,12 +486,13 @@ function InvoiceTableColumns() {
   return (
     <>
       <col style={{ width: "12%" }} />
-      <col style={{ width: "13%" }} />
-      <col style={{ width: "22%" }} />
-      <col style={{ width: "10%" }} />
+      <col style={{ width: "11%" }} />
+      <col style={{ width: "17%" }} />
+      <col style={{ width: "9%" }} />
+      <col style={{ width: "11%" }} />
+      <col style={{ width: "7%" }} />
       <col style={{ width: "12%" }} />
-      <col style={{ width: "8%" }} />
-      <col style={{ width: "13%" }} />
+      <col style={{ width: "11%" }} />
       <col style={{ width: "10%" }} />
     </>
   );

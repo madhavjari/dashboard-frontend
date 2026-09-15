@@ -23,6 +23,7 @@ export default function InvoiceCard({
   status,
   unpaidDays,
   statusDays,
+  runningBalance,
   children,
   action,
 }) {
@@ -68,9 +69,16 @@ export default function InvoiceCard({
       {children ? <div className="mt-2">{children}</div> : null}
 
       <div className="mt-3 flex items-end justify-between gap-2">
-        <p className="font-mono-num text-lg font-bold tracking-tight text-slate-950">
-          {amount}
-        </p>
+        <div className="min-w-0">
+          <p className="font-mono-num text-lg font-bold tracking-tight text-slate-950">
+            {amount}
+          </p>
+          {runningBalance !== null && runningBalance !== undefined ? (
+            <p className="mt-1 text-[10px] font-semibold text-slate-500">
+              Running balance: {runningBalance}
+            </p>
+          ) : null}
+        </div>
         <div className="flex flex-col items-end gap-1">
           {action ? action : null}
           {status ? (
